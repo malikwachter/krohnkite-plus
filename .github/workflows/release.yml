@@ -1,0 +1,82 @@
+# Every push to master (a merge from a development branch) is a release:
+# build the script and the animation effect, then publish them together with
+# install.sh and a changelog of everything since the previous release.
+name: Release
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch upstream Kröhnkite (to tell its commits apart from ours)
+        run: |
+          git fetch --no-tags https://codeberg.org/anametologin/Krohnkite.git master:refs/remotes/upstream/master
+          git fetch --no-tags https://github.com/anametologin/krohnkite.git master:refs/remotes/origin/master
+
+      - name: Pick version
+        id: ver
+        run: |
+          if tag="$(git tag --points-at HEAD --list 'plus[0-9]*' | head -1)" && [ -n "$tag" ]; then
+            echo "HEAD is already released as $tag"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          prev="$(git describe --tags --abbrev=0 --match 'plus[0-9]*' HEAD 2>/dev/null || true)"
+          last="$(git tag --list 'plus[0-9]*' | sed 's/^plus//' | sort -n | tail -1)"
+          # plus18 and older were private builds
+          next=$(( ${last:-18} + 1 ))
+          echo "version=plus$next" >> "$GITHUB_OUTPUT"
+          echo "prev=$prev" >> "$GITHUB_OUTPUT"
+          echo "base=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+          echo "Releasing plus$next (previous: ${prev:-none})"
+
+      - name: Test
+        if: steps.ver.outputs.skip != 'true'
+        run: |
+          npm ci || npm install
+          npm test
+
+      - name: Build
+        if: steps.ver.outputs.skip != 'true'
+        run: |
+          make package PROJECT_VER=${{ steps.ver.outputs.version }}
+          git checkout -- package.json
+          ls -l krohnkite-*.kwinscript krohnkite-smooth-*.zip
+
+      - name: Release notes
+        if: steps.ver.outputs.skip != 'true'
+        run: |
+          tools/release-notes.sh "${{ steps.ver.outputs.version }}" "${{ steps.ver.outputs.prev }}" \
+            upstream/master origin/master > notes.md
+          cat notes.md
+
+      - name: Publish
+        if: steps.ver.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.ver.outputs.version }}"
+          gh release create "$v" --target "$GITHUB_SHA" \
+            --title "Kröhnkite-Plus $v (Kröhnkite ${{ steps.ver.outputs.base }})" \
+            --notes-file notes.md \
+            "krohnkite-$v.kwinscript" "krohnkite-smooth-$v.zip" install.sh

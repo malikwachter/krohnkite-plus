@@ -98,6 +98,12 @@ Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Kröhnkite-
 
 Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login and after a settings change. Delete the file to start fresh.
 
+## Releases
+
+Ready-made files are on the [releases page](https://github.com/malikwachter/krohnkite-plus/releases). Download the `.kwinscript`, the `krohnkite-smooth-*.zip` and `install.sh` into one folder and run `bash install.sh`.
+
+Development happens in branches. Every merge into `master` builds a new release (`plus19`, `plus20`, …) with a changelog of everything since the previous one (`.github/workflows/release.yml`, notes from `tools/release-notes.sh`).
+
 ## Build & install
 
 ```
