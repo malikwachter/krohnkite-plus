@@ -15,7 +15,7 @@ vm.runInContext(
 const { SmartLayout, WindowRules, Rect, RectDelta } = ctx;
 // objects come from another vm realm -> compare structurally via JSON
 assert.deepStrictEqual = (a, b, m) => assert.strictEqual(JSON.stringify(a), JSON.stringify(b), m);
-ctx.setConfig({ smartTargetAspect: 1.3 });
+ctx.setConfig({ smartTargetAspect: 1.3, smartFocusGrow: 0.5 });
 
 let failed = 0;
 function test(name, fn) {
@@ -155,6 +155,33 @@ test("distribute honours mins and reports overflow", () => {
   const d = SmartLayout.distribute(1000, [0.5, 0.5], [700, 0]);
   assert.deepStrictEqual(Array.from(d.sizes), [700, 300]);
   assert.strictEqual(SmartLayout.distribute(1000, [0.5, 0.5], [700, 700]).overflow, 400);
+});
+
+test("focus grow: focused window gets more room (60/40)", () => {
+  const r = new SmartLayout().compute([tile(), tile()], area, 0, 1);
+  assert.strictEqual(r[1][2] === undefined ? r[1].width : r[1].width, 1152);
+  assert.strictEqual(r[0].width, 768);
+});
+test("focus grow inside a stacked column", () => {
+  const r = new SmartLayout().compute([tile(), tile(), tile()], area, 0, 2);
+  assert(r[2].height > r[1].height, `${r[1].height} vs ${r[2].height}`);
+  assert(r[0].width < 960, "the focused window's column grows too");
+});
+test("focus grow never pushes a neighbour below its min size", () => {
+  const r = new SmartLayout().compute([tile(900, 0), tile()], area, 0, 1);
+  assert(r[0].width >= 900, "" + r[0].width);
+});
+test("smart layout state export / import roundtrip", () => {
+  const l = new SmartLayout();
+  const t3 = [tile(), tile(), tile()];
+  rects(l, t3);
+  l.adjust(area, t3, t3[0], new RectDelta(192, 0, 0, 0), 0);
+  const state = JSON.parse(JSON.stringify(l.exportState()));
+  const l2 = new SmartLayout();
+  l2.importState(state);
+  assert.deepStrictEqual(rects(l2, t3), rects(l, t3));
+  l2.importState({ memory: { "N:1-2": { cols: ["x"], rows: [] } }, columnOffset: 99, orientation: "bogus" });
+  assert.deepStrictEqual(rects(l2, t3), rects(l, t3), "garbage is ignored");
 });
 
 /* ---------------------------------------------------------------- rules */

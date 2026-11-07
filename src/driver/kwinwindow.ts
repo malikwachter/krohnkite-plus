@@ -223,12 +223,20 @@ class KWinWindow implements IDriverWindow {
       KWinWindow.isContain(KWINCONFIG.ignoreRole, window.windowRole) ||
       (KWINCONFIG.tileNothing &&
         KWinWindow.isContain(KWINCONFIG.tilingClass, window.resourceClass)) ||
-      (this.rule !== null && this.rule.state === "ignore");
+      (this.rule !== null && this.rule.state === "ignore") ||
+      KWinWindow.isGame(window);
     this.isFloatByConfig =
       KWinWindow.isContain(KWINCONFIG.floatingClass, window.resourceClass) ||
       KWinWindow.isContain(KWINCONFIG.floatingClass, window.resourceName) ||
       matchWords(this.window.caption, KWINCONFIG.floatingTitle) >= 0 ||
       (this.rule !== null && this.rule.state === "float");
+  }
+
+  /** Steam/Proton games, gamescope ... (gaming mode) */
+  public static isGame(w: Window): boolean {
+    if (!KWINCONFIG.gamingMode) return false;
+    const cls = `${w.resourceClass || ""} ${w.resourceName || ""}`.toLowerCase();
+    return KWINCONFIG.gameClasses.some((g) => g !== "" && cls.indexOf(g) >= 0);
   }
 
   public get weight(): number | null {
@@ -258,6 +266,24 @@ class KWinWindow implements IDriverWindow {
   /** settings dialogs, file pickers, message boxes ... */
   private get isDialogLike(): boolean {
     return this.window.transient || this.window.modal || this.window.dialog;
+  }
+
+  public static exportFloatMemory(): IPersistedState["floatMemory"] {
+    const out: IPersistedState["floatMemory"] = {};
+    for (const k in KWinWindow.floatMemory) {
+      const m = KWinWindow.floatMemory[k];
+      out[k] = { x: m.x, y: m.y, w: m.w, h: m.h };
+    }
+    return out;
+  }
+
+  public static importFloatMemory(data: IPersistedState["floatMemory"] | undefined) {
+    if (!data) return;
+    for (const k in data) {
+      const m = data[k];
+      if (m && [m.x, m.y, m.w, m.h].every((v) => typeof v === "number" && isFinite(v)))
+        KWinWindow.floatMemory[k] = { x: m.x, y: m.y, w: m.w, h: m.h };
+    }
   }
 
   public rememberFloatGeometry(geometry: Rect) {

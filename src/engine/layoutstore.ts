@@ -110,6 +110,25 @@ class LayoutStoreEntry {
     this.currentIndex = idx === -1 ? null : idx;
   }
 
+  public exportState(): ILayoutEntryState {
+    const state: ILayoutEntryState = { current: this.currentID };
+    const smart = this.layouts[SmartLayout.id];
+    if (smart instanceof SmartLayout) state.smart = smart.exportState();
+    return state;
+  }
+
+  public importState(state: ILayoutEntryState) {
+    if (state.current && CONFIG.layoutOrder.indexOf(state.current) >= 0) {
+      this.previousID = this.currentID;
+      this.currentID = state.current;
+      this.updateCurrentIndex();
+    }
+    if (state.smart && CONFIG.layoutFactories[SmartLayout.id]) {
+      const smart = this.loadLayout(SmartLayout.id);
+      if (smart instanceof SmartLayout) smart.importState(state.smart);
+    }
+  }
+
   private loadLayout(ID: string): ILayout {
     let layout = this.layouts[ID];
     if (!layout) layout = this.layouts[ID] = CONFIG.layoutFactories[ID]();
@@ -119,9 +138,28 @@ class LayoutStoreEntry {
 
 class LayoutStore {
   private store: { [key: string]: LayoutStoreEntry };
+  /** saved state for surfaces that do not exist yet */
+  private restored: { [layoutId: string]: ILayoutEntryState };
 
   constructor() {
     this.store = {};
+    this.restored = {};
+  }
+
+  public exportState(): { [layoutId: string]: ILayoutEntryState } {
+    const out: { [layoutId: string]: ILayoutEntryState } = {};
+    for (const k in this.restored) out[k] = this.restored[k]; // keep other desktops
+    for (const k in this.store) out[k] = this.store[k].exportState();
+    return out;
+  }
+
+  public importState(data: { [layoutId: string]: ILayoutEntryState } | undefined) {
+    if (!data) return;
+    for (const k in data) {
+      if (!data[k] || typeof data[k] !== "object") continue;
+      if (this.store[k]) this.store[k].importState(data[k]);
+      else this.restored[k] = data[k];
+    }
   }
 
   public getCurrentLayout(srf: ISurface): ILayout {
@@ -159,6 +197,11 @@ class LayoutStore {
           srf.activity,
           srf.vDesktop.id,
         );
+        const saved = this.restored[srf.layoutId];
+        if (saved) {
+          this.store[srf.layoutId].importState(saved);
+          delete this.restored[srf.layoutId];
+        }
       }
     }
     return this.store[srf.layoutId];

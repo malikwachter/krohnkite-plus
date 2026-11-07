@@ -225,6 +225,10 @@ interface IConfig {
 
   //Smart
   smartTargetAspect: number;
+  /** extra share of the focused window in the Smart layout (0.5 = +50%) */
+  smartFocusGrow: number;
+  gamingMode: boolean;
+  dragPreview: boolean;
 
   screenDefaultLayout: string[];
 
@@ -357,6 +361,12 @@ interface IDriverContext {
     winTypes: WinTypes,
   ): boolean;
   metaPushed(): void;
+  /** gaming mode: a fullscreen window is active, do not touch any window */
+  readonly isPaused: boolean;
+  /** show the drop target while a window is dragged (null hides it) */
+  showDropPreview(rect: Rect | null, swap: boolean): void;
+  /** something that is remembered across restarts may have changed */
+  stateMaybeChanged(): void;
 }
 
 interface ILayoutClass {

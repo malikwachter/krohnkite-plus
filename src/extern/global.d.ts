@@ -17,6 +17,13 @@ interface Api {
   kwin: KWin;
   shortcuts: IShortcuts;
   dbus: IDBusQml;
+  shell?: IShellQml | null;
+  /** getter: the Loader may switch to the fallback file after start */
+  preview?: (() => IDropPreviewQml | null) | null;
+}
+interface IDropPreviewQml {
+  show(x: number, y: number, w: number, h: number, swap: boolean): void;
+  hide(): void;
 }
 declare var KWINCONFIG: KWinConfig;
 /* QML objects */

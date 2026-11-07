@@ -84,6 +84,22 @@ class WindowClass {
 
   public learnCheckPending: boolean = false;
 
+  public static exportLearnedMin(): { [cls: string]: ISize } {
+    const out: { [cls: string]: ISize } = {};
+    for (const k in WindowClass.learnedMin)
+      out[k] = { width: WindowClass.learnedMin[k].width, height: WindowClass.learnedMin[k].height };
+    return out;
+  }
+
+  public static importLearnedMin(data: { [cls: string]: ISize } | undefined) {
+    if (!data) return;
+    for (const k in data) {
+      const v = data[k];
+      if (v && typeof v.width === "number" && typeof v.height === "number")
+        WindowClass.learnedMin[k] = { width: v.width, height: v.height };
+    }
+  }
+
   public isTooBigFor(target: Rect): boolean {
     const actual = this.actualGeometry;
     return (

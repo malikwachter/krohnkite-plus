@@ -105,6 +105,12 @@ class KWinConfig implements IConfig {
   public smartFloatTitles: string[];
   public smartRememberFloat: boolean;
   public smartCenterDialogs: boolean;
+  public gamingMode: boolean;
+  public gameClasses: string[];
+  public gamePauseFullscreen: boolean;
+  public smartFocusGrow: number;
+  public smartPersist: boolean;
+  public dragPreview: boolean;
   public smartTargetAspect: number;
   /*
    * Dock
@@ -347,6 +353,22 @@ class KWinConfig implements IConfig {
     ).map((t) => t.toLowerCase());
     this.smartRememberFloat = KWIN.readConfig("smartRememberFloat", true);
     this.smartCenterDialogs = KWIN.readConfig("smartCenterDialogs", true);
+    this.gamingMode = KWIN.readConfig("gamingMode", true);
+    this.gameClasses = separate(
+      KWIN.readConfig("gameClasses", "steam_app_,gamescope,steam_proton"),
+      ",",
+    ).map((c) => c.toLowerCase());
+    this.gamePauseFullscreen = KWIN.readConfig("gamePauseFullscreen", true);
+    this.smartFocusGrow =
+      validateNumberWithDefault(
+        KWIN.readConfig("smartFocusGrow", 50),
+        50,
+        "smartFocusGrow",
+        0,
+        300,
+      ) / 100;
+    this.smartPersist = KWIN.readConfig("smartPersist", true);
+    this.dragPreview = KWIN.readConfig("dragPreview", true);
     notice(
       `Krohnkite Smart ${smartVersion()} loaded, ${this.windowRules.rules.length} window rules`,
     );
@@ -596,7 +618,7 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "smart8";
+  return "smart9";
 }
 
 function defaultWindowRules(): string {

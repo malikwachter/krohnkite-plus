@@ -16,6 +16,7 @@ A new layout (enabled and first in the order by default) that picks the arrangem
 * **Respects minimal window sizes**: windows no longer overlap their neighbours; if an app (Steam, Discord, settings dialogs…) needs more space, the split moves or a different arrangement is chosen.
 * **Remembers your sizes per window count**: resize to 3 windows, open a 4th, close it again – the 3-window sizes are back.
 * Windows that can't grow to their tile (max size) are centered instead of sticking to the top-left corner.
+* **Focus grow**: the focused window gets extra room (default +50 %, i.e. 60/40 instead of 50/50); neighbours never shrink below their minimal size.
 * Shortcuts: *Increase/Decrease* = more/fewer columns, *Rotate* = rows ↔ columns, *Rotate part* = reset sizes, *DWM Left/Right* = move the first split.
 * *Preferred tile aspect* (default 130 = 1.3) tunes how eager it is to add columns (lower = more columns).
 
@@ -41,6 +42,19 @@ Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.
 * Picture-in-picture windows, fixed-size windows and overlays (hidden from taskbar and pager) float automatically.
 * Floating windows remember their position and size per app until KWin restarts.
 * Dialogs (settings, file pickers, message boxes) open at their minimal size, centered on the screen instead of on top of their parent window.
+
+## Gaming mode
+
+* Games (window classes containing `steam_app_`, `gamescope`, `steam_proton` – configurable) are never tiled.
+* While a fullscreen window is active (game, video), Krohnkite pauses: no window is moved or resized and no notification pops up. Everything that happened meanwhile is arranged once you leave fullscreen.
+
+## Drag preview
+
+While dragging a tiled window, the tile it will swap with is highlighted in the theme's accent color; without a target the window's own tile is outlined (it snaps back there).
+
+## Memory across restarts
+
+Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login. Delete the file to start fresh.
 
 ## Build & install
 

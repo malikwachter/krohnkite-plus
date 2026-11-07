@@ -217,12 +217,25 @@ class TilingEngine {
   /**
    * Arrange tiles on all screens.
    */
+  /** an arrange was skipped while paused (gaming mode) */
+  public pendingArrange = false;
+
   public arrange(ctx: IDriverContext, reason: string) {
     LOG?.send(
       LogModules.arrangeScreen,
       "ArrangeScreens",
       `###################################################Reason: ${reason}####################################`,
     );
+    if (ctx.isPaused) {
+      this.pendingArrange = true;
+      return;
+    }
+    this.pendingArrange = false;
+    this.arrangeAll(ctx, reason);
+    ctx.stateMaybeChanged();
+  }
+
+  private arrangeAll(ctx: IDriverContext, reason: string) {
     const surfaces = ctx.currentSurfaces;
     let screensData: ScreenData[] = [];
     surfaces.forEach((srf) => {
@@ -540,6 +553,16 @@ class TilingEngine {
     );
   }
 
+  /** the tile under the cursor a dragged tiled window would swap with */
+  public dropTarget(ctx: IDriverContext, window: WindowClass): WindowClass | null {
+    const tiles = this.windows.getVisibleTiles(ctx.currentSurface);
+    const cursorPos = ctx.cursorPosition || window.actualGeometry.center;
+    const targets = tiles.filter(
+      (tile) => tile !== window && tile.actualGeometry.includesPoint(cursorPos),
+    );
+    return targets.length === 1 ? targets[0] : null;
+  }
+
   /**
    * Re-apply window geometry, computed by layout algorithm.
    *
@@ -548,6 +571,7 @@ class TilingEngine {
    * move/resize such windows back to where/how they should be.
    */
   public enforceSize(ctx: IDriverContext, window: WindowClass) {
+    if (ctx.isPaused) return;
     if (window.isTiled && !window.actualGeometry.equals(window.geometry)) {
       ctx.setTimeout(() => {
         if (window.isTiled) window.commit();

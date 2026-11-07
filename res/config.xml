@@ -28,6 +28,30 @@
 	    <label>Titles that always float (comma separated, substring)</label>
         <default>Picture-in-Picture,Picture in picture,Bild-im-Bild,Bild im Bild</default>
     </entry>
+    <entry name="smartFocusGrow" type="Int">
+	    <label>Extra share of the focused window in the Smart layout, percent (0 = off)</label>
+        <default>50</default>
+    </entry>
+    <entry name="gamingMode" type="Bool">
+	    <label>Gaming mode: never tile games</label>
+        <default>true</default>
+    </entry>
+    <entry name="gameClasses" type="String">
+	    <label>Window classes treated as games (comma separated, substring)</label>
+        <default>steam_app_,gamescope,steam_proton</default>
+    </entry>
+    <entry name="gamePauseFullscreen" type="Bool">
+	    <label>Pause tiling and notifications while a fullscreen window is active</label>
+        <default>true</default>
+    </entry>
+    <entry name="dragPreview" type="Bool">
+	    <label>Show where a dragged window will land</label>
+        <default>true</default>
+    </entry>
+    <entry name="smartPersist" type="Bool">
+	    <label>Remember sizes, learned minimal sizes and layouts across restarts</label>
+        <default>true</default>
+    </entry>
     <entry name="smartCenterDialogs" type="Bool">
 	    <label>Open dialogs at their minimal size, centered on the screen</label>
         <default>true</default>

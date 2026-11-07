@@ -37,7 +37,9 @@ Item {
             // "options": Options,
             "kwin": KWin,
             "shortcuts": shortcutsLoader.item,
-            "dbus": dbusCallLoader.item
+            "dbus": dbusCallLoader.item,
+            "shell": shellRunner,
+            "preview": function() { return dropPreviewLoader.item; }
         };
 
         (new K.KWinDriver(api)).main();
@@ -46,6 +48,43 @@ Item {
         id: shortcutsLoader;
 
         source: "shortcuts.qml";
+    }
+
+    /* runs shell commands for saving/loading state (see persist.ts) */
+    Plasma5Support.DataSource {
+        id: shellRunner
+        engine: "executable"
+        connectedSources: []
+        property var callbacks: ({})
+        property int counter: 0
+
+        onNewData: function(source, data) {
+            var cb = callbacks[source];
+            delete callbacks[source];
+            disconnectSource(source);
+            if (cb) cb(data["exit code"], data["stdout"], data["stderr"]);
+        }
+
+        function run(cmd, callback) {
+            /* a unique suffix keeps two equal commands apart */
+            counter += 1;
+            var source = cmd + " #" + counter;
+            callbacks[source] = callback;
+            connectSource(source);
+        }
+    }
+
+    /* optional: if it fails to load, tiling still works without the preview */
+    Loader {
+        id: dropPreviewLoader;
+
+        source: "droppreview.qml"
+        onStatusChanged: {
+            if (status === Loader.Error && source.toString().indexOf("droppreview-window") < 0) {
+                console.warn("Krohnkite Smart: droppreview.qml failed, using droppreview-window.qml");
+                source = "droppreview-window.qml";
+            }
+        }
     }
 
     Loader {

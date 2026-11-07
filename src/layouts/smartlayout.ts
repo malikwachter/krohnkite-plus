@@ -29,6 +29,12 @@
       DWMLeft / DWMRight  : move the first split
 */
 
+interface ISmartLayoutState {
+  memory: { [key: string]: ISmartRatios };
+  columnOffset: number;
+  orientation: "auto" | "columns" | "rows";
+}
+
 interface ISmartPlan {
   /** number of windows per column (plan space) */
   cols: number[];
@@ -105,12 +111,23 @@ class SmartLayout implements ILayout {
       return;
     }
 
-    const rects = this.compute(tileables, area, gap);
+    const focused = ctx.currentWindow;
+    const rects = this.compute(
+      tileables,
+      area,
+      gap,
+      focused !== null ? tileables.indexOf(focused) : -1,
+    );
     tileables.forEach((tile, i) => (tile.geometry = rects[i]));
   }
 
   /** Pure geometry computation; exposed separately to keep apply() trivial. */
-  public compute(tiles: WindowClass[], area: Rect, gap: number): Rect[] {
+  public compute(
+    tiles: WindowClass[],
+    area: Rect,
+    gap: number,
+    focusedIdx: number = -1,
+  ): Rect[] {
     const items: ISmartItem[] = tiles.map((t) => ({
       minW: Math.max(0, t.minSize.width || 0),
       minH: Math.max(0, t.minSize.height || 0),
@@ -120,8 +137,10 @@ class SmartLayout implements ILayout {
     this.lastPlans[tiles.length] = plan;
 
     const ordered = plan.order.map((i) => items[i]);
-    const ratios =
+    let ratios =
       this.memory[plan.key] || SmartLayout.defaultRatios(plan, ordered);
+    if (focusedIdx >= 0 && CONFIG.smartFocusGrow > 0)
+      ratios = SmartLayout.grow(plan, ratios, plan.order.indexOf(focusedIdx), 1 + CONFIG.smartFocusGrow);
     const solved = SmartLayout.solve(plan, ratios, ordered, area, gap);
     if (solved.violation > 0) {
       const msg = `Krohnkite Smart: windows do not fit ${area.width}x${area.height} (${plan.key}): ${tiles
@@ -465,6 +484,32 @@ class SmartLayout implements ILayout {
     this.memory[plan.key] = ratios;
   }
 
+  /**
+   * Focus grow: the focused window's column (and its row inside the column)
+   * gets `factor` times its share. Minimal sizes are still honoured by
+   * solve(), so neighbours never shrink below what they need.
+   */
+  public static grow(plan: ISmartPlan, base: ISmartRatios, slot: number, factor: number): ISmartRatios {
+    const ratios: ISmartRatios = { cols: base.cols.slice(), rows: base.rows.map((r) => r.slice()) };
+    if (slot < 0) return ratios;
+    let col = 0;
+    let row = slot;
+    while (col < plan.cols.length && row >= plan.cols[col]) {
+      row -= plan.cols[col];
+      col++;
+    }
+    if (col >= plan.cols.length) return ratios;
+    if (ratios.cols.length > 1) {
+      ratios.cols[col] *= factor;
+      ratios.cols = SmartLayout.normalize(ratios.cols);
+    }
+    if (ratios.rows[col] && ratios.rows[col].length > 1) {
+      ratios.rows[col][row] *= factor;
+      ratios.rows[col] = SmartLayout.normalize(ratios.rows[col]);
+    }
+    return ratios;
+  }
+
   /** move the boundary between parts b and b+1 by d (fraction of total) */
   private static moveBoundary(parts: number[], b: number, d: number) {
     const min = SmartLayout.MIN_RATIO;
@@ -533,6 +578,31 @@ class SmartLayout implements ILayout {
       SmartLayout.moveBoundary(ratios.rows[0], 0, d);
     this.memory[plan.key] = ratios;
     return true;
+  }
+
+  /* ================================================================ persistence */
+
+  public exportState(): ISmartLayoutState {
+    const memory: { [key: string]: ISmartRatios } = {};
+    for (const k in this.memory)
+      memory[k] = { cols: this.memory[k].cols.slice(), rows: this.memory[k].rows.map((r) => r.slice()) };
+    return { memory, columnOffset: this.columnOffset, orientation: this.orientation };
+  }
+
+  public importState(state: ISmartLayoutState | undefined) {
+    if (!state) return;
+    const okList = (l: any) => Array.isArray(l) && l.every((v: any) => typeof v === "number" && v > 0);
+    if (state.memory)
+      for (const k in state.memory) {
+        const r = state.memory[k];
+        if (r && okList(r.cols) && Array.isArray(r.rows) && r.rows.every(okList))
+          this.memory[k] = { cols: r.cols.slice(), rows: r.rows.map((x) => x.slice()) };
+      }
+    const off = state.columnOffset;
+    if (typeof off === "number" && Math.round(off) === off && Math.abs(off) <= SmartLayout.MAX_COLUMNS)
+      this.columnOffset = off;
+    if (state.orientation === "auto" || state.orientation === "rows" || state.orientation === "columns")
+      this.orientation = state.orientation;
   }
 
   /* ================================================================ misc */

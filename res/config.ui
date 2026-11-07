@@ -111,9 +111,66 @@
             <property name="suffix"><string> %</string></property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0">
+           <widget class="QLabel" name="smartFocusGrowLabel">
+            <property name="text"><string>Focused window grows by (0 = off):</string></property>
+            <property name="toolTip"><string>The focused window gets this much extra room (50 % = 60/40 instead of 50/50). Neighbours never shrink below their minimal size.</string></property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="kcfg_smartFocusGrow">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>300</number></property>
+            <property name="value"><number>50</number></property>
+            <property name="suffix"><string> %</string></property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
            <widget class="QLabel" name="smartLayoutHint">
             <property name="text"><string>Shortcuts in Smart layout: Increase/Decrease = more/fewer columns, Rotate = rows/columns, Rotate part = reset sizes, Left/Right (DWM) = move first split. Resized splits are remembered per window count.</string></property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="gamingGroup">
+         <property name="title">
+          <string>Gaming, Dragging &amp; Memory</string>
+         </property>
+         <layout class="QGridLayout" name="gamingGrid">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_gamingMode">
+            <property name="text"><string>Gaming mode: never tile games</string></property>
+            <property name="checked"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="gameClassesLabel">
+            <property name="text"><string>Game window classes:</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="kcfg_gameClasses">
+            <property name="toolTip"><string>Comma separated, case-insensitive substrings of the window class. Steam/Proton games are called steam_app_NUMBER.</string></property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_gamePauseFullscreen">
+            <property name="text"><string>Pause tiling and notifications while a fullscreen window is active</string></property>
+            <property name="checked"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_dragPreview">
+            <property name="text"><string>Show where a dragged window will land (accent color)</string></property>
+            <property name="checked"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_smartPersist">
+            <property name="text"><string>Remember sizes, learned minimal sizes and layouts across restarts (~/.local/share/krohnkite/state.json)</string></property>
+            <property name="checked"><bool>true</bool></property>
            </widget>
           </item>
          </layout>
@@ -160,7 +217,7 @@
           <item row="2" column="0" colspan="2">
            <widget class="QCheckBox" name="kcfg_smartRememberFloat">
             <property name="text">
-             <string>Remember position and size of floating windows per application (until KWin restarts)</string>
+             <string>Remember position and size of floating windows per application</string>
             </property>
             <property name="checked">
              <bool>true</bool>

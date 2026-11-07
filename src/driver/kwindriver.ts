@@ -87,6 +87,10 @@ class KWinDriver implements IDriverContext {
   private entered: boolean;
   private _surfaceStore: KWinSurfaceStore;
   private _isMetaMode: IKrohnkiteMeta;
+  private previewGetter: (() => IDropPreviewQml | null) | null;
+  private stateStore: StateStore;
+  private stateLoaded: boolean;
+  private lastPaused: boolean;
 
   constructor(api: Api) {
     KWIN = api.kwin;
@@ -94,6 +98,13 @@ class KWinDriver implements IDriverContext {
     DBUS = new DBusManager(api.dbus);
     this.workspace = api.workspace;
     this.shortcuts = api.shortcuts;
+    this.previewGetter = api.preview || null;
+    this.stateStore = new StateStore(
+      KWINCONFIG.smartPersist ? api.shell || null : null,
+      (f, ms) => this.setTimeout(f, ms),
+    );
+    this.stateLoaded = false;
+    this.lastPaused = false;
     this.engine = new TilingEngine();
     this.control = new TilingController(this.engine);
     this.windowMap = new WrapperMap(
@@ -118,6 +129,9 @@ class KWinDriver implements IDriverContext {
 
   public main() {
     LOG?.send(LogModules.printConfig, undefined, `Config: ${CONFIG}`);
+    if (!this.previewObject() && CONFIG.dragPreview)
+      notice("Krohnkite Smart: drop preview could not be loaded");
+    this.loadState();
     this.bindEvents();
     this.bindShortcut();
 
@@ -154,6 +168,10 @@ class KWinDriver implements IDriverContext {
         LOG?.send(LogModules.newWindowUnmanaged, "", debugWin(client), {
           winClass: [`${client.resourceClass}`],
         });
+        if (KWinWindow.isGame(client)) {
+          notice(`Krohnkite Smart: game ${client.resourceClass} is not tiled`);
+          this.connect(client.fullScreenChanged, () => this.checkPause());
+        }
       }
     } else {
       LOG?.send(LogModules.newWindowFiltered, "", debugWin(client), {
@@ -429,7 +447,100 @@ class KWinDriver implements IDriverContext {
     KWinSetTimeout(() => this.enter(func), timeout);
   }
 
+  /* ============================================================ gaming mode */
+
+  /** a fullscreen window (game, video) is active: leave every window alone */
+  public get isPaused(): boolean {
+    if (!KWINCONFIG.gamingMode || !KWINCONFIG.gamePauseFullscreen) return false;
+    const active = this.workspace.activeWindow;
+    return !!active && !active.deleted && active.fullScreen;
+  }
+
+  /** call when focus / fullscreen changed: catch up after the game */
+  private checkPause() {
+    const paused = this.isPaused;
+    if (paused === this.lastPaused) return;
+    this.lastPaused = paused;
+    if (paused) {
+      const a = this.workspace.activeWindow;
+      notice(`Krohnkite Smart: gaming mode on (${a ? a.resourceClass : "?"} is fullscreen)`);
+      this.showDropPreview(null, false);
+    } else {
+      notice("Krohnkite Smart: gaming mode off");
+      if (this.engine.pendingArrange) this.engine.arrange(this, "gamingModeOff");
+    }
+  }
+
+  /* ============================================================ drop preview */
+
+  private previewObject(): IDropPreviewQml | null {
+    try {
+      return this.previewGetter ? this.previewGetter() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  public showDropPreview(rect: Rect | null, swap: boolean) {
+    const p = this.previewObject();
+    if (!p) return;
+    try {
+      if (rect === null || !CONFIG.dragPreview) p.hide();
+      else p.show(rect.x, rect.y, rect.width, rect.height, swap);
+    } catch (e) {
+      warning(`drop preview: ${e}`);
+    }
+  }
+
+  /* ============================================================ persistence */
+
+  private collectState(): IPersistedState {
+    return {
+      version: StateStore.VERSION,
+      learnedMin: WindowClass.exportLearnedMin(),
+      floatMemory: KWinWindow.exportFloatMemory(),
+      layouts: this.engine.layouts.exportState(),
+    };
+  }
+
+  public stateMaybeChanged() {
+    // do not overwrite the saved state before it has been loaded
+    if (!this.stateLoaded || !this.stateStore.available) return;
+    this.stateStore.saveSoon(this.collectState());
+  }
+
+  private loadState() {
+    if (!this.stateStore.available) {
+      this.stateLoaded = true;
+      return;
+    }
+    this.stateStore.load((state) =>
+      this.enter(() => {
+        this.stateLoaded = true;
+        if (state === null) {
+          notice("Krohnkite Smart: no saved state yet");
+          return;
+        }
+        WindowClass.importLearnedMin(state.learnedMin);
+        KWinWindow.importFloatMemory(state.floatMemory);
+        this.engine.layouts.importState(state.layouts);
+        notice(
+          `Krohnkite Smart: restored state (${Object.keys(state.learnedMin || {}).length} learned sizes, ${Object.keys(state.layouts || {}).length} layouts)`,
+        );
+        this.engine.arrange(this, "stateRestored");
+      }),
+    );
+    // never block saving forever if the shell runner does not answer
+    this.setTimeout(() => {
+      if (!this.stateLoaded) {
+        this.stateLoaded = true;
+        notice("Krohnkite Smart: loading saved state timed out");
+      }
+    }, 5000);
+  }
+
   public showNotification(text: string) {
+    if (this.isPaused) return; // no popups over games
     if (CONFIG.notificationDuration > 0)
       popupDialog.showNotification(text, CONFIG.notificationDuration);
   }
@@ -1222,6 +1333,7 @@ class KWinDriver implements IDriverContext {
       if (client.active && window !== null) {
         this.control.onWindowFocused(this, window);
       }
+      this.checkPause();
     });
 
     this.connect(this.workspace.windowRemoved, (client: Window) => {
@@ -1237,6 +1349,7 @@ class KWinDriver implements IDriverContext {
         this.control.onWindowRemoved(this, window);
         this.windowMap.remove(client);
       }
+      this.checkPause();
     });
     this.connect(this.workspace.activityRemoved, (id: string) => {
       LOG?.send(
@@ -1305,6 +1418,7 @@ class KWinDriver implements IDriverContext {
     });
 
     this.connect(client.fullScreenChanged, () => {
+      this.checkPause();
       LOG?.send(
         LogModules.fullScreenChanged,
         "eventFired",

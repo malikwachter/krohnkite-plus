@@ -117,5 +117,106 @@ test("unmanaged dialog (Konsole settings) is placed centered at its min size", (
   assert.deepStrictEqual([g.x, g.y, g.width, g.height], [930, 435, 700, 530]);
   assert(later, "second placement scheduled for late size hints");
 });
+/* ---------------------------------------------------------------- gaming mode */
+test("Steam/Proton games are never tiled", () => {
+  const g = mk({ resourceClass: "steam_app_1172470", resourceName: "steam_app_1172470" });
+  assert.strictEqual(g.shouldIgnore, true);
+  assert.strictEqual(mk({ resourceClass: "steam" }).shouldIgnore, false, "the Steam client itself still tiles");
+  assert.strictEqual(mk({ resourceClass: "gamescope" }).shouldIgnore, true);
+});
+
+/* ---------------------------------------------------------------- persistence */
+test("state store: loads valid state, ignores broken or old files", () => {
+  const Store = vm.runInContext("StateStore", ctx);
+  const runOut = (out) => ({ run: (cmd, cb) => cb(0, out, "") });
+  let got = "unset";
+  new Store(runOut(JSON.stringify({ version: 1, learnedMin: {}, floatMemory: {}, layouts: {} })), (f) => f()).load((s) => (got = s));
+  assert.strictEqual(got.version, 1);
+  new Store(runOut("{not json"), (f) => f()).load((s) => (got = s));
+  assert.strictEqual(got, null);
+  new Store(runOut(JSON.stringify({ version: 99 })), (f) => f()).load((s) => (got = s));
+  assert.strictEqual(got, null);
+  new Store(null, (f) => f()).load((s) => (got = s));
+  assert.strictEqual(got, null);
+});
+test("state store: writes only when something changed", () => {
+  const Store = vm.runInContext("StateStore", ctx);
+  const cmds = [];
+  const store = new Store({ run: (cmd, cb) => { cmds.push(cmd); cb(0, "", ""); } }, (f) => f());
+  const st = { version: 1, learnedMin: { steam: { width: 1010, height: 600 } }, floatMemory: {}, layouts: {} };
+  store.saveSoon(st);
+  store.saveSoon(JSON.parse(JSON.stringify(st)));
+  assert.strictEqual(cmds.length, 1);
+  assert(/base64 -d/.test(cmds[0]) && !/1010/.test(cmds[0]), "payload is base64 encoded");
+  st.learnedMin.steam.width = 1100;
+  store.saveSoon(st);
+  assert.strictEqual(cmds.length, 2);
+});
+test("base64 matches the system tool, umlauts included", () => {
+  const b64 = vm.runInContext("StateStore", ctx).base64('{"Arbeitsfläche 1":"ü€😀"}');
+  assert.strictEqual(Buffer.from(b64, "base64").toString("utf8"), '{"Arbeitsfläche 1":"ü€😀"}');
+});
+test("learned min sizes and float memory survive export/import", () => {
+  vm.runInContext("WindowClass.importLearnedMin({ discord: { width: 940, height: 500 }, bad: { width: 'x' } })", ctx);
+  assert.strictEqual(mk({ resourceClass: "discord" }).minSize.width, 940);
+  const out = vm.runInContext("WindowClass.exportLearnedMin()", ctx);
+  assert.strictEqual(out.discord.width, 940);
+  assert.strictEqual(out.bad, undefined);
+  vm.runInContext("KWinWindow.importFloatMemory({ 'vlc||': { x: 0.25, y: 0.25, w: 0.5, h: 0.5 } })", ctx);
+  const g = mk({ resourceClass: "vlc", keepAbove: false }).window.getInitFloatGeometry();
+  assert.deepStrictEqual([g.x, g.y, g.width, g.height], [640, 360, 1280, 720]);
+});
+test("layout store restores the layout and splits of a surface created later", () => {
+  const store = vm.runInContext("new LayoutStore()", ctx);
+  const srf = { layoutId: "DP-2@a#d1", ignore: false, output: { name: "DP-2" }, vDesktop: { name: "D1", id: "d1" }, activity: "a" };
+  store.importState({ "DP-2@a#d1": { current: "QuarterLayout" }, "other": { current: "TileLayout" } });
+  assert.strictEqual(store.getCurrentLayout(srf).classID, "QuarterLayout");
+  const exp = store.exportState();
+  assert.strictEqual(exp["DP-2@a#d1"].current, "QuarterLayout");
+  assert.strictEqual(exp.other.current, "TileLayout", "other desktops are kept");
+  store.importState({ x: { current: "NoSuchLayout" } });
+  const srf2 = Object.assign({}, srf, { layoutId: "x" });
+  assert.strictEqual(store.getCurrentLayout(srf2).classID, "SmartLayout", "unknown layout ignored");
+});
+
+/* ---------------------------------------------------------------- engine: pause, drop target */
+test("arrange is skipped while paused and caught up later", () => {
+  const engine = vm.runInContext("new TilingEngine()", ctx);
+  let arranged = 0;
+  const drv = { isPaused: true, currentSurfaces: [], stateMaybeChanged() { arranged++; } };
+  engine.arrange(drv, "test");
+  assert.strictEqual(engine.pendingArrange, true);
+  assert.strictEqual(arranged, 0);
+  drv.isPaused = false;
+  drv.updateScrollBar = () => {};
+  engine.arrange(drv, "test");
+  assert.strictEqual(engine.pendingArrange, false);
+  assert.strictEqual(arranged, 1);
+});
+test("drop target is the tile under the cursor", () => {
+  const engine = vm.runInContext("new TilingEngine()", ctx);
+  const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
+  const fake = (id, rect) => ({ id, actualGeometry: rect, isTiled: true });
+  const a = fake("a", R(0, 0, 960, 1080)), b = fake("b", R(960, 0, 960, 1080));
+  engine.windows.getVisibleTiles = () => [a, b];
+  assert.strictEqual(engine.dropTarget({ cursorPosition: [1500, 500], currentSurface: {} }, a), b);
+  assert.strictEqual(engine.dropTarget({ cursorPosition: [100, 500], currentSurface: {} }, a), null, "own tile is not a target");
+});
+test("drag preview: highlights the swap target, else the own tile", () => {
+  const control = vm.runInContext("new TilingController(new TilingEngine())", ctx);
+  const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
+  const tiled = vm.runInContext("WindowState.Tiled", ctx);
+  const a = { id: "a", state: tiled, actualGeometry: R(700, 0, 960, 1080), geometry: R(0, 0, 960, 1080), isTiled: true };
+  const b = { id: "b", state: tiled, actualGeometry: R(960, 0, 960, 1080), geometry: R(960, 0, 960, 1080), isTiled: true };
+  control.engine.windows.getVisibleTiles = () => [a, b];
+  control.engine.layouts.getCurrentLayout = () => ({});
+  let shown = null;
+  const drv = { cursorPosition: [1500, 500], currentSurface: {}, showDropPreview: (r, swap) => (shown = r && { r: [r.x, r.y, r.width, r.height], swap }) };
+  control.onWindowDragging(drv, a, R(700, 0, 960, 1080));
+  assert.deepStrictEqual(shown, { r: [960, 0, 960, 1080], swap: true });
+  drv.cursorPosition = [800, 500];
+  control.onWindowDragging(drv, a, R(700, 0, 960, 1080));
+  assert.deepStrictEqual(shown, { r: [0, 0, 960, 1080], swap: false });
+});
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

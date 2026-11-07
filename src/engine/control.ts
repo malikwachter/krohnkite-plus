@@ -81,15 +81,19 @@ class TilingController {
     windowRect: Rect,
   ): void {
     if (this.isDragging) return;
+    const srf = ctx.currentSurface;
+    const layout = this.engine.layouts.getCurrentLayout(srf);
+    if (!layout.drag) {
+      /* layouts without live dragging: show where the window will land */
+      this.updateDropPreview(ctx, window);
+      return;
+    }
     // 100 milliseconds - min interval between run this function
     if (
       this.dragCompleteTime !== null &&
       Date.now() - this.dragCompleteTime < 100
     )
       return;
-    const srf = ctx.currentSurface;
-    const layout = this.engine.layouts.getCurrentLayout(srf);
-    if (!layout.drag) return;
     // if (!(layout.drag && layout.isDragging && layout.isDragging(window)))
     //   return;
     if (window.state === WindowState.Tiled) {
@@ -112,7 +116,29 @@ class TilingController {
     this.isDragging = false;
   }
 
+  /** highlight the swap target, or the own tile the window snaps back to */
+  private updateDropPreview(ctx: IDriverContext, window: WindowClass) {
+    if (!CONFIG.dragPreview || window.state !== WindowState.Tiled) {
+      ctx.showDropPreview(null, false);
+      return;
+    }
+    const target = this.engine.dropTarget(ctx, window);
+    if (target !== null) {
+      ctx.showDropPreview(target.actualGeometry, true);
+      return;
+    }
+    if (!CONFIG.keepTilingOnDrag) {
+      const diff = window.actualGeometry.subtract(window.geometry);
+      if (Math.sqrt(diff.x ** 2 + diff.y ** 2) > 30) {
+        ctx.showDropPreview(null, false); // will float
+        return;
+      }
+    }
+    ctx.showDropPreview(window.geometry, false);
+  }
+
   public onWindowMoveOver(ctx: IDriverContext, window: WindowClass): void {
+    ctx.showDropPreview(null, false);
     /* swap window by dragging */
     if (window.state === WindowState.Dragging) {
       window.setState(WindowState.Tiled);
@@ -121,16 +147,9 @@ class TilingController {
     }
 
     if (window.state === WindowState.Tiled) {
-      const tiles = this.engine.windows.getVisibleTiles(ctx.currentSurface);
-      const cursorPos = ctx.cursorPosition || window.actualGeometry.center;
-
-      const targets = tiles.filter(
-        (tile) =>
-          tile !== window && tile.actualGeometry.includesPoint(cursorPos),
-      );
-
-      if (targets.length === 1) {
-        this.engine.windows.swap(window, targets[0]);
+      const target = this.engine.dropTarget(ctx, window);
+      if (target !== null) {
+        this.engine.windows.swap(window, target);
         this.engine.arrange(ctx, getMethodName());
         return;
       }
@@ -227,6 +246,14 @@ class TilingController {
 
   public onWindowFocused(ctx: IDriverContext, window: WindowClass) {
     window.timestamp = getTime();
+    /* focus grow: the Smart layout gives the focused window more room */
+    if (
+      CONFIG.smartFocusGrow > 0 &&
+      window.isTiled &&
+      this.engine.layouts.getCurrentLayout(window.surface) instanceof SmartLayout &&
+      this.engine.windows.getVisibleTiles(window.surface).length > 1
+    )
+      this.engine.arrange(ctx, "focusGrow");
   }
 
   public onDesktopsChanged(ctx: IDriverContext, window: WindowClass) {
