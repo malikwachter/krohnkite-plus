@@ -223,6 +223,9 @@ interface IConfig {
   tileNothing: boolean;
   tilingClass: string[];
 
+  //Smart
+  smartTargetAspect: number;
+
   screenDefaultLayout: string[];
 
   //Dock
@@ -286,8 +289,14 @@ interface IDriverWindow {
   readonly shouldFloat: boolean;
   readonly minSize: ISize;
   readonly maxSize: ISize;
+  /** layout weight requested by a window rule */
+  readonly weight: number | null;
+  /** list placement requested by a window rule */
+  readonly placement: "master" | "last" | null;
+  readonly hasPreferredFloatGeometry: boolean;
 
   surface: ISurface;
+  rememberFloatGeometry(geometry: Rect): void;
 
   commit(geometry?: Rect, noBorder?: boolean, windowLayer?: WindowLayer): void;
   visible(srf: ISurface): boolean;

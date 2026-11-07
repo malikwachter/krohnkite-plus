@@ -6,6 +6,49 @@
     <kcfgfile name=""/>
     <group name="">
       <!-- ***************************** -->
+      <!-- ************Smart************ -->
+      <!-- ***************************** -->
+    <entry name="smartLayoutOrder" type="Int">
+	    <label> Smart layout order</label>
+        <default>1</default>
+    </entry>
+    <entry name="smartLayoutCapacity" type="Int">
+	    <label>How many tiles can a layout contain before windows start floating or moving to another screen</label>
+        <default>0</default>
+    </entry>
+    <entry name="smartTargetAspect" type="Int">
+	    <label>Preferred tile aspect ratio (width/height) in percent used by the Smart layout</label>
+        <default>130</default>
+    </entry>
+    <entry name="smartFloat" type="Bool">
+	    <label>Automatically float picture-in-picture, fixed-size and overlay windows</label>
+        <default>true</default>
+    </entry>
+    <entry name="smartFloatTitles" type="String">
+	    <label>Titles that always float (comma separated, substring)</label>
+        <default>Picture-in-Picture,Picture in picture,Bild-im-Bild,Bild im Bild</default>
+    </entry>
+    <entry name="smartRememberFloat" type="Bool">
+	    <label>Remember position and size of floating windows per application</label>
+        <default>true</default>
+    </entry>
+    <entry name="windowRules" type="String">
+	    <label>Per-application window rules</label>
+        <default># &lt;matchers&gt; : &lt;actions&gt;   -- see README (Smart features) for the syntax
+title~&quot;Picture-in-Picture&quot; : float, size=30%x30%, pos=bottom-right
+title~&quot;Bild-im-Bild&quot; : float, size=30%x30%, pos=bottom-right
+class=steam title~&quot;Friends List&quot; : float, size=22%x70%, pos=right
+class=steam title~&quot;Freundesliste&quot; : float, size=22%x70%, pos=right
+class=org.kde.kcalc : float, pos=center
+class=org.pulseaudio.pavucontrol : float, size=40%x55%, pos=center
+class=pavucontrol : float, size=40%x55%, pos=center
+class=nm-connection-editor : float, pos=center
+class=blueman-manager : float, size=35%x50%, pos=center
+class=org.kde.kdeconnect.handler : float, pos=center
+class=xdg-desktop-portal-kde : float, pos=center</default>
+    </entry>
+
+      <!-- ***************************** -->
       <!-- ***********Layouts*********** -->
       <!-- ***************************** -->
     <entry name="tileLayoutOrder" type="Int">

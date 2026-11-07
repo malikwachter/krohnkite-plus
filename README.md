@@ -1,3 +1,55 @@
+# Krohnkite (Smart fork)
+
+This fork adds smarter window handling on top of Krohnkite. Everything lives on the new **Smart** tab in the script settings.
+
+## Smart layout
+
+A new layout (enabled and first in the order by default) that picks the arrangement that fits the current windows best:
+
+| windows | 16:9 / 16:10        | 21:9 ultrawide         | portrait              |
+|---------|---------------------|------------------------|-----------------------|
+| 2       | halves              | halves                 | top / bottom          |
+| 3       | master + 2 stacked  | master + 2 stacked     | 3 rows                |
+| 4       | 2×2 (Quarter)       | 3 columns, last split  | rows                  |
+| 5–8     | 3 columns grid      | 3–4 columns grid       | rows grid             |
+
+* **Respects minimal window sizes**: windows no longer overlap their neighbours; if an app (Steam, Discord, settings dialogs…) needs more space, the split moves or a different arrangement is chosen.
+* **Remembers your sizes per window count**: resize to 3 windows, open a 4th, close it again – the 3-window sizes are back.
+* Windows that can't grow to their tile (max size) are centered instead of sticking to the top-left corner.
+* Shortcuts: *Increase/Decrease* = more/fewer columns, *Rotate* = rows ↔ columns, *Rotate part* = reset sizes, *DWM Left/Right* = move the first split.
+* *Preferred tile aspect* (default 130 = 1.3) tunes how eager it is to add columns (lower = more columns).
+
+## Window rules
+
+One rule per line, `<matchers> : <actions>`:
+
+```
+class=firefox : master, weight=2
+class=mpv : float, size=1280x720, pos=center
+class=discord : minwidth=940
+class~steam title~"Friends List" : float, size=22%x70%, pos=right
+title/^Picture.in.Picture$/ : float, size=30%x30%, pos=bottom-right
+class=org.kde.dolphin : tile
+```
+
+Matchers: `class`, `title`, `role` with `=` (exact), `~` (substring) or `/regex/`, case-insensitive; `class` also matches resource name and desktop file name.
+Actions: `tile` | `float` | `ignore`, `master`, `last`, `weight=N`, `minwidth=` / `minheight=` (px or %), `size=WxH` (px or %), `pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right`.
+Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.KWin /KWin queryWindowInfo` (then click the window).
+
+## Smart floating
+
+* Picture-in-picture windows, fixed-size windows and overlays (keep-above / hidden from taskbar and pager) float automatically.
+* Floating windows remember their position and size per app until KWin restarts.
+
+## Build & install
+
+```
+make install        # needs node/npm, zip or 7z, kpackagetool6
+npm test            # layout / rule tests in node
+```
+
+---
+
 # Kröhnkite
 
 # Moved to https://codeberg.org/anametologin/Krohnkite

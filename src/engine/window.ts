@@ -63,11 +63,12 @@ class WindowClass {
     return RectDelta.fromRects(this.geometry, this.actualGeometry);
   }
 
-  public get minSize() {
-    return this._minSize;
+  /* read live: apps change their size hints and rules may raise them */
+  public get minSize(): ISize {
+    return this.window.minSize;
   }
-  public get maxSize() {
-    return this._maxSize;
+  public get maxSize(): ISize {
+    return this.window.maxSize;
   }
 
   /**
@@ -125,8 +126,9 @@ class WindowClass {
     const srfID = this.window.surface.id;
     const weight: number | undefined = this.weightMap[srfID];
     if (weight === undefined) {
-      this.weightMap[srfID] = 1.0;
-      return 1.0;
+      const initial = this.window.weight !== null ? this.window.weight : 1.0;
+      this.weightMap[srfID] = initial;
+      return initial;
     }
     return weight;
   }
@@ -157,8 +159,6 @@ class WindowClass {
   private internalState: WindowState;
   private shouldCommitFloat: boolean;
   private weightMap: { [key: string]: number };
-  private _minSize: ISize;
-  private _maxSize: ISize;
   private _floatGeometry: Rect | null;
 
   constructor(window: IDriverWindow) {
@@ -170,15 +170,14 @@ class WindowClass {
 
     this.internalState = WindowState.Unmanaged;
     this.shouldCommitFloat = this.shouldFloat;
-    this._floatGeometry =
-      this.shouldCommitFloat || CONFIG.floatInit === null
+    this._floatGeometry = window.hasPreferredFloatGeometry
+      ? window.getInitFloatGeometry()
+      : this.shouldCommitFloat || CONFIG.floatInit === null
         ? this.geometry
         : null;
     this.weightMap = {};
     this.dock = null;
 
-    this._minSize = window.minSize;
-    this._maxSize = window.maxSize;
   }
   public toString(): string {
     return `Window: id=${this.id}, state: ${windowStateStr(this.state)}. ${

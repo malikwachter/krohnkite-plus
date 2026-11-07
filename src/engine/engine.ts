@@ -537,7 +537,10 @@ class TilingEngine {
         window.state = WindowState.Docked;
       } else window.state = WindowState.Undecided;
       /* engine#arrange will update the state when required. */
-      if (CONFIG.newWindowPosition === 1) this.windows.unshift(window);
+      const placement = window.window.placement;
+      if (placement === "master") this.windows.unshift(window);
+      else if (placement === "last") this.windows.push(window);
+      else if (CONFIG.newWindowPosition === 1) this.windows.unshift(window);
       else if (CONFIG.newWindowPosition === 2) {
         this.windows.beside_first(window);
       } else this.windows.push(window);
@@ -548,6 +551,12 @@ class TilingEngine {
    * Unregister the given window from WM.
    */
   public unmanage(window: WindowClass) {
+    try {
+      if (window.state === WindowState.Floating)
+        window.window.rememberFloatGeometry(window.actualGeometry);
+    } catch (e) {
+      /* window may already be gone */
+    }
     if (window.state === WindowState.Docked) {
       this.docks.remove(window);
     }

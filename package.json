@@ -10,7 +10,8 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "test": "tsc && node test/smart.test.js && node test/kwin-smoke.test.js"
   },
   "repository": {
     "type": "git",

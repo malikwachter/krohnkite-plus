@@ -98,6 +98,14 @@ class KWinConfig implements IConfig {
 
   public screenDefaultLayout: string[];
   /*
+   * Smart
+   * */
+  public windowRules: WindowRules;
+  public smartFloat: boolean;
+  public smartFloatTitles: string[];
+  public smartRememberFloat: boolean;
+  public smartTargetAspect: number;
+  /*
    * Dock
    * */
   public dockOrder: [number, number, number, number];
@@ -186,14 +194,12 @@ class KWinConfig implements IConfig {
       [StairLayout, true],
       [BinaryTreeLayout, true],
       [CascadeLayout, true],
+      [SmartLayout, true],
     ] as Array<[ILayoutClass, boolean]>;
     const sortedLayouts: ISortedLayouts[] =
       KWinConfig.getSortedLayouts(layoutsList);
     this.layoutOrder = KWinConfig.getLayoutOrder(sortedLayouts);
     this.layoutFactories = KWinConfig.getLayoutFactories(sortedLayouts);
-    sortedLayouts.forEach(({ layoutClass, isCapacity }) => {
-      this.layoutOrder.push(layoutClass.id);
-    });
 
     //***************************
     //****************** Surfaces
@@ -322,6 +328,31 @@ class KWinConfig implements IConfig {
       KWIN.readConfig("screenDefaultLayout", ""),
       ",",
     );
+
+    //***************************
+    //****************** Smart
+    //***************************
+    this.windowRules = new WindowRules(
+      String(KWIN.readConfig("windowRules", DEFAULT_WINDOW_RULES)).split("\n"),
+    );
+    this.windowRules.errors.forEach((e) => warning(`Krohnkite: ${e}`));
+    this.smartFloat = KWIN.readConfig("smartFloat", true);
+    this.smartFloatTitles = separate(
+      KWIN.readConfig(
+        "smartFloatTitles",
+        "Picture-in-Picture,Picture in picture,Bild-im-Bild,Bild im Bild",
+      ),
+      ",",
+    ).map((t) => t.toLowerCase());
+    this.smartRememberFloat = KWIN.readConfig("smartRememberFloat", true);
+    this.smartTargetAspect =
+      validateNumberWithDefault(
+        KWIN.readConfig("smartTargetAspect", 130),
+        130,
+        "smartTargetAspect",
+        50,
+        400,
+      ) / 100;
 
     //***************************
     //****************** Dock
@@ -478,13 +509,14 @@ class KWinConfig implements IConfig {
     let sortedLayouts: ISortedLayouts[] = [];
     for (const [idx, [layoutClass, isCapacity]] of layoutsList.entries()) {
       let orderConfigKey = `${unCapitalize(layoutClass.id)}Order`;
+      const defaultOrder = layoutClass.id === SmartLayout.id ? 1 : idx + 1;
       let validatedOrder = validateNumber(
-        KWIN.readConfig(orderConfigKey, idx + 1),
+        KWIN.readConfig(orderConfigKey, defaultOrder),
         0,
-        12,
+        layoutsList.length,
       );
       if (validatedOrder instanceof Err) {
-        validatedOrder = idx + 1;
+        validatedOrder = defaultOrder;
         warning(
           `kwinconfig: layout order for ${layoutClass.id} is invalid, using default value ${validatedOrder}`,
         );
@@ -496,7 +528,12 @@ class KWinConfig implements IConfig {
         isCapacity: isCapacity,
       });
     }
-    sortedLayouts.sort((a, b) => a.order - b.order);
+    // on equal order Smart layout comes first, otherwise keep list order
+    const rank = (l: ISortedLayouts) =>
+      l.layoutClass.id === SmartLayout.id
+        ? -1
+        : layoutsList.findIndex(([cls]) => cls === l.layoutClass);
+    sortedLayouts.sort((a, b) => a.order - b.order || rank(a) - rank(b));
     if (sortedLayouts.length === 0) {
       sortedLayouts.push({
         order: 1,
@@ -550,3 +587,18 @@ class KWinConfig implements IConfig {
 
 // /* HACK: save casting */
 var KWINCONFIG: KWinConfig;
+
+const DEFAULT_WINDOW_RULES = [
+  "# <matchers> : <actions>   -- see README (Smart features) for the syntax",
+  'title~"Picture-in-Picture" : float, size=30%x30%, pos=bottom-right',
+  'title~"Bild-im-Bild" : float, size=30%x30%, pos=bottom-right',
+  'class=steam title~"Friends List" : float, size=22%x70%, pos=right',
+  'class=steam title~"Freundesliste" : float, size=22%x70%, pos=right',
+  "class=org.kde.kcalc : float, pos=center",
+  "class=org.pulseaudio.pavucontrol : float, size=40%x55%, pos=center",
+  "class=pavucontrol : float, size=40%x55%, pos=center",
+  "class=nm-connection-editor : float, pos=center",
+  "class=blueman-manager : float, size=35%x50%, pos=center",
+  "class=org.kde.kdeconnect.handler : float, pos=center",
+  "class=xdg-desktop-portal-kde : float, pos=center",
+].join("\n");

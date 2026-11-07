@@ -62,6 +62,152 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="_0_smartTab">
+      <attribute name="title">
+       <string>Smart</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="smartTabLayout">
+       <item>
+        <widget class="QGroupBox" name="smartLayoutGroup">
+         <property name="title">
+          <string>Smart Layout (chooses the best arrangement for the number of windows)</string>
+         </property>
+         <layout class="QGridLayout" name="smartLayoutGrid">
+          <item row="0" column="0">
+           <widget class="QLabel" name="smartLayoutOrderLabel">
+            <property name="text"><string>Order (0 = disabled):</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="kcfg_smartLayoutOrder">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>13</number></property>
+            <property name="value"><number>1</number></property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="smartLayoutCapacityLabel">
+            <property name="text"><string>Capacity (0 = unlimited):</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="kcfg_smartLayoutCapacity">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>99</number></property>
+            <property name="value"><number>0</number></property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="smartTargetAspectLabel">
+            <property name="text"><string>Preferred tile aspect (width/height):</string></property>
+            <property name="toolTip"><string>Smart layout prefers arrangements whose tiles are close to this aspect ratio. 130 = 1.3 (default, gives Quarter-style layouts on 16:9). Lower values (e.g. 100) give more columns, e.g. on ultrawide screens.</string></property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="kcfg_smartTargetAspect">
+            <property name="minimum"><number>50</number></property>
+            <property name="maximum"><number>400</number></property>
+            <property name="value"><number>130</number></property>
+            <property name="suffix"><string> %</string></property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QLabel" name="smartLayoutHint">
+            <property name="text"><string>Shortcuts in Smart layout: Increase/Decrease = more/fewer columns, Rotate = rows/columns, Rotate part = reset sizes, Left/Right (DWM) = move first split. Resized splits are remembered per window count.</string></property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="smartFloatGroup">
+         <property name="title">
+          <string>Smart Floating</string>
+         </property>
+         <layout class="QGridLayout" name="smartFloatGrid">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_smartFloat">
+            <property name="text">
+             <string>Float picture-in-picture, fixed-size and overlay windows automatically</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="smartFloatTitlesLabel">
+            <property name="text"><string>Always float titles:</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="kcfg_smartFloatTitles">
+            <property name="toolTip">
+             <string>Comma separated, case-insensitive substrings of window titles</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_smartRememberFloat">
+            <property name="text">
+             <string>Remember position and size of floating windows per application (until KWin restarts)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="windowRulesGroup">
+         <property name="title">
+          <string>Window Rules (hover for syntax)</string>
+         </property>
+         <layout class="QVBoxLayout" name="windowRulesLayout">
+          <item>
+           <widget class="QPlainTextEdit" name="kcfg_windowRules">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>260</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Monospace</family>
+             </font>
+            </property>
+            <property name="lineWrapMode">
+             <enum>QPlainTextEdit::LineWrapMode::NoWrap</enum>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;body style=&quot;font-size:11pt&quot;&gt;
+&lt;p&gt;&lt;b&gt;One rule per line:&lt;/b&gt; &amp;lt;matchers&amp;gt; : &amp;lt;actions&amp;gt;&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Matchers&lt;/b&gt; (all must match): &lt;tt&gt;class=firefox&lt;/tt&gt; (exact, also resource name / desktop file), &lt;tt&gt;class~steam&lt;/tt&gt; (substring), &lt;tt&gt;title~&quot;Picture-in-Picture&quot;&lt;/tt&gt;, &lt;tt&gt;title/^Friends.*/&lt;/tt&gt; (regex), &lt;tt&gt;role=pop-up&lt;/tt&gt;. Case-insensitive.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Actions&lt;/b&gt; (comma separated): &lt;tt&gt;tile&lt;/tt&gt; | &lt;tt&gt;float&lt;/tt&gt; | &lt;tt&gt;ignore&lt;/tt&gt;, &lt;tt&gt;master&lt;/tt&gt; (new window becomes master), &lt;tt&gt;last&lt;/tt&gt;, &lt;tt&gt;weight=2&lt;/tt&gt; (bigger share in layouts), &lt;tt&gt;minwidth=900&lt;/tt&gt; / &lt;tt&gt;minheight=40%&lt;/tt&gt; (layout never makes it smaller), &lt;tt&gt;size=1280x720&lt;/tt&gt; or &lt;tt&gt;size=60%x70%&lt;/tt&gt; and &lt;tt&gt;pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right&lt;/tt&gt; (floating geometry).&lt;/p&gt;
+&lt;p&gt;Later lines refine earlier ones. Lines starting with # are comments. Find window classes with &lt;tt&gt;qdbus org.kde.KWin /KWin queryWindowInfo&lt;/tt&gt;.&lt;/p&gt;
+&lt;p&gt;Examples:&lt;br/&gt;&lt;tt&gt;class=firefox : master, weight=2&lt;/tt&gt;&lt;br/&gt;&lt;tt&gt;class=mpv : float, size=1280x720, pos=center&lt;/tt&gt;&lt;br/&gt;&lt;tt&gt;class=discord : minwidth=940&lt;/tt&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="placeholderText">
+             <string>class=firefox : master, weight=2</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="smartTabSpacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="_1_layoutsTab">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -167,7 +313,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>1</number>
@@ -401,7 +547,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>2</number>
@@ -624,7 +770,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>3</number>
@@ -743,7 +889,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>4</number>
@@ -862,7 +1008,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>5</number>
@@ -1007,7 +1153,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>6</number>
@@ -1148,7 +1294,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>7</number>
@@ -1460,7 +1606,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>8</number>
@@ -1560,7 +1706,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>9</number>
@@ -1657,7 +1803,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>10</number>
@@ -1878,7 +2024,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>11</number>
@@ -2079,7 +2225,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;0 - to disable&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="maximum">
-             <number>12</number>
+             <number>13</number>
             </property>
             <property name="value">
              <number>12</number>

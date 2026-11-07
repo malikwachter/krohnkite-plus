@@ -40,7 +40,7 @@ stop:
 
 $(KWINPKG_FILE): $(KWINPKG_DIR)
 	@rm -f "$(KWINPKG_FILE)"
-	@7z a -tzip $(KWINPKG_FILE) ./$(KWINPKG_DIR)/*
+	@if command -v 7z >/dev/null; then 7z a -tzip $(KWINPKG_FILE) ./$(KWINPKG_DIR)/*; else cd $(KWINPKG_DIR) && zip -qr ../$(KWINPKG_FILE) .; fi
 
 $(KWINPKG_DIR): remove_meta
 $(KWINPKG_DIR): $(KWIN_META)
