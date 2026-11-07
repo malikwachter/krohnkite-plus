@@ -92,6 +92,10 @@ const Shortcut = {
 
   KrohnkiteMeta: "KrohnkiteMeta",
 
+  Zoom: "Zoom",
+  Undo: "Undo",
+  Redo: "Redo",
+
   MetaResetSurfaceCapacity: "MetaResetSurfaceCapacity",
   MetaFocusLeft: "MetaFocusLeft",
   MetaFocusRight: "MetaFocusRight",
@@ -150,6 +154,10 @@ interface IShortcuts {
   getLowerSurfaceCapacity(): ShortcutHandler;
 
   getKrohnkiteMeta(): ShortcutHandler;
+
+  getZoom(): ShortcutHandler;
+  getUndo(): ShortcutHandler;
+  getRedo(): ShortcutHandler;
 }
 
 interface IDBusQml {
@@ -227,6 +235,9 @@ interface IConfig {
   smartTargetAspect: number;
   /** extra share of the focused window in the Smart layout (0.5 = +50%) */
   smartFocusGrow: number;
+  zoomMarginX: number;
+  zoomMarginY: number;
+  undoDepth: number;
   gamingMode: boolean;
   dragPreview: boolean;
 
@@ -283,6 +294,8 @@ interface IKrohnkiteMeta {
 }
 
 interface IDriverWindow {
+  /** a dialog (transient) of `owner`, directly or through other dialogs */
+  isTransientOf?(owner: IDriverWindow): boolean;
   readonly fullScreen: boolean;
   readonly geometry: Readonly<Rect>;
   readonly id: string;
@@ -402,6 +415,18 @@ interface ILayout {
   ): boolean;
 
   toString(): string;
+}
+
+/** one undo step: window order, floating/tiling, monitors, layouts and sizes */
+interface IUndoWindow {
+  id: string;
+  output: string;
+  state: "tile" | "float" | "other";
+  float: number[] | null;
+}
+interface IUndoSnapshot {
+  wins: IUndoWindow[];
+  layouts: string;
 }
 
 interface IGaps {

@@ -62,6 +62,14 @@ KWin scripts can only move windows instantly, so animations live in a small desk
 
 Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Krohnkite passes the value to the effect at login.
 
+## Zoom
+
+*Meta+Z* lifts the focused tile into a centered, almost fullscreen view (a bit more free space left/right than top/bottom, see *Zoom margin* on the Smart tab). It never really floats: its place in the layout stays reserved, and it goes back as soon as you press *Meta+Z* again or focus another window (dialogs of the zoomed app do not end the zoom).
+
+## Undo / Redo
+
+*Meta+Ctrl+Z* undoes, *Meta+Ctrl+Y* redoes the last change you made: window order (keys, drag & drop), floating/tiling, moving to another monitor, layout switches and split sizes. Windows opening or closing are no steps. Plain Ctrl+Z is not used on purpose, it would take undo away from every application. All keys can be changed in System Settings > Shortcuts > KWin.
+
 ## Memory across restarts
 
 Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login. Delete the file to start fresh.
@@ -258,6 +266,9 @@ go-task uninstall
 | Meta + \|        | Previous Layout    |
 |                  |                    |
 | Meta + Return    | Set as Master      |
+| Meta + Z         | Zoom (toggle)      |
+| Meta + Ctrl + Z  | Undo               |
+| Meta + Ctrl + Y  | Redo               |
 |                  |                    |
 | Meta + T         | Use Tile Layout    |
 | Meta + M         | Use Monocle Layout |

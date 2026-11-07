@@ -253,6 +253,8 @@ class WindowClass {
 
   public dock: Dock | null;
   public geometry: Rect;
+  /** temporarily lifted above the tiles (zoom), keeps its place in the layout */
+  public zoomed = false;
   public timestamp: number;
 
   private internalState: WindowState;
@@ -321,8 +323,8 @@ class WindowClass {
       case WindowState.Tiled:
         this.window.commit(
           this.geometry,
-          CONFIG.noTileBorder || Boolean(noBorders),
-          CONFIG.tiledWindowsLayer,
+          this.zoomed ? false : CONFIG.noTileBorder || Boolean(noBorders),
+          this.zoomed ? WindowLayer.Above : CONFIG.tiledWindowsLayer,
         );
         break;
 
@@ -360,6 +362,10 @@ class WindowClass {
    */
   public forceSetGeometry(geometry: Rect) {
     this.window.commit(geometry);
+  }
+
+  public isTransientOf(owner: WindowClass): boolean {
+    return this.window.isTransientOf ? this.window.isTransientOf(owner.window) : false;
   }
 
   public moveMouseToFocus() {

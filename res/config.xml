@@ -52,6 +52,18 @@
 	    <label>Animation speed in milliseconds (0 = off); needs the Krohnkite Smooth desktop effect for windows</label>
         <default>150</default>
     </entry>
+    <entry name="zoomMarginX" type="Int">
+	    <label>Zoom: free space left and right in percent of the screen</label>
+        <default>7</default>
+    </entry>
+    <entry name="zoomMarginY" type="Int">
+	    <label>Zoom: free space top and bottom in percent of the screen</label>
+        <default>3</default>
+    </entry>
+    <entry name="undoDepth" type="Int">
+	    <label>How many steps Undo remembers</label>
+        <default>50</default>
+    </entry>
     <entry name="smartPersist" type="Bool">
 	    <label>Remember sizes, learned minimal sizes and layouts across restarts</label>
         <default>true</default>

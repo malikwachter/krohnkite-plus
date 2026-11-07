@@ -117,7 +117,7 @@ class LayoutStoreEntry {
     return state;
   }
 
-  public importState(state: ILayoutEntryState) {
+  public importState(state: ILayoutEntryState, replace?: boolean) {
     if (state.current && CONFIG.layoutOrder.indexOf(state.current) >= 0) {
       this.previousID = this.currentID;
       this.currentID = state.current;
@@ -125,7 +125,7 @@ class LayoutStoreEntry {
     }
     if (state.smart && CONFIG.layoutFactories[SmartLayout.id]) {
       const smart = this.loadLayout(SmartLayout.id);
-      if (smart instanceof SmartLayout) smart.importState(state.smart);
+      if (smart instanceof SmartLayout) smart.importState(state.smart, replace);
     }
   }
 
@@ -153,11 +153,15 @@ class LayoutStore {
     return out;
   }
 
-  public importState(data: { [layoutId: string]: ILayoutEntryState } | undefined) {
+  /** `replace`: forget sizes that are not in `data` (undo) */
+  public importState(
+    data: { [layoutId: string]: ILayoutEntryState } | undefined,
+    replace?: boolean,
+  ) {
     if (!data) return;
     for (const k in data) {
       if (!data[k] || typeof data[k] !== "object") continue;
-      if (this.store[k]) this.store[k].importState(data[k]);
+      if (this.store[k]) this.store[k].importState(data[k], replace);
       else this.restored[k] = data[k];
     }
   }

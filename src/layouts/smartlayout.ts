@@ -589,8 +589,9 @@ class SmartLayout implements ILayout {
     return { memory, columnOffset: this.columnOffset, orientation: this.orientation };
   }
 
-  public importState(state: ISmartLayoutState | undefined) {
+  public importState(state: ISmartLayoutState | undefined, replace?: boolean) {
     if (!state) return;
+    if (replace) this.memory = {};
     const okList = (l: any) => Array.isArray(l) && l.every((v: any) => typeof v === "number" && v > 0);
     if (state.memory)
       for (const k in state.memory) {

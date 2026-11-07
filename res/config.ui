@@ -182,6 +182,48 @@
             <property name="suffix"><string> ms</string></property>
            </widget>
           </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="zoomMarginXLabel">
+            <property name="text"><string>Zoom margin left/right:</string></property>
+            <property name="toolTip"><string>Zoom (Meta+Z) lifts the focused tile into a centered, almost fullscreen window. It goes back to its place when you press the key again or focus another window.</string></property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QSpinBox" name="kcfg_zoomMarginX">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>40</number></property>
+            <property name="value"><number>7</number></property>
+            <property name="suffix"><string> %</string></property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="zoomMarginYLabel">
+            <property name="text"><string>Zoom margin top/bottom:</string></property>
+            <property name="toolTip"><string>Free space above and below the zoomed window.</string></property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QSpinBox" name="kcfg_zoomMarginY">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>40</number></property>
+            <property name="value"><number>3</number></property>
+            <property name="suffix"><string> %</string></property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QLabel" name="undoDepthLabel">
+            <property name="text"><string>Undo steps:</string></property>
+            <property name="toolTip"><string>Undo (Meta+Ctrl+Z) and Redo (Meta+Ctrl+Y) for window order, floating, monitor changes, layouts and sizes.</string></property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QSpinBox" name="kcfg_undoDepth">
+            <property name="minimum"><number>1</number></property>
+            <property name="maximum"><number>500</number></property>
+            <property name="value"><number>50</number></property>
+            <property name="suffix"><string></string></property>
+           </widget>
+          </item>
           <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="kcfg_smartPersist">
             <property name="text"><string>Remember sizes, learned minimal sizes and layouts across restarts (~/.local/share/krohnkite/state.json)</string></property>

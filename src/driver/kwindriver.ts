@@ -1225,6 +1225,11 @@ class KWinDriver implements IDriverContext {
     this.shortcuts
       .getKrohnkiteMeta()
       .activated.connect(callbackShortcut(Shortcut.KrohnkiteMeta));
+    if (this.shortcuts.getZoom) {
+      this.shortcuts.getZoom().activated.connect(callbackShortcut(Shortcut.Zoom));
+      this.shortcuts.getUndo().activated.connect(callbackShortcut(Shortcut.Undo));
+      this.shortcuts.getRedo().activated.connect(callbackShortcut(Shortcut.Redo));
+    }
 
     const callbackShortcutLayout = (layoutClass: ILayoutClass) => {
       return () => {
@@ -1374,6 +1379,8 @@ class KWinDriver implements IDriverContext {
       const window = this.windowMap.get(client);
       if (client.active && window !== null) {
         this.control.onWindowFocused(this, window);
+      } else if (client.active && (client.normalWindow || client.desktopWindow)) {
+        this.control.onForeignFocus(this, client.transient);
       }
       this.checkPause();
     });

@@ -398,4 +398,35 @@ Item {
         text: "Krohnkite: Columns Layout";
         sequence: "";
     }
+
+    function getZoom() {
+        return zoom;
+    }
+    ShortcutHandler {
+        id: zoom;
+
+        name: "KrohnkiteZoom";
+        text: "Krohnkite: Zoom (toggle)";
+        sequence: "Meta+Z";
+    }
+    function getUndo() {
+        return undo;
+    }
+    ShortcutHandler {
+        id: undo;
+
+        name: "KrohnkiteUndo";
+        text: "Krohnkite: Undo";
+        sequence: "Meta+Ctrl+Z";
+    }
+    function getRedo() {
+        return redo;
+    }
+    ShortcutHandler {
+        id: redo;
+
+        name: "KrohnkiteRedo";
+        text: "Krohnkite: Redo";
+        sequence: "Meta+Ctrl+Y";
+    }
 }

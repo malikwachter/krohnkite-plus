@@ -68,7 +68,7 @@ class TilingController {
   }
 
   public onWindowMoveStart(window: WindowClass): void {
-    /* do nothing */
+    this.engine.undoHold = true;
   }
 
   public onWindowMove(window: WindowClass): void {
@@ -119,6 +119,13 @@ class TilingController {
   }
 
   public onWindowMoveOver(ctx: IDriverContext, window: WindowClass): void {
+    this.engine.undoHold = false;
+    this.engine.markUserAction();
+    this.moveOver(ctx, window);
+    this.engine.undoObserve("moveOver");
+  }
+
+  private moveOver(ctx: IDriverContext, window: WindowClass): void {
     /* a live drag preview was shown: do exactly what it showed */
     if (this.engine.dragFinish(ctx, window)) return;
     ctx.showDropPreview(null, false);
@@ -156,10 +163,11 @@ class TilingController {
   }
 
   public onWindowResizeStart(window: WindowClass): void {
-    /* do nothing */
+    this.engine.undoHold = true;
   }
 
   public onWindowResize(ctx: IDriverContext, window: WindowClass): void {
+    if (window.zoomed) return; // zoomed: not a layout resize
     if (
       CONFIG.adjustLayout &&
       CONFIG.adjustLayoutLive &&
@@ -174,6 +182,17 @@ class TilingController {
   }
 
   public onWindowResizeOver(ctx: IDriverContext, window: WindowClass): void {
+    this.engine.undoHold = false;
+    this.engine.markUserAction();
+    this.resizeOver(ctx, window);
+    this.engine.undoObserve("resizeOver");
+  }
+
+  private resizeOver(ctx: IDriverContext, window: WindowClass): void {
+    if (window.zoomed) {
+      this.engine.arrange(ctx, "zoomResize"); // back to the zoom size
+      return;
+    }
     if (CONFIG.adjustLayout && window.isTiled) {
       this.engine.adjustLayout(window);
       this.engine.arrange(ctx, getMethodName());
@@ -229,6 +248,12 @@ class TilingController {
 
   public onWindowFocused(ctx: IDriverContext, window: WindowClass) {
     window.timestamp = getTime();
+    /* zoom ends as soon as another window gets the focus */
+    const z = this.engine.zoomWindow;
+    if (z !== null && z !== window && !this.belongsTo(window, z)) {
+      this.engine.unzoom();
+      this.engine.arrange(ctx, "unzoom");
+    }
     /* focus grow: the Smart layout gives the focused window more room */
     if (
       CONFIG.smartFocusGrow > 0 &&
@@ -239,12 +264,47 @@ class TilingController {
       this.engine.arrange(ctx, "focusGrow");
   }
 
+  /** a window Krohnkite does not manage got the focus (desktop, ignored app) */
+  public onForeignFocus(ctx: IDriverContext, isDialog: boolean) {
+    if (this.engine.zoomWindow === null || isDialog) return;
+    this.engine.unzoom();
+    this.engine.arrange(ctx, "unzoom");
+  }
+
+  /** dialogs of the zoomed app do not end the zoom */
+  private belongsTo(window: WindowClass, owner: WindowClass): boolean {
+    return window.isTransientOf(owner);
+  }
+
   public onDesktopsChanged(ctx: IDriverContext, window: WindowClass) {
     if (window.state !== WindowState.Docked)
       window.state = WindowState.Undecided;
   }
 
   public onShortcut(ctx: IDriverContext, input: Shortcut, data?: any) {
+    switch (input) {
+      case Shortcut.Zoom:
+        if (this.engine.toggleZoom(ctx)) this.engine.arrange(ctx, "zoom");
+        return;
+      case Shortcut.Undo:
+      case Shortcut.Redo: {
+        const redo = input === Shortcut.Redo;
+        if (this.engine.undo(ctx, redo))
+          ctx.showNotification(
+            redo
+              ? `Redo (${this.engine.redoSteps} more)`
+              : `Undo (${this.engine.undoSteps} more)`,
+          );
+        else ctx.showNotification(redo ? "Nothing to redo" : "Nothing to undo");
+        return;
+      }
+    }
+    this.engine.markUserAction();
+    this.shortcut(ctx, input, data);
+    this.engine.undoObserve("shortcut");
+  }
+
+  private shortcut(ctx: IDriverContext, input: Shortcut, data?: any) {
     if (input === Shortcut.KrohnkiteMeta) {
       ctx.metaPushed();
       return;

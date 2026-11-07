@@ -112,6 +112,9 @@ class KWinConfig implements IConfig {
   public smartPersist: boolean;
   public dragPreview: boolean;
   public animationDuration: number;
+  public zoomMarginX: number;
+  public zoomMarginY: number;
+  public undoDepth: number;
   public smartTargetAspect: number;
   /*
    * Dock
@@ -377,6 +380,17 @@ class KWinConfig implements IConfig {
       0,
       2000,
     );
+    this.zoomMarginX =
+      validateNumberWithDefault(KWIN.readConfig("zoomMarginX", 7), 7, "zoomMarginX", 0, 40) / 100;
+    this.zoomMarginY =
+      validateNumberWithDefault(KWIN.readConfig("zoomMarginY", 3), 3, "zoomMarginY", 0, 40) / 100;
+    this.undoDepth = validateNumberWithDefault(
+      KWIN.readConfig("undoDepth", 50),
+      50,
+      "undoDepth",
+      1,
+      500,
+    );
     notice(
       `Krohnkite Smart ${smartVersion()} loaded, ${this.windowRules.rules.length} window rules`,
     );
@@ -626,7 +640,7 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "smart15";
+  return "smart16";
 }
 
 function defaultWindowRules(): string {

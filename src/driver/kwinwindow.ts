@@ -263,6 +263,17 @@ class KWinWindow implements IDriverWindow {
     );
   }
 
+  public isTransientOf(owner: IDriverWindow): boolean {
+    const target = (owner as KWinWindow).window;
+    let w: Window | null = this.window;
+    for (let i = 0; w && i < 10; i++) {
+      if (!w.transient) return false;
+      w = w.transientFor;
+      if (w === target) return true;
+    }
+    return false;
+  }
+
   /** settings dialogs, file pickers, message boxes ... */
   private get isDialogLike(): boolean {
     return this.window.transient || this.window.modal || this.window.dialog;
