@@ -25,8 +25,11 @@ kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true
 kwin_call /KWin org.kde.KWin.reconfigure
 sleep 1
 
-if journalctl --user -b --since "-30s" 2>/dev/null | grep -q "Krohnkite Smart"; then
-  journalctl --user -b --since "-30s" | grep "Krohnkite Smart" | tail -1
+line="$(journalctl --user -b --since "-60s" -o cat 2>/dev/null | grep "Krohnkite Smart" | tail -1 || true)"
+if [ -n "$line" ]; then
+  echo "OK: $line"
 else
-  echo "Installed. Check: journalctl --user -b | grep 'Krohnkite Smart'"
+  echo "WARNING: KWin did not report loading Krohnkite Smart."
+  echo "Log out and back in once, then check:"
+  echo "  journalctl --user -b -o cat | grep 'Krohnkite Smart'"
 fi

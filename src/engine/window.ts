@@ -113,7 +113,7 @@ class WindowClass {
     };
     if (next.width <= prev.width && next.height <= prev.height) return false;
     WindowClass.learnedMin[cls] = next;
-    print(`Krohnkite Smart: ${cls} refuses to shrink, using min size ${next.width}x${next.height}`);
+    notice(`Krohnkite Smart: ${cls} refuses to shrink, using min size ${next.width}x${next.height}`);
     LOG?.send(
       LogModules.arrangeScreen,
       "learnMinSize",

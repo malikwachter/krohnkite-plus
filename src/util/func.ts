@@ -18,6 +18,14 @@ class Err {
 function warning(s: string) {
   print(`Krohnkite.WARNING: ${s}`);
 }
+/** always visible in the journal (print() is a debug message, often hidden) */
+function notice(s: string) {
+  try {
+    console.warn(s);
+  } catch (e) {
+    print(s);
+  }
+}
 function info(s: string) {
   print(`Krohnkite: ${s}`);
 }

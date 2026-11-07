@@ -57,8 +57,10 @@ class KWinWindow implements IDriverWindow {
 
   /**
    * Windows that are almost never meant to be tiled:
-   * picture-in-picture players, fixed size windows, overlays that ask to be
-   * kept above or that hide from both taskbar and pager.
+   * picture-in-picture players, fixed size windows and overlays that hide
+   * from both taskbar and pager.
+   * (keep-above is NOT used: Krohnkite sets it itself on floating windows,
+   * so after a script reload every once-floated window would stay floating.)
    */
   private get isFloatByHeuristic(): boolean {
     const w = this.window;
@@ -72,7 +74,6 @@ class KWinWindow implements IDriverWindow {
       w.minSize.height === w.maxSize.height
     )
       return true;
-    if (this.initialKeepAbove) return true;
     if (w.skipTaskbar && w.skipPager && !w.normalWindow) return true;
     return false;
   }
@@ -164,7 +165,6 @@ class KWinWindow implements IDriverWindow {
   private _movePointerToCenter: { isMove: boolean; time: number };
   private noBorderManaged: boolean;
   private noBorderOriginal: boolean;
-  private readonly initialKeepAbove: boolean;
   /** key for the float memory: "" = do not remember this window */
   private readonly memoryKey: string;
 
@@ -184,7 +184,6 @@ class KWinWindow implements IDriverWindow {
     this.maximized = false;
     this.noBorderManaged = false;
     this.noBorderOriginal = window.noBorder;
-    this.initialKeepAbove = window.keepAbove;
     this.rule = KWINCONFIG.windowRules.match({
       resourceClass: window.resourceClass,
       resourceName: window.resourceName,

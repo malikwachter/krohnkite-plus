@@ -38,7 +38,7 @@ Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.
 
 ## Smart floating
 
-* Picture-in-picture windows, fixed-size windows and overlays (keep-above / hidden from taskbar and pager) float automatically.
+* Picture-in-picture windows, fixed-size windows and overlays (hidden from taskbar and pager) float automatically.
 * Floating windows remember their position and size per app until KWin restarts.
 
 ## Build & install

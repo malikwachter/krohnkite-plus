@@ -46,7 +46,8 @@ test("PiP floats bottom-right at 30%", () => {
   assert.strictEqual(g.width, 768);
   assert.strictEqual(g.x + g.width, 2560 - 8);
 });
-test("keep-above overlay floats", () => assert.strictEqual(mk({ keepAbove: true }).shouldFloat, true));
+test("keep-above alone does not float (Krohnkite sets it itself)", () => assert.strictEqual(mk({ keepAbove: true }).shouldFloat, false));
+test("overlay hidden from taskbar and pager floats", () => assert.strictEqual(mk({ skipTaskbar: true, skipPager: true, normalWindow: false }).shouldFloat, true));
 test("fixed-size window floats", () => assert.strictEqual(mk({ minSize: { width: 400, height: 300 }, maxSize: { width: 400, height: 300 } }).shouldFloat, true));
 test("min size includes decoration", () => {
   const w = mk({ minSize: { width: 900, height: 500 } });
