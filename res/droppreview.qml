@@ -56,6 +56,47 @@ Item {
             property real boxW: 0
             property real boxH: 0
             property bool swap: true
+            /* where the box is growing to */
+            property real targetX: 0
+            property real targetY: 0
+            property real targetW: 0
+            property real targetH: 0
+            property int duration: 150
+
+            ParallelAnimation {
+                id: grow
+                NumberAnimation { target: ov; property: "boxX"; to: ov.targetX; duration: ov.duration; easing.type: Easing.OutCubic }
+                NumberAnimation { target: ov; property: "boxY"; to: ov.targetY; duration: ov.duration; easing.type: Easing.OutCubic }
+                NumberAnimation { target: ov; property: "boxW"; to: ov.targetW; duration: ov.duration; easing.type: Easing.OutCubic }
+                NumberAnimation { target: ov; property: "boxH"; to: ov.targetH; duration: ov.duration; easing.type: Easing.OutCubic }
+            }
+
+            /*
+             * A new drop place: the box grows out of the middle of the space
+             * that is just being freed, in sync with the windows moving away
+             * (same duration and curve as the Krohnkite Smooth effect).
+             */
+            function moveBox(x, y, w, h, ms) {
+                if (x === targetX && y === targetY && w === targetW && h === targetH) return;
+                grow.stop();
+                targetX = x;
+                targetY = y;
+                targetW = w;
+                targetH = h;
+                duration = ms;
+                if (ms <= 0) {
+                    boxX = x;
+                    boxY = y;
+                    boxW = w;
+                    boxH = h;
+                    return;
+                }
+                boxX = x + w / 2;
+                boxY = y + h / 2;
+                boxW = 0;
+                boxH = 0;
+                grow.start();
+            }
 
             mainItem: Item {
                 id: canvas
@@ -146,8 +187,9 @@ Item {
         return ov;
     }
 
-    /* (ox, oy, ow, oh): the monitor; (x, y, w, h): the silhouette */
-    function show(key, ox, oy, ow, oh, x, y, w, h, swap) {
+    /* (ox, oy, ow, oh): the monitor; (x, y, w, h): the silhouette;
+       ms: grow animation duration (0 = none) */
+    function show(key, ox, oy, ow, oh, x, y, w, h, swap, ms) {
         for (var k in overlays)
             if (k !== key && overlays[k].visible) setShown(overlays[k], false);
         var ov = overlayFor(key);
@@ -160,11 +202,12 @@ Item {
             ov.areaH = oh;
         }
         ov.swap = swap;
-        ov.boxX = x;
-        ov.boxY = y;
-        ov.boxW = Math.max(1, w);
-        ov.boxH = Math.max(1, h);
-        if (!ov.visible) setShown(ov, true);
+        var wasVisible = ov.visible;
+        if (!wasVisible) {
+            ov.targetW = -1; // force a fresh grow when (re)appearing
+        }
+        ov.moveBox(x, y, Math.max(1, w), Math.max(1, h), ms === undefined ? 0 : ms);
+        if (!wasVisible) setShown(ov, true);
     }
 
     function hide() {

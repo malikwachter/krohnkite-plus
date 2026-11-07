@@ -3,6 +3,8 @@ PROJECT_VER  = $(shell git describe --tags --abbrev=0)
 PROJECT_REV  = $(shell git rev-parse HEAD | cut -b-7)
 
 KWINPKG_FILE = $(PROJECT_NAME)-$(PROJECT_VER).kwinscript
+EFFECT_FILE  = $(PROJECT_NAME)-smooth-$(PROJECT_VER).zip
+EFFECT_DIR   = pkg-effect
 KWINPKG_DIR  = pkg
 
 KWIN_META    = $(KWINPKG_DIR)/metadata.json
@@ -15,7 +17,7 @@ SRC = $(shell find src -name "*.ts")
 all: $(KWINPKG_DIR)
 
 clean:
-	@rm -rvf $(KWINPKG_DIR)
+	@rm -rvf $(KWINPKG_DIR) $(EFFECT_DIR)
 	@rm -vf $(NODE_FILES)
 
 install: package
@@ -26,7 +28,17 @@ install: package
 uninstall:
 	kpackagetool6 -t kwinscript -r $(PROJECT_NAME)
 
-package: $(KWINPKG_FILE) package_json
+package: $(KWINPKG_FILE) $(EFFECT_FILE) package_json
+
+# companion desktop effect "Krohnkite Smooth" (animations)
+effect: $(EFFECT_FILE)
+
+$(EFFECT_FILE): effect/metadata.json effect/contents/code/main.js effect/contents/config/main.xml
+	@rm -rf "$(EFFECT_DIR)" "$(EFFECT_FILE)"
+	@mkdir -p "$(EFFECT_DIR)"
+	@cp -r effect/contents "$(EFFECT_DIR)/"
+	@sed "s/\$$VER/$(PROJECT_VER)/" effect/metadata.json > "$(EFFECT_DIR)/metadata.json"
+	@cd "$(EFFECT_DIR)" && zip -qr "../$(EFFECT_FILE)" .
 
 test: $(NODE_SCRIPT) package_json
 	npm test
@@ -88,4 +100,4 @@ $(NODE_SCRIPT): $(SRC)
 package_json: package.json
 	sed -i 's/"version": [^,]*/"version": "$(PROJECT_VER)"/' package.json
 
-.PHONY: all clean install package test run stop package_json
+.PHONY: all clean install package effect test run stop package_json

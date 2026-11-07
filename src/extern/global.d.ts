@@ -27,6 +27,7 @@ interface IDropPreviewQml {
     ox: number, oy: number, ow: number, oh: number,
     x: number, y: number, w: number, h: number,
     swap: boolean,
+    ms: number,
   ): void;
   hide(): void;
 }

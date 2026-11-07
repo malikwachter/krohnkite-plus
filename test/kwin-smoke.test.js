@@ -213,9 +213,17 @@ test("drop preview goes to the overlay of the monitor under the box", () => {
   const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
   const show = vm.runInContext("(d, r, s) => KWinDriver.prototype.showDropPreview.call(d, r, s)", ctx);
   show(fake, R(3000, 30, 1280, 1410), true);
-  assert.deepStrictEqual(calls[0], ["HDMI-A-1", 2560, 30, 2560, 1410, 3000, 30, 1280, 1410, true]);
+  assert.deepStrictEqual(calls[0], ["HDMI-A-1", 2560, 30, 2560, 1410, 3000, 30, 1280, 1410, true, 150]);
   show(fake, null, false);
   assert.deepStrictEqual(calls[1], ["hide"]);
+});
+test("animation speed is passed to the Krohnkite Smooth effect", () => {
+  let cmd = null;
+  const fake = { shell: { run: (c) => (cmd = c) } };
+  vm.runInContext("(d) => KWinDriver.prototype.syncSmoothEffect.call(d)", ctx)(fake);
+  assert(/kwriteconfig6 --file kwinrc --group Effect-krohnkite_smooth --key Duration 150/.test(cmd), cmd);
+  assert(/reconfigureEffect string:krohnkite_smooth/.test(cmd), cmd);
+  require("fs").writeFileSync(require("path").join(__dirname, ".effect-cmd.txt"), cmd);
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

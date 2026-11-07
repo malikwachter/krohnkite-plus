@@ -167,6 +167,21 @@
             <property name="checked"><bool>true</bool></property>
            </widget>
           </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="animationDurationLabel">
+            <property name="text"><string>Animation speed (0 = off):</string></property>
+            <property name="toolTip"><string>Duration of window and preview animations. Windows are animated by the desktop effect "Krohnkite Smooth" (System Settings &gt; Desktop Effects); Krohnkite passes this value to it after the next login.</string></property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QSpinBox" name="kcfg_animationDuration">
+            <property name="minimum"><number>0</number></property>
+            <property name="maximum"><number>2000</number></property>
+            <property name="singleStep"><number>10</number></property>
+            <property name="value"><number>150</number></property>
+            <property name="suffix"><string> ms</string></property>
+           </widget>
+          </item>
           <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="kcfg_smartPersist">
             <property name="text"><string>Remember sizes, learned minimal sizes and layouts across restarts (~/.local/share/krohnkite/state.json)</string></property>

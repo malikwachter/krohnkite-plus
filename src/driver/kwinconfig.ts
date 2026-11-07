@@ -111,6 +111,7 @@ class KWinConfig implements IConfig {
   public smartFocusGrow: number;
   public smartPersist: boolean;
   public dragPreview: boolean;
+  public animationDuration: number;
   public smartTargetAspect: number;
   /*
    * Dock
@@ -369,6 +370,13 @@ class KWinConfig implements IConfig {
       ) / 100;
     this.smartPersist = KWIN.readConfig("smartPersist", true);
     this.dragPreview = KWIN.readConfig("dragPreview", true);
+    this.animationDuration = validateNumberWithDefault(
+      KWIN.readConfig("animationDuration", 150),
+      150,
+      "animationDuration",
+      0,
+      2000,
+    );
     notice(
       `Krohnkite Smart ${smartVersion()} loaded, ${this.windowRules.rules.length} window rules`,
     );
@@ -618,7 +626,7 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "smart12";
+  return "smart13";
 }
 
 function defaultWindowRules(): string {

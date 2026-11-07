@@ -89,6 +89,7 @@ class KWinDriver implements IDriverContext {
   private _isMetaMode: IKrohnkiteMeta;
   private previewGetter: (() => IDropPreviewQml | null) | null;
   private stateStore: StateStore;
+  private shell: IShellQml | null;
   private stateLoaded: boolean;
   private lastPaused: boolean;
 
@@ -99,6 +100,7 @@ class KWinDriver implements IDriverContext {
     this.workspace = api.workspace;
     this.shortcuts = api.shortcuts;
     this.previewGetter = api.preview || null;
+    this.shell = api.shell || null;
     this.stateStore = new StateStore(
       KWINCONFIG.smartPersist ? api.shell || null : null,
       (f, ms) => this.setTimeout(f, ms),
@@ -132,6 +134,7 @@ class KWinDriver implements IDriverContext {
     if (!this.previewObject() && CONFIG.dragPreview)
       notice("Krohnkite Smart: drop preview could not be loaded");
     this.loadState();
+    this.syncSmoothEffect();
     this.bindEvents();
     this.bindShortcut();
 
@@ -502,10 +505,33 @@ class KWinDriver implements IDriverContext {
       const g = toRect(
         this.workspace.clientArea(ClientAreaOption.PlacementArea, out, this.workspace.currentDesktop),
       );
-      p.show(out.name, g.x, g.y, g.width, g.height, rect.x, rect.y, rect.width, rect.height, swap);
+      p.show(
+        out.name, g.x, g.y, g.width, g.height,
+        rect.x, rect.y, rect.width, rect.height,
+        swap, KWINCONFIG.animationDuration,
+      );
     } catch (e) {
       warning(`drop preview: ${e}`);
     }
+  }
+
+  /* ============================================================ animations */
+
+  /**
+   * The companion effect "Krohnkite Smooth" animates the geometry changes.
+   * Krohnkite owns the speed setting: write it into the effect's config and
+   * ask KWin to reload the effect's config.
+   */
+  private syncSmoothEffect() {
+    if (this.shell === null) return;
+    const ms = Math.round(KWINCONFIG.animationDuration);
+    const cmd =
+      `kwriteconfig6 --file kwinrc --group Effect-krohnkite_smooth --key Duration ${ms}` +
+      ` && dbus-send --session --type=method_call --dest=org.kde.KWin /Effects` +
+      ` org.kde.kwin.Effects.reconfigureEffect string:krohnkite_smooth`;
+    this.shell.run(cmd, (code, _out, err) => {
+      if (code !== 0) notice(`Krohnkite Smart: could not pass the animation speed to Krohnkite Smooth (${code}): ${err}`);
+    });
   }
 
   /* ============================================================ persistence */

@@ -13,3 +13,6 @@
 *.bak
 
 config.py*
+/pkg-effect/
+*.zip
+/test/.effect-cmd.txt

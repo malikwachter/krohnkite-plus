@@ -52,6 +52,16 @@ Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.
 
 While dragging a tiled window, the drop is previewed live – on every monitor: a soft silhouette in the accent color shows exactly where the window lands, and the other windows already move to where they will be (the target monitor makes room, the old one closes the gap). Every tile under the cursor is a drop place; dropping does exactly what the preview showed.
 
+## Smooth animations (companion effect "Krohnkite Smooth")
+
+KWin scripts can only move windows instantly, so animations live in a small desktop effect that ships with this fork (`krohnkite-smooth-*.zip`, installed by `install.sh`, listed under System Settings → Desktop Effects):
+
+* windows glide and scale smoothly whenever Krohnkite changes their size or position – focus grow, the drag preview making room, the dropped window settling into its place, windows opening/closing;
+* nothing is animated while you drag or resize a window with the mouse; maximize/fullscreen are left to KDE's own effects;
+* the drag preview box grows out of the middle of the space that is being freed, in sync with the windows moving away.
+
+Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Krohnkite passes the value to the effect at login.
+
 ## Memory across restarts
 
 Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login. Delete the file to start fresh.
@@ -59,7 +69,8 @@ Split ratios of the Smart layout, the selected layout per screen/desktop, learne
 ## Build & install
 
 ```
-make install        # needs node/npm, zip or 7z, kpackagetool6
+make package        # krohnkite-*.kwinscript + krohnkite-smooth-*.zip (needs node/npm, zip or 7z)
+./install.sh        # installs both and enables the effect
 npm test            # layout / rule tests in node
 ```
 

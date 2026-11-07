@@ -1,0 +1,22 @@
+{
+  "KPackageStructure": "KWin/Effect",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "127975472+malikwachter@users.noreply.github.com",
+        "Name": "MAw"
+      }
+    ],
+    "Category": "Window Management",
+    "Description": "Smoothly animates window size and position changes made by Krohnkite (focus grow, drag preview, drop)",
+    "EnabledByDefault": false,
+    "Icon": "preferences-system-windows-effect",
+    "Id": "krohnkite_smooth",
+    "License": "MIT",
+    "Name": "Krohnkite Smooth",
+    "Version": "$VER"
+  },
+  "X-KDE-Ordering": 60,
+  "X-Plasma-API": "javascript",
+  "X-Plasma-MainScript": "code/main.js"
+}
