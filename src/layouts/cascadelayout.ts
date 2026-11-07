@@ -51,9 +51,11 @@ class CascadeLayout implements ILayout {
     return "Cascade [" + CascadeDirection[this.dir] + "]";
   }
 
+  /* capacity first, like every other layout: the layout factory calls
+     new Layout(capacity) (it used to land in `dir` and broke the layout) */
   constructor(
-    private dir: CascadeDirection = CascadeDirection.SouthEast,
-    capacity?: number | null
+    capacity?: number | null,
+    private dir: CascadeDirection = CascadeDirection.SouthEast
   ) {
     this.capacity = capacity !== undefined ? capacity : null;
   }
@@ -93,7 +95,7 @@ class CascadeLayout implements ILayout {
   }
 
   public clone(): CascadeLayout {
-    return new CascadeLayout(this.dir);
+    return new CascadeLayout(this.capacity, this.dir);
   }
 
   public handleShortcut(
