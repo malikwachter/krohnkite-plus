@@ -107,6 +107,16 @@ test("resizing works on a reordered arrangement", () => {
   checkTiling(rects(l, t));
   assert.deepStrictEqual(rects(l, t), before);
 });
+test("Steam 1010 + System Settings 930 on 1920x1058: side by side, shortfall within tolerance", () => {
+  const a = new Rect(0, 0, 1920, 1058);
+  const t = [tile(1010, 600), tile(930, 678), tile(225, 193)];
+  const r = rects(new SmartLayout(), t, a, 0);
+  const tol = 1920 * 0.03;
+  t.forEach((x, i) => {
+    assert(r[i][2] + tol >= x.minSize.width, `w ${i} ${JSON.stringify(r)}`);
+    assert(r[i][3] + 1058 * 0.03 >= x.minSize.height, `h ${i} ${JSON.stringify(r)}`);
+  });
+});
 test("weights give a bigger share", () => {
   const r = rects(new SmartLayout(), [tile(0, 0, 2), tile()]);
   assert.strictEqual(r[0][2], 1280);

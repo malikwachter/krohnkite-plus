@@ -55,6 +55,24 @@ class KWinWindow implements IDriverWindow {
     );
   }
 
+  /** human readable reason why shouldFloat is true (for the journal) */
+  public get floatReason(): string {
+    const w = this.window;
+    if (w.modal) return "modal dialog";
+    if (w.transient) return "transient (dialog of another window)";
+    if (!w.resizeable) return "not resizeable";
+    if (this.rule !== null && this.rule.state === "tile") return "";
+    if (this.rule !== null && this.rule.state === "float")
+      return `window rule line ${this.rule.matched}`;
+    if (this.isFloatByConfig) return "floating class/title setting";
+    if (CONFIG.floatSkipPager && w.skipPager) return "skip pager";
+    if (KWINCONFIG.floatUtility && (w.dialog || w.splash || w.utility))
+      return "dialog/splash/utility window type";
+    if (KWINCONFIG.smartFloat && this.isFloatByHeuristic)
+      return "smart float (picture-in-picture / fixed size / overlay)";
+    return "";
+  }
+
   /**
    * Windows that are almost never meant to be tiled:
    * picture-in-picture players, fixed size windows and overlays that hide

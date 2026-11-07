@@ -294,6 +294,7 @@ interface IDriverWindow {
   /** list placement requested by a window rule */
   readonly placement: "master" | "last" | null;
   readonly hasPreferredFloatGeometry: boolean;
+  readonly floatReason?: string;
 
   surface: ISurface;
   rememberFloatGeometry(geometry: Rect): void;

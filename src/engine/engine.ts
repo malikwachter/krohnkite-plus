@@ -20,6 +20,8 @@ type ScreenData = {
  * Maintains tiling context and performs various tiling actions.
  */
 class TilingEngine {
+  /** fraction of the screen a tile may be smaller than a window's min size */
+  public static readonly UNFIT_TOLERANCE = 0.03;
   public layouts: LayoutStore;
   public windows: WindowStore;
   public docks: DockStore;
@@ -280,6 +282,12 @@ class TilingEngine {
           window.shouldFloat || CONFIG.floatDefault
             ? WindowState.Floating
             : WindowState.Tiled;
+        if (window.state === WindowState.Floating)
+          notice(
+            `Krohnkite Smart: new window ${window.windowClassName} floats: ${
+              CONFIG.floatDefault ? "float by default" : window.window.floatReason || "?"
+            }`,
+          );
       }
     });
     if (LOG?.isModuleOn(LogModules.arrangeScreen)) {
@@ -403,15 +411,23 @@ class TilingEngine {
           LOG?.send(LogModules.arrangeScreen, "LayoutApply", mes);
         }
       }
+      /*
+       * A tile is "too small" only if it misses the window's minimal size by
+       * more than a few percent of the screen: a few pixels of overlap are
+       * much better than floating the window (e.g. Steam 1010px + System
+       * Settings 930px on a 1920px screen).
+       */
+      const tolW = screenData.workingArea.width * TilingEngine.UNFIT_TOLERANCE;
+      const tolH = screenData.workingArea.height * TilingEngine.UNFIT_TOLERANCE;
+      const tooSmall = (tile: WindowClass) =>
+        tile.minSize.height > tile.geometry.height + tolH ||
+        tile.minSize.width > tile.geometry.width + tolW;
       function getNumberTileablesGreaterThenMin(
         tileables: WindowClass[],
       ): number {
         let numberOfTiles = 0;
         tileables.forEach((tile) => {
-          if (
-            tile.minSize.height > tile.geometry.height ||
-            tile.minSize.width > tile.geometry.width
-          ) {
+          if (tooSmall(tile)) {
             numberOfTiles++;
           }
         });
@@ -439,13 +455,12 @@ class TilingEngine {
               } heightUnfit: ${tile.maxSize.height < tile.geometry.height
               }, widthUnfit: ${tile.maxSize.width < tile.geometry.width}`,
             );
+            notice(
+              `Krohnkite Smart: floating ${tile.windowClassName}, max ${tile.maxSize.width}x${tile.maxSize.height} smaller than tile ${tile.geometry.width}x${tile.geometry.height}`,
+            );
             tile.state = WindowState.Floating;
             return false;
-          } else if (
-            CONFIG.unfitGreater &&
-            (tile.minSize.height > tile.geometry.height ||
-              tile.minSize.width > tile.geometry.width)
-          ) {
+          } else if (CONFIG.unfitGreater && tooSmall(tile)) {
             unfitGreaterQuantity += 1;
             return true;
           } else {
@@ -473,10 +488,7 @@ class TilingEngine {
               Math.max(t.minSize.width / area.width, t.minSize.height / area.height);
             let tile = screenData.tileables[0];
             screenData.tileables.forEach((t) => {
-              const unfit =
-                t.minSize.width > t.geometry.width ||
-                t.minSize.height > t.geometry.height;
-              if (unfit && demand(t) >= demand(tile)) tile = t;
+              if (tooSmall(t) && demand(t) >= demand(tile)) tile = t;
             });
             screenData.tileables.splice(screenData.tileables.indexOf(tile), 1);
             notice(
