@@ -48,7 +48,7 @@ var krohnkiteSmooth = {
             return;
         }
         if (self.ignored(w)) return;
-        var g = w.frameGeometry || w.geometry;
+        var g = w.geometry || w.frameGeometry;
         if (!g || g.width <= 0 || g.height <= 0 || oldGeometry.width <= 0 || oldGeometry.height <= 0) return;
         var dx = (oldGeometry.x + oldGeometry.width / 2) - (g.x + g.width / 2);
         var dy = (oldGeometry.y + oldGeometry.height / 2) - (g.y + g.height / 2);
@@ -75,6 +75,12 @@ var krohnkiteSmooth = {
             ]
         });
         if (id !== undefined && id !== null) self.running.set(w, id);
+        if (self.logged < 3) {
+            self.logged++;
+            print("Krohnkite Smooth: animating " + (w.windowClass || "window") + " (" +
+                  Math.round(oldGeometry.width) + "x" + Math.round(oldGeometry.height) + " -> " +
+                  Math.round(g.width) + "x" + Math.round(g.height) + ")");
+        }
     },
 
     stop: function (w) {
@@ -94,22 +100,57 @@ var krohnkiteSmooth = {
         return false;
     },
 
+    /* windows whose signals we already listen to */
+    managed: new Set(),
+    /* a few log lines so it is easy to see that animations happen */
+    logged: 0,
+
+    /*
+     * Plasma 6 emits the window signals on each window (EffectWindow), not on
+     * `effects` any more: connect to every existing and every new window.
+     */
+    manage: function (w) {
+        var self = krohnkiteSmooth;
+        if (!w || self.managed.has(w)) return;
+        self.managed.add(w);
+        self.on(w, "windowFrameGeometryChanged", function (win, oldGeometry) {
+            // the signal passes (window, oldGeometry); be tolerant to (oldGeometry)
+            if (oldGeometry === undefined && win && win.width !== undefined && win.move === undefined)
+                self.onGeometryChanged(w, win);
+            else self.onGeometryChanged(win || w, oldGeometry);
+        });
+        self.on(w, "windowMaximizedStateAboutToChange", function () { self.skipNext.add(w); });
+        self.on(w, "windowMaximizedStateChanged", function () { self.stop(w); });
+        self.on(w, "windowFullScreenChanged", function () { self.stop(w); });
+        self.on(w, "windowStartUserMovedResized", function () { self.stop(w); });
+    },
+
     init: function () {
         var self = krohnkiteSmooth;
         self.loadConfig();
         self.on(effect, "configChanged", self.loadConfig);
-        if (!self.on(effects, "windowFrameGeometryChanged", self.onGeometryChanged))
-            print("Krohnkite Smooth: windowFrameGeometryChanged not available, nothing to animate");
-        var skip = function (w) { self.skipNext.add(w); };
-        if (!self.on(effects, "windowMaximizedStateAboutToChange", skip))
-            self.on(effects, "windowMaximizedStateChanged", function (w) { self.stop(w); });
+
+        // Plasma 6: per-window signals
+        var perWindow = self.on(effects, "windowAdded", self.manage);
+        if (perWindow) {
+            var stack = effects.stackingOrder || [];
+            for (var i = 0; i < stack.length; i++) self.manage(stack[i]);
+        }
+        // older KWin: global signals (harmless if they do not exist)
+        var global = self.on(effects, "windowFrameGeometryChanged", self.onGeometryChanged);
+        self.on(effects, "windowMaximizedStateAboutToChange", function (w) { self.skipNext.add(w); });
         self.on(effects, "windowFullScreenChanged", function (w) { self.stop(w); });
+
         self.on(effects, "windowDeleted", function (w) {
             self.running.delete(w);
             self.skipNext.delete(w);
+            self.managed.delete(w);
         });
         self.on(effect, "animationEnded", function (w) { self.running.delete(w); });
-        print("Krohnkite Smooth loaded, duration " + self.duration + " ms");
+        print("Krohnkite Smooth loaded, duration " + self.duration + " ms, " +
+              (perWindow ? "per-window signals (" + self.managed.size + " windows)" : "") +
+              (global ? " global signals" : "") +
+              (!perWindow && !global ? "NO geometry signal found - nothing will be animated" : ""));
     }
 };
 
