@@ -1,35 +1,48 @@
 #!/usr/bin/env bash
-# Install or update Krohnkite (Smart) and force KWin to reload it.
+# Install or update Krohnkite (Smart).
 # Usage: ./install.sh [path/to/krohnkite-*.kwinscript]
 set -euo pipefail
 
 pkg="${1:-$(ls -t "$(dirname "$0")"/krohnkite-*.kwinscript 2>/dev/null | head -1)}"
 [ -f "$pkg" ] || { echo "no .kwinscript found" >&2; exit 1; }
 
-if kpackagetool6 -t KWin/Script -s krohnkite >/dev/null 2>&1; then
+user_dir="$HOME/.local/share/kwin/scripts/krohnkite"
+
+# another Krohnkite (distro package) can shadow the user installation
+for d in /usr/share/kwin/scripts/krohnkite /usr/local/share/kwin/scripts/krohnkite; do
+  if [ -d "$d" ]; then
+    echo "NOTE: a system-wide Krohnkite exists in $d"
+    command -v pacman >/dev/null && pacman -Qo "$d" 2>/dev/null || true
+    echo "      If the Smart tab does not show up, remove that package."
+  fi
+done
+
+if [ -d "$user_dir" ]; then
   kpackagetool6 -t KWin/Script -u "$pkg"
 else
   kpackagetool6 -t KWin/Script -i "$pkg"
 fi
 
-kwin_call() {
-  dbus-send --session --print-reply --dest=org.kde.KWin "$@" >/dev/null 2>&1 || true
-}
+# drop cached compiled QML/JS of the old version
+find "$HOME/.cache" -path "*qmlcache*" -type f -print0 2>/dev/null |
+  xargs -0 -r grep -l -s -a "krohnkite" 2>/dev/null | xargs -r rm -f || true
 
-# a running script is not replaced by kpackagetool, unload + reload it
-kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled false
-kwin_call /Scripting org.kde.kwin.Scripting.unloadScript string:krohnkite
-kwin_call /KWin org.kde.KWin.reconfigure
-sleep 1
 kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true
-kwin_call /KWin org.kde.KWin.reconfigure
-sleep 1
 
-line="$(journalctl --user -b --since "-60s" -o cat 2>/dev/null | grep "Krohnkite Smart" | tail -1 || true)"
-if [ -n "$line" ]; then
-  echo "OK: $line"
+if grep -q "KROHNKITE_SMART_VERSION" "$user_dir/contents/code/script.js"; then
+  ver="$(grep -o 'KROHNKITE_SMART_VERSION = "[^"]*"' "$user_dir/contents/code/script.js" | head -1)"
+  echo "Installed: $ver"
 else
-  echo "WARNING: KWin did not report loading Krohnkite Smart."
-  echo "Log out and back in once, then check:"
-  echo "  journalctl --user -b -o cat | grep 'Krohnkite Smart'"
+  echo "ERROR: installed files are not the Smart version" >&2
+  exit 1
 fi
+
+cat <<'MSG'
+
+KWin keeps running the old script until it is restarted.
+Please LOG OUT and back in now (most reliable).
+
+Afterwards check:
+  journalctl --user -b -o cat | grep "Krohnkite Smart"
+and the "Smart" tab in System Settings > Window Management > KWin Scripts > Krohnkite.
+MSG
