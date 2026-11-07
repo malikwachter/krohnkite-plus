@@ -29,7 +29,11 @@ Item {
         colorGroup: SystemPalette.Inactive
     }
 
-    readonly property color tint: Qt.darker(palette.highlight, 1.35)
+    readonly property color tint: Qt.darker(palette.highlight, 1.2)
+
+    function shade(alpha) {
+        return Qt.rgba(tint.r, tint.g, tint.b, alpha);
+    }
 
     Component {
         id: overlayComponent
@@ -58,15 +62,64 @@ Item {
                 width: 100
                 height: 100
 
-                Rectangle {
+                /*
+                 * The silhouette: almost clear in the middle, getting smoothly
+                 * more opaque towards every edge (about 80 % at the edge).
+                 * Two soft gradients, one per direction, laid over each other.
+                 */
+                Item {
+                    id: box
                     x: ov.boxX - ov.x
                     y: ov.boxY - ov.y
                     width: ov.boxW
                     height: ov.boxH
-                    radius: 6
-                    color: Qt.rgba(manager.tint.r, manager.tint.g, manager.tint.b, ov.swap ? 0.38 : 0.26)
-                    border.width: 2
-                    border.color: Qt.rgba(manager.tint.r, manager.tint.g, manager.tint.b, 0.75)
+
+                    /* how far the glow reaches into the box */
+                    readonly property real reach: Math.min(0.42, 160 / Math.max(1, Math.min(width, height)))
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        color: manager.shade(ov.swap ? 0.07 : 0.05)
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: manager.shade(0.80) }
+                            GradientStop { position: box.reach * 0.25; color: manager.shade(0.42) }
+                            GradientStop { position: box.reach * 0.6; color: manager.shade(0.12) }
+                            GradientStop { position: box.reach; color: manager.shade(0.0) }
+                            GradientStop { position: 1.0 - box.reach; color: manager.shade(0.0) }
+                            GradientStop { position: 1.0 - box.reach * 0.6; color: manager.shade(0.12) }
+                            GradientStop { position: 1.0 - box.reach * 0.25; color: manager.shade(0.42) }
+                            GradientStop { position: 1.0; color: manager.shade(0.80) }
+                        }
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        gradient: Gradient {
+                            orientation: Gradient.Vertical
+                            GradientStop { position: 0.0; color: manager.shade(0.80) }
+                            GradientStop { position: box.reach * 0.25; color: manager.shade(0.42) }
+                            GradientStop { position: box.reach * 0.6; color: manager.shade(0.12) }
+                            GradientStop { position: box.reach; color: manager.shade(0.0) }
+                            GradientStop { position: 1.0 - box.reach; color: manager.shade(0.0) }
+                            GradientStop { position: 1.0 - box.reach * 0.6; color: manager.shade(0.12) }
+                            GradientStop { position: 1.0 - box.reach * 0.25; color: manager.shade(0.42) }
+                            GradientStop { position: 1.0; color: manager.shade(0.80) }
+                        }
+                    }
+                    /* thin crisp edge so the exact size stays readable */
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 8
+                        color: "transparent"
+                        border.width: 1
+                        border.color: manager.shade(0.9)
+                    }
                 }
             }
 

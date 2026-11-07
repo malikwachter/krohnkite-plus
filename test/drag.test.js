@@ -19,12 +19,12 @@ const sA = srf(outA), sB = srf(outB);
 let active = null, preview = null, moved = null;
 const commits = {};
 let n = 0;
-function win(cls, out) {
+function win(cls, out, minW = 0, minH = 0) {
   const id = cls + ++n;
   const w = {
     id, windowClassName: cls, fullScreen: false, maximized: false, minimized: false, shouldIgnore: false,
     shouldFloat: false, weight: null, placement: null, hasPreferredFloatGeometry: false,
-    minSize: { width: 0, height: 0 }, maxSize: { width: 99999, height: 99999 },
+    minSize: { width: minW, height: minH }, maxSize: { width: 99999, height: 99999 },
     geometry: R(0, 0, 100, 100), out,
     get surface() { return this.out === outA ? sA : sB; }, set surface(s) {},
     commit(g) { if (g) { commits[id] = [g.x, g.y, g.width, g.height]; this.geometry = g; } },
@@ -110,6 +110,53 @@ test("drop back home restores everything", () => {
   control.onWindowMoveOver(drv, b2);
   assert.deepStrictEqual(g(b2), [2880, 540, 960, 540]);
   assert.deepStrictEqual(g(a1), [1920, 0, 960, 1080]);
+});
+test("screenshot case: the window lands under the cursor on every tile, even with big min sizes", () => {
+  // one 1920x1045 monitor like the screenshot; System Settings and the window
+  // top right cannot share a column, so a plain swap would not put dolphin there
+  sA.workingArea = R(0, 0, 1920, 1045);
+  const centre = (r) => [r[0] + r[2] / 2, r[1] + r[3] / 2];
+  ["systemsettings", "claude", "konsole"].forEach((targetName) => {
+    const e2 = vm.runInContext("new TilingEngine()", ctx);
+    const c2 = vm.runInContext("(e) => new TilingController(e)", ctx)(e2);
+    const settings = win("systemsettings", outA, 930, 678), dolphin = win("dolphin", outA, 225, 193);
+    const claude = win("claude", outA, 600, 500), konsole = win("konsole", outA, 300, 200);
+    [settings, dolphin, claude, konsole].forEach((w) => e2.manage(w));
+    const d2 = Object.assign({}, drv, { get currentSurfaces() { return [sA]; },
+      moveWindowsToScreen() { throw new Error("no monitor change expected"); } });
+    active = dolphin;
+    e2.arrange(d2, "init");
+    const target = { systemsettings: settings, claude, konsole }[targetName];
+    const [x, y] = centre(g(target));
+    d2.cursorPosition = [x, y];
+    c2.onWindowDragging(d2, dolphin, dolphin.actualGeometry);
+    const p = preview.r;
+    assert(p[0] <= x && x < p[0] + p[2] && p[1] <= y && y < p[1] + p[3],
+      `over ${targetName}: silhouette ${p} not under cursor ${x},${y}`);
+    c2.onWindowMoveOver(d2, dolphin);
+    const r = g(dolphin);
+    assert(r[0] <= x && x < r[0] + r[2] && r[1] <= y && y < r[1] + r[3],
+      `dropped on ${targetName}: landed at ${r}, cursor ${x},${y}`);
+  });
+  sA.workingArea = R(0, 0, 1920, 1080);
+});
+test("order search: a plain swap would put the window elsewhere, the search puts it under the cursor", () => {
+  // found by exploring: with these min sizes the swapped order makes the Smart
+  // layout switch to three columns and dolphin would land at the far right
+  vm.runInContext("CONFIG.smartFocusGrow = 0", ctx);
+  const e3 = vm.runInContext("new TilingEngine()", ctx);
+  const smart = vm.runInContext("new SmartLayout()", ctx);
+  const t = (name, w, h) => ({ name, minSize: { width: w, height: h }, weight: 1 });
+  const settings = t("settings", 930, 678), dolphin = t("dolphin", 225, 193);
+  const claude = t("claude", 600, 500), konsole = t("konsole", 300, 200);
+  const area = R(0, 0, 1920, 1045);
+  const swapped = [settings, claude, dolphin, konsole];
+  const pos = [1440, 261]; // centre of claude's old slot (top right)
+  const plain = smart.compute(swapped, area, 0, 2)[2];
+  assert(!plain.includesPoint(pos), "precondition: plain swap misses (" + [plain.x, plain.width] + ")");
+  const order = e3.orderLandingAt(smart, swapped, dolphin, pos, area, 0);
+  const r = smart.compute(order, area, 0, order.indexOf(dolphin))[order.indexOf(dolphin)];
+  assert(r.includesPoint(pos), `found order ${order.map((x) => x.name)} lands at ${[r.x, r.y, r.width, r.height]}`);
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

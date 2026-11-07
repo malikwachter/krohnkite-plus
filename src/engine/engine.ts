@@ -572,6 +572,8 @@ class TilingEngine {
   private dragTargetSurface: ISurface | null = null;
   private dragOver: WindowClass | null = null;
   private dragLastUpdate = 0;
+  /** the tile orders the preview shows; applied exactly on drop */
+  private dragFinal: { srf: ISurface; tiles: WindowClass[] }[] = [];
 
   private surfaceAt(ctx: IDriverContext, pos: [number, number]): ISurface | null {
     const [x, y] = pos;
@@ -678,13 +680,21 @@ class TilingEngine {
     this.dragOver = aim.over;
 
     const engineCtx = new EngineContext(ctx, this);
+    const pos = ctx.cursorPosition || window.actualGeometry.center;
+    const homeDrop = aim.over === null && this.dragOrigin !== null && aim.srf.id === this.dragOrigin.id;
     let silhouette: Rect | null = null;
-    this.dropLists(window, aim).forEach(({ srf, tiles }) => {
-      if (tiles.length === 0) return;
+    this.dragFinal = [];
+    this.dropLists(window, aim).forEach(({ srf, tiles: base }) => {
+      if (base.length === 0) return;
       const data = this.getTileables(srf);
       const gaps = this.getGaps(srf);
       const area = data.workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
       const layout = this.layouts.getCurrentLayout(srf);
+      const tiles =
+        !homeDrop && base.indexOf(window) >= 0 && layout instanceof SmartLayout
+          ? this.orderLandingAt(layout, base, window, pos, area, gaps.between)
+          : base;
+      this.dragFinal.push({ srf, tiles });
       tiles.forEach((t) => (t.state = WindowState.Tiled));
       layout.apply(engineCtx, tiles, area, gaps.between);
       tiles.forEach((t) => {
@@ -696,12 +706,69 @@ class TilingEngine {
     ctx.showDropPreview(silhouette, moved);
   }
 
+  /**
+   * The Smart layout may move windows with a big minimal size to other slots,
+   * so a plain swap does not always put the window where it was dropped.
+   * Find the tile order closest to `base` in which `window` lands under the
+   * cursor (fewest other windows moved). Falls back to `base`.
+   */
+  private orderLandingAt(
+    layout: SmartLayout,
+    base: WindowClass[],
+    window: WindowClass,
+    pos: [number, number],
+    area: Rect,
+    gap: number,
+  ): WindowClass[] {
+    const lands = (tiles: WindowClass[]) => {
+      const i = tiles.indexOf(window);
+      const r = layout.compute(tiles, area, gap, i)[i];
+      return r !== undefined && r.includesPoint(pos);
+    };
+    if (lands(base)) return base;
+    const others = base.filter((w) => w !== window);
+    const n = base.length;
+    const candidates: WindowClass[][] = [];
+    const withWindowAt = (order: WindowClass[], k: number) => {
+      const c = order.slice();
+      c.splice(k, 0, window);
+      return c;
+    };
+    if (n <= 5) {
+      // every order: small enough to try them all
+      const permute = (rest: WindowClass[], acc: WindowClass[]) => {
+        if (rest.length === 0) {
+          for (let k = 0; k < n; k++) candidates.push(withWindowAt(acc, k));
+          return;
+        }
+        rest.forEach((w, i) => permute(rest.slice(0, i).concat(rest.slice(i + 1)), acc.concat([w])));
+      };
+      permute(others, []);
+    } else {
+      // many windows: keep the others in order, try every position
+      for (let k = 0; k < n; k++) candidates.push(withWindowAt(others, k));
+    }
+    const moved = (c: WindowClass[]) => c.filter((w, i) => w !== window && base[i] !== w).length;
+    candidates.sort((a, b) => moved(a) - moved(b));
+    for (const c of candidates) if (lands(c)) return c;
+    return base;
+  }
+
+  /** put the given windows into exactly this relative order in the list */
+  private applyOrder(order: WindowClass[]) {
+    const list = this.windows.list;
+    const at = order.map((w) => list.indexOf(w));
+    if (at.some((i) => i < 0)) return;
+    at.sort((a, b) => a - b).forEach((p, k) => (list[p] = order[k]));
+  }
+
   /** the window was dropped: apply exactly what the preview showed */
   public dragFinish(ctx: IDriverContext, window: WindowClass): boolean {
     if (this.dragWindow !== window) return false;
     const srf = this.dragTargetSurface;
     const over = this.dragOver;
     const origin = this.dragOrigin;
+    const final = this.dragFinal;
     this.dragCancel(ctx);
     if (srf === null || origin === null) return false;
 
@@ -718,17 +785,20 @@ class TilingEngine {
         this.arrange(ctx, "dragFinish");
         return true;
       }
-      this.windows.swap(window, over);
+      const plan = final.find((f) => f.srf.id === srf.id);
+      if (plan) this.applyOrder(plan.tiles);
+      else this.windows.swap(window, over);
       this.arrange(ctx, "dragFinish");
       return true;
     }
-    // other monitor: take the hovered tile's place (or go to the end)
-    const list = this.windows.list;
-    list.splice(list.indexOf(window), 1);
-    if (over !== null && list.indexOf(over) >= 0) list.splice(list.indexOf(over), 0, window);
+    // other monitor: exactly the previewed order there
+    const plan = final.find((f) => f.srf.id === srf.id);
+    if (plan) this.applyOrder(plan.tiles);
     else {
-      const last = this.windows.getVisibleTileables(srf).pop();
-      list.splice(last ? list.indexOf(last) + 1 : list.length, 0, window);
+      const list = this.windows.list;
+      list.splice(list.indexOf(window), 1);
+      if (over !== null && list.indexOf(over) >= 0) list.splice(list.indexOf(over), 0, window);
+      else list.push(window);
     }
     ctx.moveWindowsToScreen([[srf.output, [window]]]); // arranges afterwards
     return true;
@@ -751,6 +821,7 @@ class TilingEngine {
     this.dragKey = "";
     this.dragTargetSurface = null;
     this.dragOver = null;
+    this.dragFinal = [];
     if (ctx !== null) ctx.showDropPreview(null, false);
   }
 
