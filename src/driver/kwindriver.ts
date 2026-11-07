@@ -548,7 +548,7 @@ class KWinDriver implements IDriverContext {
   public stateMaybeChanged() {
     // do not overwrite the saved state before it has been loaded
     if (!this.stateLoaded || !this.stateStore.available) return;
-    this.stateStore.saveSoon(this.collectState());
+    this.stateStore.saveSoon(() => this.collectState());
   }
 
   private loadState() {
@@ -1306,6 +1306,7 @@ class KWinDriver implements IDriverContext {
     if (this.entered) return;
 
     this.entered = true;
+    WindowClass.invalidateSizes();
     try {
       callback();
     } catch (e: any) {

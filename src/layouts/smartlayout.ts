@@ -127,14 +127,20 @@ class SmartLayout implements ILayout {
     area: Rect,
     gap: number,
     focusedIdx: number = -1,
+    probe: boolean = false,
   ): Rect[] {
-    const items: ISmartItem[] = tiles.map((t) => ({
-      minW: Math.max(0, t.minSize.width || 0),
-      minH: Math.max(0, t.minSize.height || 0),
-      weight: t.weight > 0 ? t.weight : 1,
-    }));
+    const items: ISmartItem[] = tiles.map((t) => {
+      const min = t.minSize;
+      const weight = t.weight;
+      return {
+        minW: Math.max(0, min.width || 0),
+        minH: Math.max(0, min.height || 0),
+        weight: weight > 0 ? weight : 1,
+      };
+    });
     const plan = this.choosePlan(items, area, gap);
-    this.lastPlans[tiles.length] = plan;
+    /* a probe (drag preview trying orders) must not change state or log */
+    if (!probe) this.lastPlans[tiles.length] = plan;
 
     const ordered = plan.order.map((i) => items[i]);
     let ratios =
@@ -142,7 +148,9 @@ class SmartLayout implements ILayout {
     if (focusedIdx >= 0 && CONFIG.smartFocusGrow > 0)
       ratios = SmartLayout.grow(plan, ratios, plan.order.indexOf(focusedIdx), 1 + CONFIG.smartFocusGrow);
     const solved = SmartLayout.solve(plan, ratios, ordered, area, gap);
-    if (solved.violation > 0) {
+    if (probe) {
+      /* nothing to report */
+    } else if (solved.violation > 0) {
       const msg = `Krohnkite Smart: windows do not fit ${area.width}x${area.height} (${plan.key}): ${tiles
         .map((t) => `${t.windowClassName} min ${t.minSize.width}x${t.minSize.height}`)
         .join(", ")}`;
@@ -165,18 +173,41 @@ class SmartLayout implements ILayout {
    */
   private static orders(items: ISmartItem[], area: Rect): number[][] {
     const identity = items.map((_, i) => i);
-    const demand = (it: ISmartItem) =>
-      Math.max(it.minW / Math.max(area.width, 1), it.minH / Math.max(area.height, 1));
-    if (!items.some((it) => demand(it) > 0)) return [identity];
-    const bySize = identity
-      .slice()
-      .sort((a, b) => demand(items[b]) - demand(items[a]) || a - b);
-    return bySize.join(",") === identity.join(",") ? [identity] : [identity, bySize];
+    const aw = Math.max(area.width, 1);
+    const ah = Math.max(area.height, 1);
+    const demand = items.map((it) => Math.max(it.minW / aw, it.minH / ah));
+    if (!demand.some((d) => d > 0)) return [identity];
+    const bySize = identity.slice().sort((a, b) => demand[b] - demand[a] || a - b);
+    return bySize.every((v, i) => v === i) ? [identity] : [identity, bySize];
   }
 
   /* ================================================================ plan */
 
+  /**
+   * The best plan only depends on the windows' minimal sizes and weights, the
+   * area and the user's column/orientation choice. Arranging happens far more
+   * often than any of these change (focus changes, every commit), so the
+   * choice is cached; the geometry itself is still solved every time.
+   */
+  private planCache: { [key: string]: ISmartPlan } = {};
+  private planCacheSize = 0;
+
   private choosePlan(items: ISmartItem[], area: Rect, gap: number): ISmartPlan {
+    let key = `${area.x},${area.y},${area.width},${area.height},${gap},${this.orientation},${this.columnOffset}`;
+    for (const it of items) key += `|${it.minW},${it.minH},${it.weight}`;
+    const cached = this.planCache[key];
+    if (cached !== undefined) return cached;
+    if (this.planCacheSize >= 256) {
+      this.planCache = {};
+      this.planCacheSize = 0;
+    }
+    const plan = this.searchPlan(items, area, gap);
+    this.planCache[key] = plan;
+    this.planCacheSize++;
+    return plan;
+  }
+
+  private searchPlan(items: ISmartItem[], area: Rect, gap: number): ISmartPlan {
     const n = items.length;
     const target = CONFIG.smartTargetAspect > 0 ? CONFIG.smartTargetAspect : 1.3;
     const landscape = area.width >= area.height;
@@ -185,48 +216,50 @@ class SmartLayout implements ILayout {
     let bestScore = Infinity;
     let autoBest: { plan: ISmartPlan; score: number }[] = [];
 
-    [false, true].forEach((transposed) => {
-      if (this.orientation === "columns" && transposed) return;
-      if (this.orientation === "rows" && !transposed) return;
-      SmartLayout.candidates(n).forEach((cols) =>
-        SmartLayout.orders(items, area).forEach((order, orderIdx) => {
-        const plan: ISmartPlan = {
-          cols,
-          transposed,
-          key: `${transposed ? "T" : "N"}:${cols.join("-")}`,
-          order,
-        };
-        const ordered = order.map((i) => items[i]);
-        const solved = SmartLayout.solve(
-          plan,
-          SmartLayout.defaultRatios(plan, ordered),
-          ordered,
-          area,
-          gap,
-        );
-        let score = 0;
-        solved.rects.forEach((r) => {
-          // aspect is evaluated in real (not plan) space
-          const w = transposed ? r.height : r.width;
-          const h = transposed ? r.width : r.height;
-          score += Math.abs(Math.log(Math.max(w, 1) / Math.max(h, 1) / target));
-        });
-        score += 100 * solved.violation;
-        // preference for columns on landscape and rows on portrait screens;
-        // the other orientation only wins when minimal sizes force it
-        if (transposed === landscape) score += 0.2 * n;
-        // gentle preference for fewer splits when everything else is equal
-        score += 0.01 * cols.length;
-        // keep the user's window order unless moving windows avoids overlap
-        if (orderIdx > 0) score += 0.5;
-        autoBest.push({ plan, score });
-        if (score < bestScore) {
-          bestScore = score;
-          best = plan;
+    const orders = SmartLayout.orders(items, area);
+    const candidates = SmartLayout.candidates(n);
+    /* independent of the orientation: computed once, shared by both */
+    const ordereds = orders.map((order) => order.map((i) => items[i]));
+    const keys = candidates.map((cols) => cols.join("-"));
+    const ratios = candidates.map((cols) =>
+      ordereds.map((ordered) =>
+        SmartLayout.defaultRatios({ cols, transposed: false, key: "", order: [] }, ordered),
+      ),
+    );
+    for (const transposed of [false, true]) {
+      if (this.orientation === "columns" && transposed) continue;
+      if (this.orientation === "rows" && !transposed) continue;
+      const prefix = transposed ? "T:" : "N:";
+      for (let ci = 0; ci < candidates.length; ci++) {
+        const cols = candidates[ci];
+        const key = prefix + keys[ci];
+        for (let oi = 0; oi < orders.length; oi++) {
+          const plan: ISmartPlan = { cols, transposed, key, order: orders[oi] };
+          const solved = SmartLayout.solve(plan, ratios[ci][oi], ordereds[oi], area, gap);
+          let score = 0;
+          const rects = solved.rects;
+          for (let r = 0; r < rects.length; r++) {
+            // aspect is evaluated in real (not plan) space
+            const w = transposed ? rects[r].height : rects[r].width;
+            const h = transposed ? rects[r].width : rects[r].height;
+            score += Math.abs(Math.log(Math.max(w, 1) / Math.max(h, 1) / target));
+          }
+          score += 100 * solved.violation;
+          // preference for columns on landscape and rows on portrait screens;
+          // the other orientation only wins when minimal sizes force it
+          if (transposed === landscape) score += 0.2 * n;
+          // gentle preference for fewer splits when everything else is equal
+          score += 0.01 * cols.length;
+          // keep the user's window order unless moving windows avoids overlap
+          if (oi > 0) score += 0.5;
+          autoBest.push({ plan, score });
+          if (score < bestScore) {
+            bestScore = score;
+            best = plan;
+          }
         }
-      }),
-      );
-    });
+      }
+    }
 
     if (this.columnOffset !== 0 && best !== null) {
       const wanted = clip(
@@ -256,7 +289,15 @@ class SmartLayout implements ILayout {
    * `m <= n / c` windows, the rest is spread evenly over the other
    * columns, extra windows going to the rightmost columns.
    */
+  private static candidateCache: { [n: number]: number[][] } = {};
+
   public static candidates(n: number): number[][] {
+    const cached = SmartLayout.candidateCache[n];
+    if (cached !== undefined) return cached;
+    return (SmartLayout.candidateCache[n] = SmartLayout.buildCandidates(n));
+  }
+
+  private static buildCandidates(n: number): number[][] {
     const result: number[][] = [];
     const seen: { [k: string]: boolean } = {};
     const maxCols = Math.min(n, SmartLayout.MAX_COLUMNS);
@@ -316,21 +357,19 @@ class SmartLayout implements ILayout {
     const H = t ? area.width : area.height;
     const X = t ? area.y : area.x;
     const Y = t ? area.x : area.y;
-    const mins = items.map((it) => ({
-      w: t ? it.minH : it.minW,
-      h: t ? it.minW : it.minH,
-    }));
+    const cols = plan.cols;
+    const C = cols.length;
 
-    const C = plan.cols.length;
-    let idx = 0;
-    const colMin: number[] = [];
-    const colItems: number[][] = [];
-    plan.cols.forEach((count) => {
-      const ids: number[] = [];
-      for (let i = 0; i < count; i++) ids.push(idx++);
-      colItems.push(ids);
-      colMin.push(Math.max(0, ...ids.map((i) => mins[i].w)));
-    });
+    /* minimal width of every column (plan space) */
+    const colMin: number[] = new Array(C);
+    for (let c = 0, idx = 0; c < C; c++) {
+      let m = 0;
+      for (let r = 0; r < cols[c]; r++, idx++) {
+        const v = t ? items[idx].minH : items[idx].minW;
+        if (v > m) m = v;
+      }
+      colMin[c] = m;
+    }
 
     let violation = 0;
     const availW = W - gap * (C - 1);
@@ -339,31 +378,28 @@ class SmartLayout implements ILayout {
 
     const rects: Rect[] = new Array(items.length);
     let x = X;
-    colItems.forEach((ids, c) => {
+    for (let c = 0, first = 0; c < C; c++) {
       const w = widths.sizes[c];
-      const R = ids.length;
+      const R = cols[c];
       const availH = H - gap * (R - 1);
-      const rowRatios =
-        ratios.rows[c] && ratios.rows[c].length === R
-          ? ratios.rows[c]
-          : SmartLayout.normalize(ids.map(() => 1));
-      const heights = SmartLayout.distribute(
-        availH,
-        rowRatios,
-        ids.map((i) => mins[i].h),
-      );
+      const given = ratios.rows[c];
+      const rowRatios = given && given.length === R ? given : SmartLayout.even(R);
+      const rowMin: number[] = new Array(R);
+      for (let r = 0; r < R; r++) rowMin[r] = t ? items[first + r].minW : items[first + r].minH;
+      const heights = SmartLayout.distribute(availH, rowRatios, rowMin);
       violation += heights.overflow / Math.max(H, 1);
+      // last tile in a row/column absorbs rounding so edges stay flush
+      const rw = Math.max(1, c === C - 1 ? X + W - x : w);
       let y = Y;
-      ids.forEach((id, r) => {
+      for (let r = 0; r < R; r++) {
         const h = heights.sizes[r];
-        // last tile in a row/column absorbs rounding so edges stay flush
-        const rw = c === C - 1 ? X + W - x : w;
         const rh = r === R - 1 ? Y + H - y : h;
-        rects[id] = new Rect(x, y, Math.max(1, rw), Math.max(1, rh));
+        rects[first + r] = new Rect(x, y, rw, Math.max(1, rh));
         y += h + gap;
-      });
+      }
+      first += R;
       x += w + gap;
-    });
+    }
     return { rects, violation };
   }
 
@@ -379,13 +415,15 @@ class SmartLayout implements ILayout {
   ): { sizes: number[]; overflow: number } {
     const n = ratios.length;
     const norm = SmartLayout.normalize(ratios);
-    let sizes = norm.map((r) => r * total);
-    const minSum = mins.reduce((a, b) => a + b, 0);
+    const sizes: number[] = new Array(n);
+    for (let i = 0; i < n; i++) sizes[i] = norm[i] * total;
+    let minSum = 0;
+    for (let i = 0; i < mins.length; i++) minSum += mins[i];
 
     if (minSum > total) {
       const scale = minSum > 0 ? total / minSum : 0;
-      sizes = mins.map((m) => (minSum > 0 ? m * scale : total / n));
-      return { sizes: SmartLayout.roundSizes(sizes, total), overflow: minSum - total };
+      const scaled = mins.map((m) => (minSum > 0 ? m * scale : total / n));
+      return { sizes: SmartLayout.roundSizes(scaled, total), overflow: minSum - total };
     }
 
     for (let iter = 0; iter < n; iter++) {
@@ -409,16 +447,32 @@ class SmartLayout implements ILayout {
   }
 
   private static roundSizes(sizes: number[], total: number): number[] {
-    const out = sizes.map((s) => Math.floor(s));
-    let diff = Math.floor(total) - out.reduce((a, b) => a + b, 0);
+    const out: number[] = new Array(sizes.length);
+    let sum = 0;
+    for (let i = 0; i < sizes.length; i++) sum += out[i] = Math.floor(sizes[i]);
+    let diff = Math.floor(total) - sum;
     for (let i = out.length - 1; i >= 0 && diff > 0; i--, diff--) out[i]++;
     return out;
   }
 
+  /** n equal shares (exactly what normalize() returns for n ones) */
+  private static evenCache: number[][] = [];
+  private static even(n: number): number[] {
+    const cached = SmartLayout.evenCache[n];
+    if (cached !== undefined) return cached;
+    const ones: number[] = [];
+    for (let i = 0; i < n; i++) ones.push(1);
+    return (SmartLayout.evenCache[n] = SmartLayout.normalize(ones));
+  }
+
   public static normalize(values: number[]): number[] {
-    const sum = values.reduce((a, b) => a + b, 0);
-    if (sum <= 0) return values.map(() => 1 / values.length);
-    return values.map((v) => v / sum);
+    const n = values.length;
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += values[i];
+    const out: number[] = new Array(n);
+    if (sum <= 0) for (let i = 0; i < n; i++) out[i] = 1 / n;
+    else for (let i = 0; i < n; i++) out[i] = values[i] / sum;
+    return out;
   }
 
   private static fromPlanSpace(r: Rect, area: Rect): Rect {

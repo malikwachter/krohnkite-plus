@@ -31,7 +31,6 @@ class StateStore {
   private static readonly FILE = '"$HOME/.local/share/krohnkite/state.json"';
 
   private lastSaved: string | null;
-  private pending: string | null;
   private saveScheduled: boolean;
 
   constructor(
@@ -39,7 +38,6 @@ class StateStore {
     private setTimeout: (f: () => void, ms: number) => void,
   ) {
     this.lastSaved = null;
-    this.pending = null;
     this.saveScheduled = false;
   }
 
@@ -63,23 +61,23 @@ class StateStore {
     });
   }
 
-  /** save `state` a little later if it differs from what is on disk */
-  public saveSoon(state: IPersistedState) {
-    if (this.shell === null) return;
-    const json = JSON.stringify(state);
-    if (json === this.lastSaved) {
-      this.pending = null;
-      return;
-    }
-    this.pending = json;
-    if (this.saveScheduled) return;
+  /**
+   * Save a little later if the state differs from what is on disk. The state
+   * is only collected when the timer fires, so frequent calls cost nothing.
+   */
+  public saveSoon(collect: () => IPersistedState) {
+    if (this.shell === null || this.saveScheduled) return;
     this.saveScheduled = true;
     this.setTimeout(() => {
       this.saveScheduled = false;
-      const data = this.pending;
-      this.pending = null;
-      if (data === null || data === this.lastSaved) return;
-      this.write(data);
+      let json: string;
+      try {
+        json = JSON.stringify(collect());
+      } catch (e) {
+        warning(`could not collect the state: ${e}`);
+        return;
+      }
+      if (json !== this.lastSaved) this.write(json);
     }, 2000);
   }
 

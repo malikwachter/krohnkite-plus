@@ -45,6 +45,7 @@ class TilingEngine {
    * Used when tile is resized using mouse.
    */
   public adjustLayout(basis: WindowClass) {
+    WindowClass.invalidateSizes();
     let delta = basis.geometryDelta;
     if (delta === null) return;
     const srf = basis.surface;
@@ -221,6 +222,7 @@ class TilingEngine {
   public pendingArrange = false;
 
   public arrange(ctx: IDriverContext, reason: string) {
+    WindowClass.invalidateSizes();
     LOG?.send(
       LogModules.arrangeScreen,
       "ArrangeScreens",
@@ -611,171 +613,38 @@ class TilingEngine {
 
   /* ============================================================ undo / redo */
 
-  private undoStack: IUndoSnapshot[] = [];
-  private redoStack: IUndoSnapshot[] = [];
-  /** the state after the last arrange */
-  private undoBase: IUndoSnapshot | null = null;
-  /** a user action happened at this time: the next change becomes an undo step */
-  private userActionAt = 0;
-  /** a window is being moved/resized with the mouse: wait for the end */
-  private undoHoldAt = 0;
+  /** Undo/Redo history (see undohistory.ts); the methods below delegate to it. */
+  public readonly history: UndoHistory = new UndoHistory(this);
+
   public set undoHold(on: boolean) {
-    this.undoHoldAt = on ? getTime() : 0;
+    this.history.hold = on;
   }
   public get undoHold(): boolean {
-    // a move/resize that never reports its end must not stop undo forever
-    return this.undoHoldAt !== 0 && getTime() - this.undoHoldAt < 120000;
+    return this.history.hold;
   }
-
   public markUserAction() {
-    this.userActionAt = getTime();
+    this.history.markUserAction();
   }
-
+  public beginMouseAction() {
+    this.history.beginMouseAction();
+  }
+  public endMouseAction() {
+    this.history.endMouseAction();
+  }
   public snapshot(): IUndoSnapshot {
-    const wins: IUndoWindow[] = [];
-    this.windows.list.forEach((w) => {
-      const tiled = w.state === WindowState.Tiled;
-      const floating = w.state === WindowState.Floating;
-      let output = "";
-      try {
-        output = w.surface.output.name;
-      } catch (e) {
-        /* window without output (closing) */
-      }
-      const g = floating ? w.actualGeometry : null;
-      wins.push({
-        id: w.id,
-        output,
-        state: tiled ? "tile" : floating ? "float" : "other",
-        float: g === null ? null : [g.x, g.y, g.width, g.height],
-      });
-    });
-    let layouts = "";
-    try {
-      layouts = JSON.stringify(this.layouts.exportState());
-    } catch (e) {
-      /* ignore */
-    }
-    return { wins, layouts };
+    return this.history.snapshot();
   }
-
-  /** compare two snapshots on the windows both know (opening/closing is no step) */
-  private static undoKey(s: IUndoSnapshot, ids: { [id: string]: boolean }): string {
-    return (
-      s.wins
-        .filter((w) => ids[w.id])
-        .map((w) => `${w.id}@${w.output}:${w.state}:${w.float ? w.float.join(",") : ""}`)
-        .join("|") +
-      "#" +
-      s.layouts
-    );
-  }
-
-  private static undoDiffers(a: IUndoSnapshot, b: IUndoSnapshot): boolean {
-    const inA: { [id: string]: boolean } = {};
-    a.wins.forEach((w) => (inA[w.id] = true));
-    const both: { [id: string]: boolean } = {};
-    b.wins.forEach((w) => {
-      if (inA[w.id]) both[w.id] = true;
-    });
-    return TilingEngine.undoKey(a, both) !== TilingEngine.undoKey(b, both);
-  }
-
-  /** after every arrange and user action: record a step if the user changed something */
   public undoObserve(reason: string) {
-    if (this.undoHold || this.dragWindow !== null) return;
-    const cur = this.snapshot();
-    const base = this.undoBase;
-    this.undoBase = cur;
-    if (base === null || this.userActionAt === 0) return;
-    if (getTime() - this.userActionAt > 800) {
-      this.userActionAt = 0;
-      return;
-    }
-    if (!TilingEngine.undoDiffers(base, cur)) return;
-    this.userActionAt = 0;
-    this.undoStack.push(base);
-    while (this.undoStack.length > CONFIG.undoDepth) this.undoStack.shift();
-    this.redoStack = [];
+    this.history.observe(reason);
   }
-
   public get undoSteps(): number {
-    return this.undoStack.length;
+    return this.history.undoSteps;
   }
-
   public get redoSteps(): number {
-    return this.redoStack.length;
+    return this.history.redoSteps;
   }
-
-  /** undo (redo=false) or redo the last step. Returns false if there was nothing to do. */
   public undo(ctx: IDriverContext, redo: boolean): boolean {
-    const from = redo ? this.redoStack : this.undoStack;
-    const to = redo ? this.undoStack : this.redoStack;
-    this.userActionAt = 0;
-    this.unzoom();
-    const cur = this.snapshot();
-    while (from.length > 0) {
-      const target = from.pop() as IUndoSnapshot;
-      if (!TilingEngine.undoDiffers(target, cur)) continue; // its windows are gone
-      to.push(cur);
-      this.restore(ctx, target);
-      return true;
-    }
-    return false;
-  }
-
-  private restore(ctx: IDriverContext, snap: IUndoSnapshot) {
-    const byId: { [id: string]: WindowClass } = {};
-    this.windows.list.forEach((w) => (byId[w.id] = w));
-    const known = snap.wins.filter((s) => byId[s.id] !== undefined);
-
-    /* window order */
-    const order = known.map((s) => byId[s.id]);
-    const list = this.windows.list;
-    const at = order.map((w) => list.indexOf(w)).sort((a, b) => a - b);
-    at.forEach((p, k) => (list[p] = order[k]));
-
-    /* floating / tiling and floating geometry */
-    known.forEach((s) => {
-      const w = byId[s.id];
-      if (s.state === "other") return;
-      const rect = s.float ? new Rect(s.float[0], s.float[1], s.float[2], s.float[3]) : null;
-      if (s.state === "float") {
-        if (rect !== null) w.floatGeometry = rect;
-        if (w.state === WindowState.Floating) {
-          if (rect !== null && !w.actualGeometry.equals(rect)) w.forceSetGeometry(rect);
-        } else w.state = WindowState.Floating;
-      } else if (w.state !== WindowState.Tiled) w.state = WindowState.Tiled;
-    });
-
-    /* layouts and sizes */
-    if (snap.layouts !== "") {
-      try {
-        this.layouts.importState(JSON.parse(snap.layouts), true);
-      } catch (e) {
-        /* ignore */
-      }
-    }
-
-    /* monitors */
-    const outputs: { [name: string]: Output } = {};
-    ctx.currentSurfaces.forEach((srf) => (outputs[srf.output.name] = srf.output));
-    const moves: [Output, WindowClass[]][] = [];
-    known.forEach((s) => {
-      const w = byId[s.id];
-      let now = "";
-      try {
-        now = w.surface.output.name;
-      } catch (e) {
-        return;
-      }
-      if (s.output === "" || s.output === now || !outputs[s.output]) return;
-      let entry = moves.find((m) => m[0] === outputs[s.output]);
-      if (!entry) moves.push((entry = [outputs[s.output], []]));
-      entry[1].push(w);
-    });
-    if (moves.length > 0) ctx.moveWindowsToScreen(moves); // arranges afterwards
-    else this.arrange(ctx, "undo");
+    return this.history.undo(ctx, redo);
   }
 
   /* ============================================================ live drag & drop */
@@ -872,6 +741,7 @@ class TilingEngine {
    * move out of the way) and show the silhouette where the window lands.
    */
   public dragUpdate(ctx: IDriverContext, window: WindowClass) {
+    WindowClass.invalidateSizes();
     if (this.dragWindow !== window) {
       if (this.unzoom()) this.arrangeAll(ctx, "unzoom"); // real slots for hit testing
       this.dragWindow = window;
@@ -941,7 +811,7 @@ class TilingEngine {
   ): WindowClass[] {
     const lands = (tiles: WindowClass[]) => {
       const i = tiles.indexOf(window);
-      const r = layout.compute(tiles, area, gap, i)[i];
+      const r = layout.compute(tiles, area, gap, i, true)[i];
       return r !== undefined && r.includesPoint(pos);
     };
     if (lands(base)) return base;
@@ -974,7 +844,7 @@ class TilingEngine {
   }
 
   /** put the given windows into exactly this relative order in the list */
-  private applyOrder(order: WindowClass[]) {
+  public applyOrder(order: WindowClass[]) {
     const list = this.windows.list;
     const at = order.map((w) => list.indexOf(w));
     if (at.some((i) => i < 0)) return;
@@ -1052,6 +922,7 @@ class TilingEngine {
    * move/resize such windows back to where/how they should be.
    */
   public enforceSize(ctx: IDriverContext, window: WindowClass) {
+    WindowClass.invalidateSizes();
     if (ctx.isPaused) return;
     if (window.isTiled && !window.actualGeometry.equals(window.geometry)) {
       ctx.setTimeout(() => {

@@ -39,12 +39,6 @@ class TilingController {
 
   public onWindowAdded(ctx: IDriverContext, window: WindowClass): void {
     this.engine.manage(window);
-
-    /* move window to next surface if the current surface is "full" */
-    if (window.isTileable) {
-      const srf = ctx.currentSurface;
-      const tiles = this.engine.windows.getVisibleTiles(srf);
-    }
     if (
       window.state !== WindowState.NativeMaximized &&
       window.state !== WindowState.NativeFullscreen
@@ -68,7 +62,7 @@ class TilingController {
   }
 
   public onWindowMoveStart(window: WindowClass): void {
-    this.engine.undoHold = true;
+    this.engine.beginMouseAction();
   }
 
   public onWindowMove(window: WindowClass): void {
@@ -119,8 +113,7 @@ class TilingController {
   }
 
   public onWindowMoveOver(ctx: IDriverContext, window: WindowClass): void {
-    this.engine.undoHold = false;
-    this.engine.markUserAction();
+    this.engine.endMouseAction();
     this.moveOver(ctx, window);
     this.engine.undoObserve("moveOver");
   }
@@ -163,7 +156,7 @@ class TilingController {
   }
 
   public onWindowResizeStart(window: WindowClass): void {
-    this.engine.undoHold = true;
+    this.engine.beginMouseAction();
   }
 
   public onWindowResize(ctx: IDriverContext, window: WindowClass): void {
@@ -182,8 +175,7 @@ class TilingController {
   }
 
   public onWindowResizeOver(ctx: IDriverContext, window: WindowClass): void {
-    this.engine.undoHold = false;
-    this.engine.markUserAction();
+    this.engine.endMouseAction();
     this.resizeOver(ctx, window);
     this.engine.undoObserve("resizeOver");
   }
@@ -400,72 +392,16 @@ class TilingController {
         break;
 
       case Shortcut.GrowWidth:
-        if (window) {
-          if (window.state === WindowState.Docked && window.dock) {
-            if (
-              window.dock.position === DockPosition.left ||
-              window.dock.position === DockPosition.right
-            ) {
-              window.dock.cfg.vWide += 1;
-            } else if (
-              window.dock.position === DockPosition.top ||
-              window.dock.position === DockPosition.bottom
-            ) {
-              window.dock.cfg.hWide += 1;
-            }
-          } else this.engine.resizeWindow(window, "east", 1);
-        }
+        if (window) this.resizeDockOrWindow(window, "width", 1);
         break;
       case Shortcut.ShrinkWidth:
-        if (window) {
-          if (window.state === WindowState.Docked && window.dock) {
-            if (
-              window.dock.position === DockPosition.left ||
-              window.dock.position === DockPosition.right
-            ) {
-              window.dock.cfg.vWide -= 1;
-            } else if (
-              window.dock.position === DockPosition.top ||
-              window.dock.position === DockPosition.bottom
-            ) {
-              window.dock.cfg.hWide -= 1;
-            }
-          } else this.engine.resizeWindow(window, "east", -1);
-        }
+        if (window) this.resizeDockOrWindow(window, "width", -1);
         break;
       case Shortcut.GrowHeight:
-        if (window) {
-          if (window.state === WindowState.Docked && window.dock) {
-            if (
-              window.dock.position === DockPosition.left ||
-              window.dock.position === DockPosition.right
-            ) {
-              window.dock.cfg.vHeight += 1;
-            } else if (
-              window.dock.position === DockPosition.top ||
-              window.dock.position === DockPosition.bottom
-            ) {
-              window.dock.cfg.hHeight += 1;
-            }
-          } else this.engine.resizeWindow(window, "south", 1);
-        }
+        if (window) this.resizeDockOrWindow(window, "height", 1);
         break;
       case Shortcut.ShrinkHeight:
-        if (window) {
-          if (window.state === WindowState.Docked && window.dock) {
-            if (
-              window.dock.position === DockPosition.left ||
-              window.dock.position === DockPosition.right
-            ) {
-              window.dock.cfg.vHeight -= 1;
-            } else if (
-              window.dock.position === DockPosition.top ||
-              window.dock.position === DockPosition.bottom
-            ) {
-              window.dock.cfg.hHeight -= 1;
-            }
-          } else this.engine.resizeWindow(window, "south", -1);
-        }
+        if (window) this.resizeDockOrWindow(window, "height", -1);
         break;
 
       case Shortcut.ShiftUp:
@@ -535,6 +471,27 @@ class TilingController {
       window?.moveMouseToFocus();
     }
     this.engine.arrange(ctx, getMethodName());
+  }
+
+  /**
+   * Grow/shrink keys: a docked window changes its dock size (vertical docks
+   * left/right use vWide/vHeight, horizontal ones top/bottom hWide/hHeight),
+   * any other window is resized towards east/south.
+   */
+  private resizeDockOrWindow(window: WindowClass, what: "width" | "height", step: 1 | -1) {
+    if (window.state === WindowState.Docked && window.dock) {
+      const pos = window.dock.position;
+      const cfg = window.dock.cfg;
+      const vertical = pos === DockPosition.left || pos === DockPosition.right;
+      const horizontal = pos === DockPosition.top || pos === DockPosition.bottom;
+      if (what === "width") {
+        if (vertical) cfg.vWide += step;
+        else if (horizontal) cfg.hWide += step;
+      } else {
+        if (vertical) cfg.vHeight += step;
+        else if (horizontal) cfg.hHeight += step;
+      }
+    } else this.engine.resizeWindow(window, what === "width" ? "east" : "south", step);
   }
 
   private _initMetaShortcuts() {

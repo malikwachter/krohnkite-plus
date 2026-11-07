@@ -213,5 +213,77 @@ test("live mouse resizing becomes one step at the end", () => {
   assert(engine.undoSteps <= steps + 1);
 });
 
+test("drag & drop with the mouse is one undo step", () => {
+  const before = order();
+  active = a1;
+  control.onWindowMoveStart(a1);
+  drv.cursorPosition = [1500, 800]; // over the bottom right tile
+  control.onWindowDragging(drv, a1, a1.actualGeometry);
+  control.onWindowMoveOver(drv, a1);
+  assert.notDeepStrictEqual(order(), before, "dropped somewhere else");
+  key("Undo");
+  assert.deepStrictEqual(order(), before);
+  assert.deepStrictEqual(g(a1), home.a1);
+});
+test("moving a floating window with the mouse can be undone", () => {
+  active = a2;
+  key("ToggleFloat");
+  const start = g(a2).slice();
+  control.onWindowMoveStart(a2);
+  a2.window.geometry = R(start[0] + 300, start[1] + 200, start[2], start[3]); // the user moved it
+  control.onWindowMoveOver(drv, a2);
+  key("Undo");
+  assert.deepStrictEqual(g(a2), start, "back where it was");
+  key("Undo"); // and tiled again
+  assert(a2.isTiled);
+});
+test("no snapshots are taken by plain arranges", () => {
+  let snaps = 0;
+  const h = engine.history, orig = h.snapshot;
+  h.snapshot = function () { snaps++; return orig.call(this); };
+  for (let i = 0; i < 20; i++) engine.arrange(drv, "plain");
+  h.snapshot = orig;
+  assert.strictEqual(snaps, 0);
+});
+
+test("a key without effect, then windows opening that make one float: no step", () => {
+  const e = vm.runInContext("new TilingEngine()", ctx);
+  const c = vm.runInContext("(e) => new TilingController(e)", ctx)(e);
+  const x = win("x", outA), y = win("y", outA);
+  e.manage(x); e.manage(y);
+  active = x;
+  e.arrange(drv, "init");
+  c.onShortcut(drv, "FocusNext"); // user action that changes nothing
+  const z = win("z", outA);
+  z.window.minSize = { width: 1200, height: 700 };
+  e.manage(z);
+  e.arrange(drv, "added");
+  assert(z.isTiled, "z fits");
+  const w2 = win("w2", outA);
+  w2.window.minSize = { width: 900, height: 600 }; // z and w2 cannot share the screen: z floats
+  e.manage(w2);
+  e.arrange(drv, "added");
+  assert(z.isFloating, "z was floated automatically");
+  assert.strictEqual(e.undoSteps, 0, "automatic floating is not the user's step");
+});
+test("grow/shrink keys change dock sizes (vertical: v*, horizontal: h*), else resize", () => {
+  const P = vm.runInContext("DockPosition", ctx), Docked = vm.runInContext("WindowState.Docked", ctx);
+  const mk = (pos) => ({ state: Docked, dock: { position: pos, cfg: { vWide: 10, hWide: 10, vHeight: 10, hHeight: 10 } } });
+  const left = mk(P.left), top = mk(P.top);
+  control.resizeDockOrWindow(left, "width", 1);
+  control.resizeDockOrWindow(left, "height", -1);
+  control.resizeDockOrWindow(top, "width", -1);
+  control.resizeDockOrWindow(top, "height", 1);
+  assert.deepStrictEqual({ ...left.dock.cfg }, { vWide: 11, hWide: 10, vHeight: 9, hHeight: 10 });
+  assert.deepStrictEqual({ ...top.dock.cfg }, { vWide: 10, hWide: 9, vHeight: 10, hHeight: 11 });
+  const calls = [];
+  const orig = engine.resizeWindow;
+  engine.resizeWindow = (w, dir, step) => calls.push(dir + step);
+  control.resizeDockOrWindow(a1, "width", -1);
+  control.resizeDockOrWindow(a1, "height", 1);
+  engine.resizeWindow = orig;
+  assert.deepStrictEqual(calls, ["east-1", "south1"]);
+});
+
 console.log(failed === 0 ? "\nall zoom/undo tests passed" : `\n${failed} test(s) FAILED`);
 process.exit(failed === 0 ? 0 : 1);

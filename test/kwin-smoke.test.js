@@ -144,13 +144,22 @@ test("state store: writes only when something changed", () => {
   const cmds = [];
   const store = new Store({ run: (cmd, cb) => { cmds.push(cmd); cb(0, "", ""); } }, (f) => f());
   const st = { version: 1, learnedMin: { steam: { width: 1010, height: 600 } }, floatMemory: {}, layouts: {} };
-  store.saveSoon(st);
-  store.saveSoon(JSON.parse(JSON.stringify(st)));
+  store.saveSoon(() => st);
+  store.saveSoon(() => JSON.parse(JSON.stringify(st)));
   assert.strictEqual(cmds.length, 1);
   assert(/base64 -d/.test(cmds[0]) && !/1010/.test(cmds[0]), "payload is base64 encoded");
   st.learnedMin.steam.width = 1100;
-  store.saveSoon(st);
+  store.saveSoon(() => st);
   assert.strictEqual(cmds.length, 2);
+  // collected lazily: many calls while the timer runs cost one collection
+  const timers = [];
+  const lazy = new Store({ run: (cmd, cb) => { cmds.push(cmd); cb(0, "", ""); } }, (f) => timers.push(f));
+  let collected = 0;
+  for (let i = 0; i < 50; i++) lazy.saveSoon(() => (collected++, st));
+  assert.strictEqual(timers.length, 1);
+  timers[0]();
+  assert.strictEqual(collected, 1);
+  assert.strictEqual(cmds.length, 3);
 });
 test("base64 matches the system tool, umlauts included", () => {
   const b64 = vm.runInContext("StateStore", ctx).base64('{"Arbeitsfläche 1":"ü€😀"}');
@@ -224,6 +233,22 @@ test("animation speed is passed to the Krohnkite Smooth effect", () => {
   assert(/kwriteconfig6 --file kwinrc --group Effect-krohnkite_smooth --key Duration 150/.test(cmd), cmd);
   assert(/reconfigureEffect string:krohnkite_smooth/.test(cmd), cmd);
   require("fs").writeFileSync(require("path").join(__dirname, ".effect-cmd.txt"), cmd);
+});
+test("cascade layout from the layout factory works (capacity is not the direction)", () => {
+  const r = vm.runInContext(`(function () {
+    const layout = CONFIG.layoutFactories["CascadeLayout"]();
+    const tiles = [0, 1, 2].map(() => ({ state: 0, geometry: null }));
+    layout.apply(null, tiles, new Rect(0, 0, 1000, 800), 0);
+    const clone = layout.clone();
+    return { g: tiles.map((t) => [t.geometry.x, t.geometry.y, t.geometry.width, t.geometry.height]),
+             d: layout.description, cap: layout.capacity, cloneD: clone.description, cloneCap: clone.capacity,
+             limited: new CascadeLayout(3).capacity };
+  })()`, ctx);
+  assert.strictEqual(r.d, "Cascade [SouthEast]");
+  assert.strictEqual(JSON.stringify(r.g), JSON.stringify([[0, 0, 950, 750], [25, 25, 950, 750], [50, 50, 950, 750]]));
+  assert.strictEqual(r.cloneD, r.d);
+  assert.strictEqual(r.cloneCap, r.cap);
+  assert.strictEqual(r.limited, 3);
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

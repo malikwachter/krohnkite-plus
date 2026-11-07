@@ -142,8 +142,9 @@ class KWinWindow implements IDriverWindow {
 
   /** minimal frame size, raised by a "minwidth"/"minheight" window rule */
   public get minSize(): ISize {
-    let width = this.window.minSize.width;
-    let height = this.window.minSize.height;
+    const reported = this.window.minSize;
+    let width = reported.width;
+    let height = reported.height;
     /* minSize is the client size, layouts work with frame geometry */
     const frame = this.window.frameGeometry;
     const client = this.window.clientGeometry;
@@ -167,10 +168,8 @@ class KWinWindow implements IDriverWindow {
     return { width, height };
   }
   public get maxSize(): ISize {
-    return {
-      width: this.window.maxSize.width,
-      height: this.window.maxSize.height,
-    };
+    const max = this.window.maxSize;
+    return { width: max.width, height: max.height };
   }
   public readonly window: Window;
   public readonly id: string;
@@ -462,12 +461,10 @@ class KWinWindow implements IDriverWindow {
       width = this.window.width;
       height = this.window.height;
     } else {
-      width = clip(width, this.window.minSize.width, this.window.maxSize.width);
-      height = clip(
-        height,
-        this.window.minSize.height,
-        this.window.maxSize.height,
-      );
+      const min = this.window.minSize;
+      const max = this.window.maxSize;
+      width = clip(width, min.width, max.width);
+      height = clip(height, min.height, max.height);
     }
 
     /* a window that can not fill its tile (max size) is centered in it */
@@ -490,13 +487,11 @@ class KWinWindow implements IDriverWindow {
         this.workspace.currentDesktop,
       ),
     );
+    const min = this.window.minSize;
+    const max = this.window.maxSize;
     const fit = (r: Rect): Rect => {
-      let width = clip(r.width, this.window.minSize.width, this.window.maxSize.width);
-      let height = clip(
-        r.height,
-        this.window.minSize.height,
-        this.window.maxSize.height,
-      );
+      let width = clip(r.width, min.width, max.width);
+      let height = clip(r.height, min.height, max.height);
       width = Math.min(width, area.width);
       height = Math.min(height, area.height);
       const x = clip(r.x, area.x, area.maxX - width);
@@ -570,21 +565,16 @@ class KWinWindow implements IDriverWindow {
     height = outputGeometry.height * (CONFIG.floatInit.windowHeight / 100);
     x = outputGeometry.x + outputGeometry.width / 2 - width / 2;
     y = outputGeometry.y + outputGeometry.height / 2 - height / 2;
-    if (
-      this.window.minSize.width > outputGeometry.width ||
-      this.window.minSize.height > outputGeometry.height
-    ) {
-      width = this.window.minSize.width;
-      height = this.window.minSize.height;
+    const min = this.window.minSize;
+    const max = this.window.maxSize;
+    if (min.width > outputGeometry.width || min.height > outputGeometry.height) {
+      width = min.width;
+      height = min.height;
       x = outputGeometry.x;
       y = outputGeometry.y;
-    } else if (
-      !this.window.resizeable ||
-      this.window.maxSize.width < width ||
-      this.window.maxSize.height < height
-    ) {
-      width = this.window.maxSize.width;
-      height = this.window.maxSize.height;
+    } else if (!this.window.resizeable || max.width < width || max.height < height) {
+      width = max.width;
+      height = max.height;
       x = outputGeometry.x + outputGeometry.width / 2 - width / 2;
       y = outputGeometry.y + outputGeometry.height / 2 - height / 2;
     } else {

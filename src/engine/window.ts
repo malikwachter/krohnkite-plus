@@ -65,13 +65,34 @@ class WindowClass {
 
   /* read live: apps change their size hints and rules may raise them */
   public get minSize(): ISize {
+    if (this.minSizeEpoch === WindowClass.sizeEpoch && this.minSizeCached !== null)
+      return this.minSizeCached;
     const reported = this.window.minSize;
     const learned = WindowClass.learnedMin[this.windowClassName];
-    if (learned === undefined) return reported;
-    return {
-      width: Math.max(reported.width, learned.width),
-      height: Math.max(reported.height, learned.height),
-    };
+    const size =
+      learned === undefined
+        ? reported
+        : {
+            width: Math.max(reported.width, learned.width),
+            height: Math.max(reported.height, learned.height),
+          };
+    this.minSizeCached = size;
+    this.minSizeEpoch = WindowClass.sizeEpoch;
+    return size;
+  }
+
+  /*
+   * Reading the minimal size goes through several KWin properties (min size,
+   * frame and client geometry, window rules). It cannot change within one
+   * event, so it is read once per "epoch"; a new epoch starts with every
+   * arrange / driver event and whenever a minimal size is learned.
+   */
+  private static sizeEpoch = 0;
+  private minSizeEpoch = -1;
+  private minSizeCached: ISize | null = null;
+
+  public static invalidateSizes() {
+    WindowClass.sizeEpoch++;
   }
 
   /**
@@ -98,6 +119,7 @@ class WindowClass {
       if (v && typeof v.width === "number" && typeof v.height === "number")
         WindowClass.learnedMin[k] = { width: v.width, height: v.height };
     }
+    WindowClass.invalidateSizes();
   }
 
   public isTooBigFor(target: Rect): boolean {
@@ -118,10 +140,13 @@ class WindowClass {
     const actual = this.actualGeometry;
     const tol = WindowClass.LEARN_TOLERANCE;
     if (actual.width + tol < learned.width || actual.height + tol < learned.height)
+    {
       WindowClass.learnedMin[this.windowClassName] = {
         width: Math.min(learned.width, actual.width),
         height: Math.min(learned.height, actual.height),
       };
+      WindowClass.invalidateSizes();
+    }
   }
 
   /** remember the current oversize as minimal size; true if it grew */
@@ -155,6 +180,7 @@ class WindowClass {
     };
     if (next.width <= prev.width && next.height <= prev.height) return false;
     WindowClass.learnedMin[cls] = next;
+    WindowClass.invalidateSizes();
     const reported = this.window.minSize;
     notice(
       `Krohnkite Smart: ${cls} refuses to shrink: tile ${target.width}x${target.height}, actual ${actual.width}x${actual.height}, reported min ${reported.width}x${reported.height} -> learned min ${next.width}x${next.height}`,
