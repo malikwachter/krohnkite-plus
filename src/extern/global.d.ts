@@ -22,7 +22,12 @@ interface Api {
   preview?: (() => IDropPreviewQml | null) | null;
 }
 interface IDropPreviewQml {
-  show(x: number, y: number, w: number, h: number, swap: boolean): void;
+  show(
+    key: string,
+    ox: number, oy: number, ow: number, oh: number,
+    x: number, y: number, w: number, h: number,
+    swap: boolean,
+  ): void;
   hide(): void;
 }
 declare var KWINCONFIG: KWinConfig;

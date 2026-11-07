@@ -124,7 +124,7 @@ class TilingController {
     }
     const target = this.engine.dropTarget(ctx, window);
     if (target !== null) {
-      ctx.showDropPreview(target.actualGeometry, true);
+      ctx.showDropPreview(this.engine.dropGeometry(ctx, window, target), true);
       return;
     }
     if (!CONFIG.keepTilingOnDrag) {
@@ -134,7 +134,7 @@ class TilingController {
         return;
       }
     }
-    ctx.showDropPreview(window.geometry, false);
+    ctx.showDropPreview(this.engine.dropGeometry(ctx, window, null), false);
   }
 
   public onWindowMoveOver(ctx: IDriverContext, window: WindowClass): void {

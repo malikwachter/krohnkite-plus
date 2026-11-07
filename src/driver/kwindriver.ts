@@ -485,8 +485,24 @@ class KWinDriver implements IDriverContext {
     const p = this.previewObject();
     if (!p) return;
     try {
-      if (rect === null || !CONFIG.dragPreview) p.hide();
-      else p.show(rect.x, rect.y, rect.width, rect.height, swap);
+      if (rect === null || !CONFIG.dragPreview) {
+        p.hide();
+        return;
+      }
+      const [cx, cy] = rect.center;
+      const out =
+        this.workspace.screens.find(
+          (o) =>
+            cx >= o.geometry.x &&
+            cx < o.geometry.x + o.geometry.width &&
+            cy >= o.geometry.y &&
+            cy < o.geometry.y + o.geometry.height,
+        ) || this.workspace.activeScreen;
+      // the work area (without panels): KWin will not need to shrink or move it
+      const g = toRect(
+        this.workspace.clientArea(ClientAreaOption.PlacementArea, out, this.workspace.currentDesktop),
+      );
+      p.show(out.name, g.x, g.y, g.width, g.height, rect.x, rect.y, rect.width, rect.height, swap);
     } catch (e) {
       warning(`drop preview: ${e}`);
     }

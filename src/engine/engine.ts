@@ -553,14 +553,53 @@ class TilingEngine {
     );
   }
 
-  /** the tile under the cursor a dragged tiled window would swap with */
+  /**
+   * The tile under the cursor a dragged tiled window would swap with.
+   * Uses the tiles' layout slots (stable while dragging); null when the
+   * cursor is over the dragged window's own slot or over no tile.
+   */
   public dropTarget(ctx: IDriverContext, window: WindowClass): WindowClass | null {
     const tiles = this.windows.getVisibleTiles(ctx.currentSurface);
     const cursorPos = ctx.cursorPosition || window.actualGeometry.center;
-    const targets = tiles.filter(
-      (tile) => tile !== window && tile.actualGeometry.includesPoint(cursorPos),
-    );
-    return targets.length === 1 ? targets[0] : null;
+    if (window.geometry.includesPoint(cursorPos)) return null;
+    let best: WindowClass | null = null;
+    tiles.forEach((tile) => {
+      if (tile === window) return;
+      const slot = tile.geometry || tile.actualGeometry;
+      if (!slot.includesPoint(cursorPos) && !tile.actualGeometry.includesPoint(cursorPos)) return;
+      if (best === null || slot.width * slot.height < best.geometry.width * best.geometry.height)
+        best = tile;
+    });
+    return best;
+  }
+
+  /**
+   * Where the dragged window will be after dropping it on `target` (or back
+   * on its own slot): for the Smart layout the real result is computed,
+   * including focus grow (the dropped window is focused afterwards).
+   */
+  public dropGeometry(ctx: IDriverContext, window: WindowClass, target: WindowClass | null): Rect {
+    const fallback = target !== null ? target.geometry : window.geometry;
+    const srf = ctx.currentSurface;
+    const layout = this.layouts.getCurrentLayout(srf);
+    if (!(layout instanceof SmartLayout)) return fallback;
+    const tiles = this.windows.getVisibleTileables(srf);
+    const from = tiles.indexOf(window);
+    if (from < 0) return fallback;
+    if (target !== null) {
+      const to = tiles.indexOf(target);
+      if (to < 0) return fallback;
+      tiles[from] = target;
+      tiles[to] = window;
+    }
+    const gaps = this.getGaps(srf);
+    const area = srf.workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
+    try {
+      const rects = layout.compute(tiles, area, gaps.between, tiles.indexOf(window));
+      return rects[tiles.indexOf(window)] || fallback;
+    } catch (e) {
+      return fallback;
+    }
   }
 
   /**

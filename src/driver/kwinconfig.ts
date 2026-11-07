@@ -618,7 +618,7 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "smart9";
+  return "smart10";
 }
 
 function defaultWindowRules(): string {

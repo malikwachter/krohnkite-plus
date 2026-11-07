@@ -196,7 +196,7 @@ test("arrange is skipped while paused and caught up later", () => {
 test("drop target is the tile under the cursor", () => {
   const engine = vm.runInContext("new TilingEngine()", ctx);
   const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
-  const fake = (id, rect) => ({ id, actualGeometry: rect, isTiled: true });
+  const fake = (id, rect) => ({ id, actualGeometry: rect, geometry: rect, isTiled: true });
   const a = fake("a", R(0, 0, 960, 1080)), b = fake("b", R(960, 0, 960, 1080));
   engine.windows.getVisibleTiles = () => [a, b];
   assert.strictEqual(engine.dropTarget({ cursorPosition: [1500, 500], currentSurface: {} }, a), b);
@@ -217,6 +217,47 @@ test("drag preview: highlights the swap target, else the own tile", () => {
   drv.cursorPosition = [800, 500];
   control.onWindowDragging(drv, a, R(700, 0, 960, 1080));
   assert.deepStrictEqual(shown, { r: [0, 0, 960, 1080], swap: false });
+});
+test("drop preview goes to the overlay of the monitor under the box", () => {
+  const outB = { name: "HDMI-A-1", geometry: { x: 2560, y: 0, width: 2560, height: 1440 } };
+  const calls = [];
+  const fake = {
+    workspace: Object.assign({}, ws, { screens: [out, outB], activeScreen: out,
+      clientArea: (opt, o) => ({ x: o.geometry.x, y: 30, width: o.geometry.width, height: o.geometry.height - 30 }) }),
+    previewObject: () => ({ show: (...a) => calls.push(a), hide: () => calls.push(["hide"]) }),
+  };
+  const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
+  const show = vm.runInContext("(d, r, s) => KWinDriver.prototype.showDropPreview.call(d, r, s)", ctx);
+  show(fake, R(3000, 30, 1280, 1410), true);
+  assert.deepStrictEqual(calls[0], ["HDMI-A-1", 2560, 30, 2560, 1410, 3000, 30, 1280, 1410, true]);
+  show(fake, null, false);
+  assert.deepStrictEqual(calls[1], ["hide"]);
+});
+test("dragging over each of four tiles gives four different drop places (Smart)", () => {
+  const engine = vm.runInContext("new TilingEngine()", ctx);
+  const R = (x, y, w, h) => vm.runInContext(`new Rect(${x},${y},${w},${h})`, ctx);
+  const tiled = vm.runInContext("WindowState.Tiled", ctx);
+  const smart = vm.runInContext("new SmartLayout()", ctx);
+  const surface = { workingArea: R(0, 0, 1920, 1080) };
+  const mkT = (id, g) => ({ id, state: tiled, isTiled: true, weight: 1, minSize: { width: 0, height: 0 }, geometry: g, actualGeometry: g });
+  const tl = mkT("tl", R(0, 0, 960, 540)), bl = mkT("bl", R(0, 540, 960, 540)),
+        tr = mkT("tr", R(960, 0, 960, 540)), br = mkT("br", R(960, 540, 960, 540));
+  engine.windows.getVisibleTiles = () => [tl, bl, tr, br];
+  engine.windows.getVisibleTileables = () => [tl, bl, tr, br];
+  engine.layouts.getCurrentLayout = () => smart;
+  engine.getGaps = () => ({ left: 0, right: 0, top: 0, bottom: 0, between: 0 });
+  const places = new Set();
+  [[400, 800], [1400, 200], [1400, 800]].forEach(([x, y]) => {
+    const drv = { cursorPosition: [x, y], currentSurface: surface };
+    const t = engine.dropTarget(drv, tl);
+    assert(t !== null, `target at ${x},${y}`);
+    const g = engine.dropGeometry(drv, tl, t);
+    places.add([g.x, g.y].join(","));
+    assert(g.x <= x && x < g.x + g.width + 200, "silhouette is where the cursor is");
+  });
+  const home = engine.dropGeometry({ cursorPosition: [100, 100], currentSurface: surface }, tl, null);
+  places.add([home.x, home.y].join(","));
+  assert.strictEqual(places.size, 4, [...places].join(" | "));
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);
