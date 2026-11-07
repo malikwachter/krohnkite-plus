@@ -230,6 +230,14 @@ class TilingEngine {
       this.pendingArrange = true;
       return;
     }
+    if (this.dragWindow !== null) {
+      // a drag preview is live; a stuck drag (no move events) must not block forever
+      if (getTime() - this.dragLastUpdate < 5000 && reason !== "dragFinish") {
+        this.pendingArrange = true;
+        return;
+      }
+      this.dragCancel(ctx);
+    }
     this.pendingArrange = false;
     this.arrangeAll(ctx, reason);
     ctx.stateMaybeChanged();
@@ -553,53 +561,197 @@ class TilingEngine {
     );
   }
 
-  /**
-   * The tile under the cursor a dragged tiled window would swap with.
-   * Uses the tiles' layout slots (stable while dragging); null when the
-   * cursor is over the dragged window's own slot or over no tile.
-   */
-  public dropTarget(ctx: IDriverContext, window: WindowClass): WindowClass | null {
-    const tiles = this.windows.getVisibleTiles(ctx.currentSurface);
-    const cursorPos = ctx.cursorPosition || window.actualGeometry.center;
-    if (window.geometry.includesPoint(cursorPos)) return null;
-    let best: WindowClass | null = null;
-    tiles.forEach((tile) => {
-      if (tile === window) return;
-      const slot = tile.geometry || tile.actualGeometry;
-      if (!slot.includesPoint(cursorPos) && !tile.actualGeometry.includesPoint(cursorPos)) return;
-      if (best === null || slot.width * slot.height < best.geometry.width * best.geometry.height)
-        best = tile;
+  /* ============================================================ live drag & drop */
+
+  /** the tiled window being dragged (normal arranging pauses meanwhile) */
+  public dragWindow: WindowClass | null = null;
+  private dragOrigin: ISurface | null = null;
+  /** layout slots of all tiles when the drag started: stable hit testing */
+  private dragSlots: { [id: string]: Rect } = {};
+  private dragKey = "";
+  private dragTargetSurface: ISurface | null = null;
+  private dragOver: WindowClass | null = null;
+  private dragLastUpdate = 0;
+
+  private surfaceAt(ctx: IDriverContext, pos: [number, number]): ISurface | null {
+    const [x, y] = pos;
+    const found = ctx.currentSurfaces.find((s) => {
+      const g = s.output.geometry;
+      return x >= g.x && x < g.x + g.width && y >= g.y && y < g.y + g.height;
     });
-    return best;
+    return found || null;
+  }
+
+  /** tileable windows of a surface without the dragged one, in list order */
+  private tilesWithout(srf: ISurface, window: WindowClass): WindowClass[] {
+    return this.windows.list.filter((w) => w !== window && w.isTileable && w.visible(srf));
+  }
+
+  /** slot of a window at drag start (falls back to its current slot) */
+  private slotOf(w: WindowClass): Rect {
+    return this.dragSlots[w.id] || w.geometry;
   }
 
   /**
-   * Where the dragged window will be after dropping it on `target` (or back
-   * on its own slot): for the Smart layout the real result is computed,
-   * including focus grow (the dropped window is focused afterwards).
+   * Where would the window go if dropped now? Target monitor = monitor under
+   * the cursor, target tile = tile under the cursor there (by its slot at
+   * drag start); null tile = back home (same monitor) / append (other monitor).
    */
-  public dropGeometry(ctx: IDriverContext, window: WindowClass, target: WindowClass | null): Rect {
-    const fallback = target !== null ? target.geometry : window.geometry;
-    const srf = ctx.currentSurface;
-    const layout = this.layouts.getCurrentLayout(srf);
-    if (!(layout instanceof SmartLayout)) return fallback;
-    const tiles = this.windows.getVisibleTileables(srf);
-    const from = tiles.indexOf(window);
-    if (from < 0) return fallback;
-    if (target !== null) {
-      const to = tiles.indexOf(target);
-      if (to < 0) return fallback;
-      tiles[from] = target;
-      tiles[to] = window;
+  private dropAim(
+    ctx: IDriverContext,
+    window: WindowClass,
+  ): { srf: ISurface; over: WindowClass | null } | null {
+    const pos = ctx.cursorPosition || window.actualGeometry.center;
+    const srf = this.surfaceAt(ctx, pos) || this.dragOrigin;
+    if (srf === null || srf.ignore) return null;
+    const home = this.dragOrigin !== null && srf.id === this.dragOrigin.id;
+    if (home && this.slotOf(window).includesPoint(pos)) return { srf, over: null };
+    let over: WindowClass | null = null;
+    this.tilesWithout(srf, window).forEach((t) => {
+      if (!t.isTiled) return;
+      const slot = this.slotOf(t);
+      if (!slot.includesPoint(pos)) return;
+      if (over === null || slot.width * slot.height < this.slotOf(over).width * this.slotOf(over).height)
+        over = t;
+    });
+    return { srf, over };
+  }
+
+  /** the final tile order of every affected monitor for a drop on `aim` */
+  private dropLists(
+    window: WindowClass,
+    aim: { srf: ISurface; over: WindowClass | null },
+  ): { srf: ISurface; tiles: WindowClass[] }[] {
+    const origin = this.dragOrigin || aim.srf;
+    if (aim.srf.id === origin.id) {
+      const tiles = this.windows.list.filter(
+        (w) => w === window || (w.isTileable && w.visible(origin)),
+      );
+      if (aim.over !== null) {
+        const i = tiles.indexOf(window);
+        const j = tiles.indexOf(aim.over);
+        if (i >= 0 && j >= 0) {
+          tiles[i] = aim.over;
+          tiles[j] = window;
+        }
+      }
+      return [{ srf: origin, tiles }];
     }
-    const gaps = this.getGaps(srf);
-    const area = srf.workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
-    try {
-      const rects = layout.compute(tiles, area, gaps.between, tiles.indexOf(window));
-      return rects[tiles.indexOf(window)] || fallback;
-    } catch (e) {
-      return fallback;
+    const target = this.tilesWithout(aim.srf, window);
+    const at = aim.over !== null ? target.indexOf(aim.over) : -1;
+    if (at >= 0) target.splice(at, 0, window);
+    else target.push(window);
+    return [
+      { srf: aim.srf, tiles: target },
+      { srf: origin, tiles: this.tilesWithout(origin, window) },
+    ];
+  }
+
+  /**
+   * Called on every move step of a dragged tiled window: lay out the
+   * affected monitors as they will be after the drop (the other windows
+   * move out of the way) and show the silhouette where the window lands.
+   */
+  public dragUpdate(ctx: IDriverContext, window: WindowClass) {
+    if (this.dragWindow !== window) {
+      this.dragWindow = window;
+      this.dragOrigin = window.surface;
+      this.dragSlots = {};
+      this.dragKey = "";
+      ctx.currentSurfaces.forEach((s) =>
+        this.windows.getVisibleTileables(s).forEach((w) => (this.dragSlots[w.id] = w.geometry)),
+      );
+      this.dragSlots[window.id] = window.geometry;
     }
+    this.dragLastUpdate = getTime();
+    const aim = this.dropAim(ctx, window);
+    if (aim === null) {
+      this.dragKey = "";
+      this.dragTargetSurface = null;
+      ctx.showDropPreview(null, false);
+      return;
+    }
+    const key = `${aim.srf.id}|${aim.over !== null ? aim.over.id : "-"}`;
+    if (key === this.dragKey) return; // nothing changed, keep everything as is
+    this.dragKey = key;
+    this.dragTargetSurface = aim.srf;
+    this.dragOver = aim.over;
+
+    const engineCtx = new EngineContext(ctx, this);
+    let silhouette: Rect | null = null;
+    this.dropLists(window, aim).forEach(({ srf, tiles }) => {
+      if (tiles.length === 0) return;
+      const data = this.getTileables(srf);
+      const gaps = this.getGaps(srf);
+      const area = data.workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
+      const layout = this.layouts.getCurrentLayout(srf);
+      tiles.forEach((t) => (t.state = WindowState.Tiled));
+      layout.apply(engineCtx, tiles, area, gaps.between);
+      tiles.forEach((t) => {
+        if (t === window) silhouette = t.geometry;
+        else if (t.isTiled) t.commit();
+      });
+    });
+    const moved = aim.over !== null || aim.srf.id !== (this.dragOrigin as ISurface).id;
+    ctx.showDropPreview(silhouette, moved);
+  }
+
+  /** the window was dropped: apply exactly what the preview showed */
+  public dragFinish(ctx: IDriverContext, window: WindowClass): boolean {
+    if (this.dragWindow !== window) return false;
+    const srf = this.dragTargetSurface;
+    const over = this.dragOver;
+    const origin = this.dragOrigin;
+    this.dragCancel(ctx);
+    if (srf === null || origin === null) return false;
+
+    if (srf.id === origin.id) {
+      if (over === null) {
+        // back home, or float it when "keep tiling on drag" is off
+        if (!CONFIG.keepTilingOnDrag) {
+          const diff = window.actualGeometry.subtract(window.geometry);
+          if (Math.sqrt(diff.x ** 2 + diff.y ** 2) > 30) {
+            window.floatGeometry = window.actualGeometry;
+            window.state = WindowState.Floating;
+          }
+        }
+        this.arrange(ctx, "dragFinish");
+        return true;
+      }
+      this.windows.swap(window, over);
+      this.arrange(ctx, "dragFinish");
+      return true;
+    }
+    // other monitor: take the hovered tile's place (or go to the end)
+    const list = this.windows.list;
+    list.splice(list.indexOf(window), 1);
+    if (over !== null && list.indexOf(over) >= 0) list.splice(list.indexOf(over), 0, window);
+    else {
+      const last = this.windows.getVisibleTileables(srf).pop();
+      list.splice(last ? list.indexOf(last) + 1 : list.length, 0, window);
+    }
+    ctx.moveWindowsToScreen([[srf.output, [window]]]); // arranges afterwards
+    return true;
+  }
+
+  /** drop target without a live preview (preview disabled) */
+  public dropTarget(ctx: IDriverContext, window: WindowClass): WindowClass | null {
+    const tiles = this.windows.getVisibleTiles(ctx.currentSurface);
+    const cursorPos = ctx.cursorPosition || window.actualGeometry.center;
+    const targets = tiles.filter(
+      (tile) => tile !== window && tile.actualGeometry.includesPoint(cursorPos),
+    );
+    return targets.length === 1 ? targets[0] : null;
+  }
+
+  public dragCancel(ctx: IDriverContext | null) {
+    this.dragWindow = null;
+    this.dragOrigin = null;
+    this.dragSlots = {};
+    this.dragKey = "";
+    this.dragTargetSurface = null;
+    this.dragOver = null;
+    if (ctx !== null) ctx.showDropPreview(null, false);
   }
 
   /**
@@ -668,6 +820,7 @@ class TilingEngine {
    * Unregister the given window from WM.
    */
   public unmanage(window: WindowClass) {
+    if (this.dragWindow === window) this.dragCancel(null);
     try {
       if (window.state === WindowState.Floating)
         window.window.rememberFloatGeometry(window.actualGeometry);

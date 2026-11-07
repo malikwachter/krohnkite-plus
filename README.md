@@ -50,7 +50,7 @@ Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.
 
 ## Drag preview
 
-While dragging a tiled window, the tile it will swap with is highlighted in the theme's accent color; without a target the window's own tile is outlined (it snaps back there).
+While dragging a tiled window, the drop is previewed live – on every monitor: a soft silhouette in the accent color shows exactly where the window lands, and the other windows already move to where they will be (the target monitor makes room, the old one closes the gap). Every tile under the cursor is a drop place; dropping does exactly what the preview showed.
 
 ## Memory across restarts
 

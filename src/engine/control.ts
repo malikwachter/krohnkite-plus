@@ -84,8 +84,10 @@ class TilingController {
     const srf = ctx.currentSurface;
     const layout = this.engine.layouts.getCurrentLayout(srf);
     if (!layout.drag) {
-      /* layouts without live dragging: show where the window will land */
-      this.updateDropPreview(ctx, window);
+      /* layouts without live dragging: preview the drop live (silhouette,
+         other windows move out of the way, also across monitors) */
+      if (CONFIG.dragPreview && window.state === WindowState.Tiled)
+        this.engine.dragUpdate(ctx, window);
       return;
     }
     // 100 milliseconds - min interval between run this function
@@ -116,28 +118,9 @@ class TilingController {
     this.isDragging = false;
   }
 
-  /** highlight the swap target, or the own tile the window snaps back to */
-  private updateDropPreview(ctx: IDriverContext, window: WindowClass) {
-    if (!CONFIG.dragPreview || window.state !== WindowState.Tiled) {
-      ctx.showDropPreview(null, false);
-      return;
-    }
-    const target = this.engine.dropTarget(ctx, window);
-    if (target !== null) {
-      ctx.showDropPreview(this.engine.dropGeometry(ctx, window, target), true);
-      return;
-    }
-    if (!CONFIG.keepTilingOnDrag) {
-      const diff = window.actualGeometry.subtract(window.geometry);
-      if (Math.sqrt(diff.x ** 2 + diff.y ** 2) > 30) {
-        ctx.showDropPreview(null, false); // will float
-        return;
-      }
-    }
-    ctx.showDropPreview(this.engine.dropGeometry(ctx, window, null), false);
-  }
-
   public onWindowMoveOver(ctx: IDriverContext, window: WindowClass): void {
+    /* a live drag preview was shown: do exactly what it showed */
+    if (this.engine.dragFinish(ctx, window)) return;
     ctx.showDropPreview(null, false);
     /* swap window by dragging */
     if (window.state === WindowState.Dragging) {
