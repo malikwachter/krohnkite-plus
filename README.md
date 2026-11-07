@@ -1,5 +1,16 @@
 # Kröhnkite-Plus
 
+> [!CAUTION]
+> **This is completely vibe-coded garbage, written entirely with AI (Claude Code).**
+>
+> I adapted it for my own personal workflow, for me and nobody else. It is not meant to be a stable solution.
+>
+> - **No support.** Issues and requests will not be handled.
+> - **No warranty** of any kind.
+> - **No guarantee** that features stay, keep working or behave consistently. Things can change drastically at any time, because I bend it to fit my own workflow.
+>
+> **Please use the original instead:** [Kröhnkite on Codeberg](https://codeberg.org/anametologin/Krohnkite).
+
 Kröhnkite-Plus is a fork of [Kröhnkite](https://codeberg.org/anametologin/Krohnkite) (the dynamic tiling script for KWin 6) with smarter window handling: a Smart layout, per-app window rules, smart floating, gaming mode, a live drag preview, smooth animations, zoom, undo/redo and a memory across restarts. It follows the upstream releases; everything upstream offers is still there (see below). The new options live on the **Smart** tab in the script settings.
 
 Internally the script keeps the id `krohnkite`, so existing settings and shortcuts carry over.
