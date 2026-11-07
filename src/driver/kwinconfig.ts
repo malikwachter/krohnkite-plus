@@ -104,6 +104,7 @@ class KWinConfig implements IConfig {
   public smartFloat: boolean;
   public smartFloatTitles: string[];
   public smartRememberFloat: boolean;
+  public smartCenterDialogs: boolean;
   public smartTargetAspect: number;
   /*
    * Dock
@@ -345,6 +346,7 @@ class KWinConfig implements IConfig {
       ",",
     ).map((t) => t.toLowerCase());
     this.smartRememberFloat = KWIN.readConfig("smartRememberFloat", true);
+    this.smartCenterDialogs = KWIN.readConfig("smartCenterDialogs", true);
     notice(
       `Krohnkite Smart ${smartVersion()} loaded, ${this.windowRules.rules.length} window rules`,
     );
@@ -594,7 +596,7 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "smart7";
+  return "smart8";
 }
 
 function defaultWindowRules(): string {

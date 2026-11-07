@@ -1,7 +1,7 @@
 // Smoke test of KWinConfig + KWinWindow against a fake KWin API.
 // Run: npx tsc && node test/kwin-smoke.test.js
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
-const ctx = { print() {}, console };
+const ctx = { print() {}, console, Qt: { rect: (x, y, width, height) => ({ x, y, width, height }) } };
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "krohnkite.js"), "utf8"), ctx);
 vm.runInContext(`
@@ -88,6 +88,34 @@ test("no min size is learned from a window that ignores resizing", () => {
   w.geometry = vm.runInContext("new Rect(0, 0, 1280, 700)", ctx);
   assert.strictEqual(w.learnMinSize(), false);
   assert.strictEqual(w.minSize.width, 0);
+});
+test("dialog opens at its minimal size, centered on the screen", () => {
+  // Konsole settings dialog: transient, min 760x540 (client) + 30px title bar
+  const w = mk({ resourceClass: "org.kde.konsole", transient: true, dialog: true,
+                 minSize: { width: 760, height: 540 }, width: 900, height: 700,
+                 frameGeometry: { x: 100, y: 100, width: 900, height: 700 },
+                 clientGeometry: { x: 100, y: 130, width: 900, height: 670 } });
+  assert.strictEqual(w.shouldFloat, true);
+  const g = w.floatGeometry;
+  assert.deepStrictEqual([g.width, g.height], [760, 570]);
+  assert.deepStrictEqual([g.x, g.y], [Math.round((2560 - 760) / 2), Math.round((1400 - 570) / 2)]);
+});
+test("dialog without a useful min size keeps its size, still centered", () => {
+  const w = mk({ transient: true, minSize: { width: 0, height: 0 }, width: 400, height: 200,
+                 frameGeometry: { x: 0, y: 0, width: 400, height: 200 }, clientGeometry: { x: 0, y: 0, width: 400, height: 200 } });
+  const g = w.floatGeometry;
+  assert.deepStrictEqual([g.x, g.y, g.width, g.height], [1080, 600, 400, 200]);
+});
+test("unmanaged dialog (Konsole settings) is placed centered at its min size", () => {
+  const client = { deleted: false, fullScreen: false, moveable: true, resizeable: true, output: out,
+    frameGeometry: { x: 300, y: 200, width: 1000, height: 800 }, clientGeometry: { x: 300, y: 230, width: 1000, height: 770 },
+    minSize: { width: 700, height: 500 } };
+  let later = null;
+  const fakeDriver = { workspace: ws, setTimeout: (f) => (later = f) };
+  vm.runInContext("(d, c) => KWinDriver.prototype.centerDialog.call(d, c)", ctx)(fakeDriver, client);
+  const g = client.frameGeometry;
+  assert.deepStrictEqual([g.x, g.y, g.width, g.height], [930, 435, 700, 530]);
+  assert(later, "second placement scheduled for late size hints");
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

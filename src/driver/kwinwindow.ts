@@ -250,8 +250,14 @@ class KWinWindow implements IDriverWindow {
         this.memoryKey !== "" &&
         KWinWindow.floatMemory[this.memoryKey] !== undefined) ||
       (this.rule !== null &&
-        (this.rule.floatWidth !== undefined || this.rule.floatPos !== undefined))
+        (this.rule.floatWidth !== undefined || this.rule.floatPos !== undefined)) ||
+      (KWINCONFIG.smartCenterDialogs && this.isDialogLike)
     );
+  }
+
+  /** settings dialogs, file pickers, message boxes ... */
+  private get isDialogLike(): boolean {
+    return this.window.transient || this.window.modal || this.window.dialog;
   }
 
   public rememberFloatGeometry(geometry: Rect) {
@@ -476,8 +482,26 @@ class KWinWindow implements IDriverWindow {
       );
 
     const rule = this.rule;
-    if (rule === null || (rule.floatWidth === undefined && rule.floatPos === undefined))
-      return null;
+    if (rule === null || (rule.floatWidth === undefined && rule.floatPos === undefined)) {
+      if (!(KWINCONFIG.smartCenterDialogs && this.isDialogLike)) return null;
+      /*
+       * Dialogs open at their minimal size, centered on the screen (not on
+       * top of their parent window). Dialogs without a useful minimal size
+       * keep the size they asked for.
+       */
+      const min = this.minSize; // frame size incl. decoration
+      const useMin = min.width >= 200 && min.height >= 120;
+      const width = useMin ? min.width : this.window.width;
+      const height = useMin ? min.height : this.window.height;
+      return fit(
+        new Rect(
+          area.x + (area.width - width) / 2,
+          area.y + (area.height - height) / 2,
+          width,
+          height,
+        ),
+      );
+    }
     const width =
       rule.floatWidth !== undefined
         ? WindowRules.resolveLength(rule.floatWidth, area.width)

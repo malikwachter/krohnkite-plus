@@ -127,7 +127,7 @@ class KWinDriver implements IDriverContext {
     }
   }
 
-  private addWindow(client: Window): WindowClass | null {
+  private addWindow(client: Window, isNew = false): WindowClass | null {
     if (
       !client.deleted &&
       client.pid >= 0 &&
@@ -159,8 +159,58 @@ class KWinDriver implements IDriverContext {
       LOG?.send(LogModules.newWindowFiltered, "", debugWin(client), {
         winClass: [`${client.resourceClass}`],
       });
+      // only for newly opened dialogs, not for existing ones at script start
+      if (isNew && KWINCONFIG.smartCenterDialogs && client.dialog && !client.popupWindow)
+        this.centerDialog(client);
     }
     return null;
+  }
+
+  /**
+   * Dialogs are not managed by Krohnkite, but they are placed once: at their
+   * minimal size, centered on the screen instead of on top of their parent.
+   * Wayland clients may announce their size hints a moment later, so the
+   * placement is repeated once unless the user already moved the dialog.
+   */
+  private centerDialog(client: Window) {
+    const place = (): Rect | null => {
+      if (client.deleted || client.fullScreen || !client.moveable) return null;
+      const area = toRect(
+        this.workspace.clientArea(
+          ClientAreaOption.PlacementArea,
+          client.output,
+          this.workspace.currentDesktop,
+        ),
+      );
+      const frame = client.frameGeometry;
+      const inner = client.clientGeometry;
+      const decoW = frame && inner ? Math.max(0, frame.width - inner.width) : 0;
+      const decoH = frame && inner ? Math.max(0, frame.height - inner.height) : 0;
+      const useMin = client.minSize.width >= 200 && client.minSize.height >= 120;
+      let width = useMin ? client.minSize.width + decoW : frame.width;
+      let height = useMin ? client.minSize.height + decoH : frame.height;
+      if (!client.resizeable) {
+        width = frame.width;
+        height = frame.height;
+      }
+      width = Math.min(width, area.width);
+      height = Math.min(height, area.height);
+      const g = new Rect(
+        Math.round(area.x + (area.width - width) / 2),
+        Math.round(area.y + (area.height - height) / 2),
+        Math.round(width),
+        Math.round(height),
+      );
+      client.frameGeometry = toQRect(g);
+      return g;
+    };
+    const first = place();
+    if (first === null) return;
+    this.setTimeout(() => {
+      const now = toRect(client.frameGeometry);
+      // only if nobody (user or app) moved it in the meantime
+      if (!client.deleted && now.x === first.x && now.y === first.y) place();
+    }, 150);
   }
 
   public focusNeighborWindow(
@@ -1151,7 +1201,7 @@ class KWinDriver implements IDriverContext {
         `window: caption:${client.caption} internalID:${client.internalId}`,
         { winClass: [`${client.resourceClass}`] },
       );
-      const window = this.addWindow(client);
+      const window = this.addWindow(client, true);
       if (client.active && window !== null) {
         this.control.onWindowFocused(this, window);
         if (CONFIG.movePointerOnFocus) {

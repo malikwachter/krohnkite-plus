@@ -28,6 +28,10 @@
 	    <label>Titles that always float (comma separated, substring)</label>
         <default>Picture-in-Picture,Picture in picture,Bild-im-Bild,Bild im Bild</default>
     </entry>
+    <entry name="smartCenterDialogs" type="Bool">
+	    <label>Open dialogs at their minimal size, centered on the screen</label>
+        <default>true</default>
+    </entry>
     <entry name="smartRememberFloat" type="Bool">
 	    <label>Remember position and size of floating windows per application</label>
         <default>true</default>
