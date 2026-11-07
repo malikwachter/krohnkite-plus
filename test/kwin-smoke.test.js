@@ -81,5 +81,13 @@ test("learned min size is lowered when the window shrinks later", () => {
   w.observeSize();
   assert.strictEqual(w.minSize.height, 600);
 });
+test("no min size is learned from a window that ignores resizing", () => {
+  const w = mk({ resourceClass: "bigapp", frameGeometry: { x: 0, y: 0, width: 2560, height: 1400 },
+                 clientGeometry: { x: 0, y: 0, width: 2560, height: 1400 } });
+  w.window._surfaceStore = { getSurface: () => ({ id: "s1", workingArea: { width: 2560, height: 1400 } }) };
+  w.geometry = vm.runInContext("new Rect(0, 0, 1280, 700)", ctx);
+  assert.strictEqual(w.learnMinSize(), false);
+  assert.strictEqual(w.minSize.width, 0);
+});
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

@@ -76,6 +76,7 @@ class SmartLayout implements ILayout {
   private columnOffset: number;
   private orientation: "auto" | "columns" | "rows";
   private lastCount: number;
+  private lastFitWarning = "";
 
   constructor(capacity?: number | null) {
     this.capacity = capacity !== undefined ? capacity : null;
@@ -122,6 +123,13 @@ class SmartLayout implements ILayout {
     const ratios =
       this.memory[plan.key] || SmartLayout.defaultRatios(plan, ordered);
     const solved = SmartLayout.solve(plan, ratios, ordered, area, gap);
+    if (solved.violation > 0) {
+      const msg = `Krohnkite Smart: windows do not fit ${area.width}x${area.height} (${plan.key}): ${tiles
+        .map((t) => `${t.windowClassName} min ${t.minSize.width}x${t.minSize.height}`)
+        .join(", ")}`;
+      if (msg !== this.lastFitWarning) notice(msg);
+      this.lastFitWarning = msg;
+    } else this.lastFitWarning = "";
     const result: Rect[] = new Array(tiles.length);
     solved.rects.forEach((r, slot) => {
       result[plan.order[slot]] = plan.transposed

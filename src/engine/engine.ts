@@ -467,8 +467,22 @@ class TilingEngine {
             );
           }
           while (screenData.tileables.length > 0 && unfitGreaterQuantity > 0) {
-            let tile = screenData.tileables.shift();
-            tile!.state = WindowState.Floating;
+            /* float the window that does not fit - not an innocent neighbour */
+            const area = screenData.workingArea;
+            const demand = (t: WindowClass) =>
+              Math.max(t.minSize.width / area.width, t.minSize.height / area.height);
+            let tile = screenData.tileables[0];
+            screenData.tileables.forEach((t) => {
+              const unfit =
+                t.minSize.width > t.geometry.width ||
+                t.minSize.height > t.geometry.height;
+              if (unfit && demand(t) >= demand(tile)) tile = t;
+            });
+            screenData.tileables.splice(screenData.tileables.indexOf(tile), 1);
+            notice(
+              `Krohnkite Smart: floating ${tile.windowClassName}, min ${tile.minSize.width}x${tile.minSize.height} does not fit tile ${tile.geometry.width}x${tile.geometry.height}`,
+            );
+            tile.state = WindowState.Floating;
             layoutApply();
             unfitGreaterQuantity = getNumberTileablesGreaterThenMin(
               screenData.tileables,

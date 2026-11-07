@@ -116,6 +116,16 @@ class WindowClass {
     const cls = this.windowClassName;
     if (!cls) return false;
     const area = this.surface.workingArea;
+    /*
+     * A window that stays (almost) as big as the whole screen did not react
+     * to the resize at all - that tells nothing about its minimal size.
+     */
+    if (actual.width >= area.width * 0.9 && actual.height >= area.height * 0.9) {
+      notice(
+        `Krohnkite Smart: ${cls} ignores resizing (${actual.width}x${actual.height}, tile ${target.width}x${target.height}), not learning a min size`,
+      );
+      return false;
+    }
     const prev = WindowClass.learnedMin[cls] || { width: 0, height: 0 };
     const next = {
       width:
@@ -129,7 +139,10 @@ class WindowClass {
     };
     if (next.width <= prev.width && next.height <= prev.height) return false;
     WindowClass.learnedMin[cls] = next;
-    notice(`Krohnkite Smart: ${cls} refuses to shrink, using min size ${next.width}x${next.height}`);
+    const reported = this.window.minSize;
+    notice(
+      `Krohnkite Smart: ${cls} refuses to shrink: tile ${target.width}x${target.height}, actual ${actual.width}x${actual.height}, reported min ${reported.width}x${reported.height} -> learned min ${next.width}x${next.height}`,
+    );
     LOG?.send(
       LogModules.arrangeScreen,
       "learnMinSize",
