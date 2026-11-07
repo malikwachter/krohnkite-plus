@@ -333,7 +333,7 @@ class KWinConfig implements IConfig {
     //****************** Smart
     //***************************
     this.windowRules = new WindowRules(
-      String(KWIN.readConfig("windowRules", DEFAULT_WINDOW_RULES)).split("\n"),
+      String(KWIN.readConfig("windowRules", defaultWindowRules())).split("\n"),
     );
     this.windowRules.errors.forEach((e) => warning(`Krohnkite: ${e}`));
     this.smartFloat = KWIN.readConfig("smartFloat", true);
@@ -346,7 +346,7 @@ class KWinConfig implements IConfig {
     ).map((t) => t.toLowerCase());
     this.smartRememberFloat = KWIN.readConfig("smartRememberFloat", true);
     notice(
-      `Krohnkite Smart ${KROHNKITE_SMART_VERSION} loaded, ${this.windowRules.rules.length} window rules`,
+      `Krohnkite Smart ${smartVersion()} loaded, ${this.windowRules.rules.length} window rules`,
     );
     this.smartTargetAspect =
       validateNumberWithDefault(
@@ -591,9 +591,14 @@ class KWinConfig implements IConfig {
 // /* HACK: save casting */
 var KWINCONFIG: KWinConfig;
 
-const KROHNKITE_SMART_VERSION = "smart4";
+/* functions (not consts) so they are hoisted: KWin warns about consts used
+ * "before their declaration" in the concatenated script */
+function smartVersion(): string {
+  return "smart5";
+}
 
-const DEFAULT_WINDOW_RULES = [
+function defaultWindowRules(): string {
+  return [
   "# <matchers> : <actions>   -- see README (Smart features) for the syntax",
   'title~"Picture-in-Picture" : float, size=30%x30%, pos=bottom-right',
   'title~"Bild-im-Bild" : float, size=30%x30%, pos=bottom-right',
@@ -607,3 +612,4 @@ const DEFAULT_WINDOW_RULES = [
   "class=org.kde.kdeconnect.handler : float, pos=center",
   "class=xdg-desktop-portal-kde : float, pos=center",
 ].join("\n");
+}

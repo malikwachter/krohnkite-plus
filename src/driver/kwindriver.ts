@@ -1238,6 +1238,7 @@ class KWinDriver implements IDriverContext {
       if (moving) this.control.onWindowMove(window);
       else if (resizing) this.control.onWindowResize(this, window);
       else {
+        window.observeSize();
         if (!window.actualGeometry.equals(window.geometry))
           this.control.onWindowGeometryChanged(this, window);
       }

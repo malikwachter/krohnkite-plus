@@ -74,5 +74,12 @@ test("min size is learned from a window that refuses to shrink (Steam)", () => {
   // a new Steam window knows it immediately
   assert.strictEqual(mk({ resourceClass: "steam" }).minSize.height, 800);
 });
+test("learned min size is lowered when the window shrinks later", () => {
+  const w = mk({ resourceClass: "steam", frameGeometry: { x: 0, y: 0, width: 1280, height: 600 },
+                 clientGeometry: { x: 0, y: 0, width: 1280, height: 600 } });
+  w.state = vm.runInContext("WindowState.Tiled", ctx);
+  w.observeSize();
+  assert.strictEqual(w.minSize.height, 600);
+});
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

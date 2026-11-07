@@ -89,6 +89,24 @@ test("big min height moves window out of a stacked column", () => {
   assert(r[2][3] >= 800, JSON.stringify(r));
   checkTiling(r);
 });
+test("newest window with a big min size is moved into the big slot (Steam)", () => {
+  // two small windows + Steam that needs 1100x700: does not fit a stacked slot
+  const r = rects(new SmartLayout(), [tile(), tile(), tile(1100, 700)]);
+  assert(r[2][2] >= 1100 && r[2][3] >= 700, JSON.stringify(r));
+  checkTiling(r);
+});
+test("window order is kept when everything fits", () => {
+  const r = rects(new SmartLayout(), [tile(), tile(), tile(300, 300)]);
+  assert.deepStrictEqual(r[0], [0, 0, 960, 1080]);
+});
+test("resizing works on a reordered arrangement", () => {
+  const l = new SmartLayout();
+  const t = [tile(), tile(), tile(1100, 700)];
+  const before = rects(l, t);
+  l.adjust(area, t, t[2], new RectDelta(0, 0, 0, 0), 0);
+  checkTiling(rects(l, t));
+  assert.deepStrictEqual(rects(l, t), before);
+});
 test("weights give a bigger share", () => {
   const r = rects(new SmartLayout(), [tile(0, 0, 2), tile()]);
   assert.strictEqual(r[0][2], 1280);
@@ -159,7 +177,7 @@ test("rule errors are reported, not thrown", () => {
   assert.strictEqual(r.rules.length, 1);
 });
 test("default rules shipped with the script parse cleanly", () => {
-  const def = vm.runInContext("DEFAULT_WINDOW_RULES", ctx);
+  const def = vm.runInContext("defaultWindowRules()", ctx);
   const r = new WindowRules(def.split("\n"));
   assert.deepStrictEqual(r.errors, []);
   assert(r.rules.length >= 8);

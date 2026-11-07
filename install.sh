@@ -29,8 +29,8 @@ find "$HOME/.cache" -path "*qmlcache*" -type f -print0 2>/dev/null |
 
 kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true
 
-if grep -q "KROHNKITE_SMART_VERSION" "$user_dir/contents/code/script.js"; then
-  ver="$(grep -o 'KROHNKITE_SMART_VERSION = "[^"]*"' "$user_dir/contents/code/script.js" | head -1)"
+if grep -q "function smartVersion" "$user_dir/contents/code/script.js"; then
+  ver="$(grep -A1 "function smartVersion" "$user_dir/contents/code/script.js" | grep -o '"smart[^"]*"' | head -1)"
   echo "Installed: $ver"
 else
   echo "ERROR: installed files are not the Smart version" >&2

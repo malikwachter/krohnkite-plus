@@ -35,6 +35,8 @@ interface ISmartPlan {
   /** plan space is rotated by 90deg (columns become rows) */
   transposed: boolean;
   key: string;
+  /** slot -> window index; identity unless big windows had to be moved */
+  order: number[];
 }
 
 interface ISmartRatios {
@@ -98,7 +100,7 @@ class SmartLayout implements ILayout {
     if (n === 0) return;
     if (n === 1) {
       tileables[0].geometry = area;
-      this.lastPlans[1] = { cols: [1], transposed: false, key: "N:1" };
+      this.lastPlans[1] = { cols: [1], transposed: false, key: "N:1", order: [0] };
       return;
     }
 
@@ -116,12 +118,33 @@ class SmartLayout implements ILayout {
     const plan = this.choosePlan(items, area, gap);
     this.lastPlans[tiles.length] = plan;
 
+    const ordered = plan.order.map((i) => items[i]);
     const ratios =
-      this.memory[plan.key] || SmartLayout.defaultRatios(plan, items);
-    const solved = SmartLayout.solve(plan, ratios, items, area, gap);
-    return solved.rects.map((r) =>
-      plan.transposed ? SmartLayout.fromPlanSpace(r, area) : r,
-    );
+      this.memory[plan.key] || SmartLayout.defaultRatios(plan, ordered);
+    const solved = SmartLayout.solve(plan, ratios, ordered, area, gap);
+    const result: Rect[] = new Array(tiles.length);
+    solved.rects.forEach((r, slot) => {
+      result[plan.order[slot]] = plan.transposed
+        ? SmartLayout.fromPlanSpace(r, area)
+        : r;
+    });
+    return result;
+  }
+
+  /**
+   * Window orders worth trying: the user's order, and - if some windows have
+   * a minimal size - the same windows with the most demanding ones first, so
+   * they land in the big (master) slots instead of a small stacked one.
+   */
+  private static orders(items: ISmartItem[], area: Rect): number[][] {
+    const identity = items.map((_, i) => i);
+    const demand = (it: ISmartItem) =>
+      Math.max(it.minW / Math.max(area.width, 1), it.minH / Math.max(area.height, 1));
+    if (!items.some((it) => demand(it) > 0)) return [identity];
+    const bySize = identity
+      .slice()
+      .sort((a, b) => demand(items[b]) - demand(items[a]) || a - b);
+    return bySize.join(",") === identity.join(",") ? [identity] : [identity, bySize];
   }
 
   /* ================================================================ plan */
@@ -138,16 +161,19 @@ class SmartLayout implements ILayout {
     [false, true].forEach((transposed) => {
       if (this.orientation === "columns" && transposed) return;
       if (this.orientation === "rows" && !transposed) return;
-      SmartLayout.candidates(n).forEach((cols) => {
+      SmartLayout.candidates(n).forEach((cols) =>
+        SmartLayout.orders(items, area).forEach((order, orderIdx) => {
         const plan: ISmartPlan = {
           cols,
           transposed,
           key: `${transposed ? "T" : "N"}:${cols.join("-")}`,
+          order,
         };
+        const ordered = order.map((i) => items[i]);
         const solved = SmartLayout.solve(
           plan,
-          SmartLayout.defaultRatios(plan, items),
-          items,
+          SmartLayout.defaultRatios(plan, ordered),
+          ordered,
           area,
           gap,
         );
@@ -164,12 +190,15 @@ class SmartLayout implements ILayout {
         if (transposed === landscape) score += 0.2 * n;
         // gentle preference for fewer splits when everything else is equal
         score += 0.01 * cols.length;
+        // keep the user's window order unless moving windows avoids overlap
+        if (orderIdx > 0) score += 0.5;
         autoBest.push({ plan, score });
         if (score < bestScore) {
           bestScore = score;
           best = plan;
         }
-      });
+      }),
+      );
     });
 
     if (this.columnOffset !== 0 && best !== null) {
@@ -384,10 +413,10 @@ class SmartLayout implements ILayout {
     const idx = tiles.indexOf(basis);
     if (idx < 0) return;
 
-    const items: ISmartItem[] = tiles.map((t) => ({
-      minW: t.minSize.width || 0,
-      minH: t.minSize.height || 0,
-      weight: t.weight > 0 ? t.weight : 1,
+    const items: ISmartItem[] = plan.order.map((i) => ({
+      minW: tiles[i].minSize.width || 0,
+      minH: tiles[i].minSize.height || 0,
+      weight: tiles[i].weight > 0 ? tiles[i].weight : 1,
     }));
     const base = this.memory[plan.key] || SmartLayout.defaultRatios(plan, items);
     const ratios: ISmartRatios = {
@@ -396,8 +425,10 @@ class SmartLayout implements ILayout {
     };
 
     // locate the window in plan space
+    const slot = plan.order.indexOf(idx);
+    if (slot < 0) return;
     let col = 0;
-    let row = idx;
+    let row = slot;
     while (col < plan.cols.length && row >= plan.cols[col]) {
       row -= plan.cols[col];
       col++;

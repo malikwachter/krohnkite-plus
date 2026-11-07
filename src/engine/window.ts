@@ -92,6 +92,22 @@ class WindowClass {
     );
   }
 
+  /**
+   * The window is now smaller than what we learned (it was only slow, or the
+   * app changed): lower the learned minimal size again.
+   */
+  public observeSize() {
+    const learned = WindowClass.learnedMin[this.windowClassName];
+    if (learned === undefined || !this.isTiled) return;
+    const actual = this.actualGeometry;
+    const tol = WindowClass.LEARN_TOLERANCE;
+    if (actual.width + tol < learned.width || actual.height + tol < learned.height)
+      WindowClass.learnedMin[this.windowClassName] = {
+        width: Math.min(learned.width, actual.width),
+        height: Math.min(learned.height, actual.height),
+      };
+  }
+
   /** remember the current oversize as minimal size; true if it grew */
   public learnMinSize(): boolean {
     const target = this.geometry;

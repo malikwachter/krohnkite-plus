@@ -536,14 +536,21 @@ class TilingEngine {
       const target = window.geometry;
       if (window.isTooBigFor(target) && !window.learnCheckPending) {
         window.learnCheckPending = true;
+        const stillTooBig = () =>
+          window.isTiled &&
+          window.geometry.equals(target) &&
+          window.isTooBigFor(target);
+        // two checks: slow apps (Steam/CEF) can take a moment to shrink
         ctx.setTimeout(() => {
-          window.learnCheckPending = false;
-          if (
-            window.isTiled &&
-            window.geometry.equals(target) &&
-            window.learnMinSize()
-          )
-            this.arrange(ctx, "learnedMinSize");
+          if (!stillTooBig()) {
+            window.learnCheckPending = false;
+            return;
+          }
+          ctx.setTimeout(() => {
+            window.learnCheckPending = false;
+            if (stillTooBig() && window.learnMinSize())
+              this.arrange(ctx, "learnedMinSize");
+          }, 1200);
         }, 600);
       }
     }
