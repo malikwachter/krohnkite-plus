@@ -30,8 +30,8 @@ jobs:
 
       - name: Fetch upstream Kröhnkite (to tell its commits apart from ours)
         run: |
-          git fetch --no-tags https://codeberg.org/anametologin/Krohnkite.git master:refs/remotes/upstream/master
-          git fetch --no-tags https://github.com/anametologin/krohnkite.git master:refs/remotes/origin/master
+          git fetch --no-tags https://codeberg.org/anametologin/Krohnkite.git +master:refs/upstream/codeberg
+          git fetch --no-tags https://github.com/anametologin/krohnkite.git +master:refs/upstream/github
 
       - name: Pick version
         id: ver
@@ -67,7 +67,7 @@ jobs:
         if: steps.ver.outputs.skip != 'true'
         run: |
           tools/release-notes.sh "${{ steps.ver.outputs.version }}" "${{ steps.ver.outputs.prev }}" \
-            upstream/master origin/master > notes.md
+            refs/upstream/codeberg refs/upstream/github > notes.md
           cat notes.md
 
       - name: Publish
