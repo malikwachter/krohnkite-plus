@@ -522,10 +522,31 @@ class TilingEngine {
    * move/resize such windows back to where/how they should be.
    */
   public enforceSize(ctx: IDriverContext, window: WindowClass) {
-    if (window.isTiled && !window.actualGeometry.equals(window.geometry))
+    if (window.isTiled && !window.actualGeometry.equals(window.geometry)) {
       ctx.setTimeout(() => {
         if (window.isTiled) window.commit();
       }, 10);
+      /*
+       * Some apps (Steam, Electron, many XWayland clients) do not announce a
+       * minimal size but refuse to become smaller than the tile. They then
+       * protrude into their neighbours. If the window is still too big after
+       * it had time to settle, remember that size as its real minimal size
+       * and arrange again so the layout makes room for it.
+       */
+      const target = window.geometry;
+      if (window.isTooBigFor(target) && !window.learnCheckPending) {
+        window.learnCheckPending = true;
+        ctx.setTimeout(() => {
+          window.learnCheckPending = false;
+          if (
+            window.isTiled &&
+            window.geometry.equals(target) &&
+            window.learnMinSize()
+          )
+            this.arrange(ctx, "learnedMinSize");
+        }, 600);
+      }
+    }
   }
 
   /**

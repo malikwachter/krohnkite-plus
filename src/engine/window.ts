@@ -65,7 +65,60 @@ class WindowClass {
 
   /* read live: apps change their size hints and rules may raise them */
   public get minSize(): ISize {
-    return this.window.minSize;
+    const reported = this.window.minSize;
+    const learned = WindowClass.learnedMin[this.windowClassName];
+    if (learned === undefined) return reported;
+    return {
+      width: Math.max(reported.width, learned.width),
+      height: Math.max(reported.height, learned.height),
+    };
+  }
+
+  /**
+   * Minimal sizes observed from windows that refused to shrink, per window
+   * class, so the next window of that app is laid out correctly right away.
+   */
+  private static learnedMin: { [cls: string]: ISize } = {};
+  /** tolerance for rounding / scaling differences */
+  private static readonly LEARN_TOLERANCE = 4;
+
+  public learnCheckPending: boolean = false;
+
+  public isTooBigFor(target: Rect): boolean {
+    const actual = this.actualGeometry;
+    return (
+      actual.width > target.width + WindowClass.LEARN_TOLERANCE ||
+      actual.height > target.height + WindowClass.LEARN_TOLERANCE
+    );
+  }
+
+  /** remember the current oversize as minimal size; true if it grew */
+  public learnMinSize(): boolean {
+    const target = this.geometry;
+    const actual = this.actualGeometry;
+    if (!this.isTooBigFor(target)) return false;
+    const cls = this.windowClassName;
+    if (!cls) return false;
+    const area = this.surface.workingArea;
+    const prev = WindowClass.learnedMin[cls] || { width: 0, height: 0 };
+    const next = {
+      width:
+        actual.width > target.width + WindowClass.LEARN_TOLERANCE
+          ? Math.min(Math.max(prev.width, actual.width), area.width)
+          : prev.width,
+      height:
+        actual.height > target.height + WindowClass.LEARN_TOLERANCE
+          ? Math.min(Math.max(prev.height, actual.height), area.height)
+          : prev.height,
+    };
+    if (next.width <= prev.width && next.height <= prev.height) return false;
+    WindowClass.learnedMin[cls] = next;
+    LOG?.send(
+      LogModules.arrangeScreen,
+      "learnMinSize",
+      `${cls}: learned min size ${next.width}x${next.height}`,
+    );
+    return true;
   }
   public get maxSize(): ISize {
     return this.window.maxSize;

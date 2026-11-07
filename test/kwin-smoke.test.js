@@ -60,5 +60,18 @@ test("float geometry is remembered per class", () => {
   const g = mk({ resourceClass: "org.pulseaudio.pavucontrol" }).floatGeometry;
   assert.deepStrictEqual([g.x, g.y, g.width, g.height], [100, 200, 640, 480]);
 });
+test("min size is learned from a window that refuses to shrink (Steam)", () => {
+  ctx.out.geometry; // workingArea comes from the surface stub
+  const w = mk({ resourceClass: "steam", frameGeometry: { x: 0, y: 0, width: 1280, height: 800 },
+                 clientGeometry: { x: 0, y: 0, width: 1280, height: 800 } });
+  w.window._surfaceStore = { getSurface: () => ({ id: "s1", workingArea: { width: 2560, height: 1400 } }) };
+  w.geometry = vm.runInContext("new Rect(0, 0, 1280, 700)", ctx);
+  assert.strictEqual(w.isTooBigFor(w.geometry), true);
+  assert.strictEqual(w.learnMinSize(), true);
+  assert.strictEqual(w.minSize.height, 800);
+  assert.strictEqual(w.learnMinSize(), false, "no growth -> no re-arrange loop");
+  // a new Steam window knows it immediately
+  assert.strictEqual(mk({ resourceClass: "steam" }).minSize.height, 800);
+});
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);
