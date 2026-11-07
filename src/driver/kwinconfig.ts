@@ -1019,7 +1019,8 @@ var KWINCONFIG: KWinConfig;
 /* functions (not consts) so they are hoisted: KWin warns about consts used
  * "before their declaration" in the concatenated script */
 function smartVersion(): string {
-  return "plus18";
+  // replaced with the release version by the Makefile
+  return "@PLUS_VERSION@";
 }
 
 function defaultWindowRules(): string {

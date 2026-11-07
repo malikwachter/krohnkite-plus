@@ -115,6 +115,8 @@ $(KWINPKG_DIR)/contents/code/collect-diagnostics.py: tools/collect-diagnostics.p
 $(KWINPKG_DIR)/contents/ui/dragpreview.qml: res/dragpreview.qml
 $(KWINPKG_DIR)/contents/ui/shortcuts.qml: res/shortcuts.qml
 $(KWINPKG_DIR)/contents/code/script.js: $(NODE_SCRIPT)
+	@mkdir -vp `dirname $@`
+	sed "s/@PLUS_VERSION@/$(PROJECT_VER)/" $< > $@
 $(KWINPKG_DIR)/contents/code/main.js: res/main.js
 $(KWINPKG_DIR)/contents/config/main.xml: res/config.xml
 $(KWINPKG_DIR)/%:
