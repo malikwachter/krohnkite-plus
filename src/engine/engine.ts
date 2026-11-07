@@ -384,33 +384,12 @@ class TilingEngine {
     });
     const gaps = this.getGaps(screenData.srf);
 
-    let tilingArea: Rect;
-    if (
-      (CONFIG.monocleMaximize && screenData.layout instanceof MonocleLayout) ||
-      (screenData.tileables.length === 1 && CONFIG.soleWindowNoGaps)
-    )
-      tilingArea = screenData.workingArea;
-    else if (
-      screenData.tileables.length === 1 &&
-      ((CONFIG.soleWindowWidth < 100 && CONFIG.soleWindowWidth > 0) ||
-        (CONFIG.soleWindowHeight < 100 && CONFIG.soleWindowHeight > 0))
-    ) {
-      const h_gap =
-        (screenData.workingArea.height -
-          screenData.workingArea.height * (CONFIG.soleWindowHeight / 100)) /
-        2;
-      const v_gap =
-        (screenData.workingArea.width -
-          screenData.workingArea.width * (CONFIG.soleWindowWidth / 100)) /
-        2;
-      tilingArea = screenData.workingArea.gap(v_gap, v_gap, h_gap, h_gap);
-    } else
-      tilingArea = screenData.workingArea.gap(
-        gaps.left,
-        gaps.right,
-        gaps.top,
-        gaps.bottom,
-      );
+    const tilingArea = TilingEngine.tilingArea(
+      screenData.workingArea,
+      gaps,
+      screenData.tileables.length,
+      screenData.layout,
+    );
 
     let tileablesLen = screenData.tileables.length;
     if (tileablesLen > 0) {
@@ -525,25 +504,7 @@ class TilingEngine {
       }
     }
 
-    if (
-      CONFIG.limitTileWidthRatio > 0 &&
-      !(screenData.layout instanceof MonocleLayout)
-    ) {
-      const maxWidth = Math.floor(
-        screenData.workingArea.height * CONFIG.limitTileWidthRatio,
-      );
-      screenData.tileables
-        .filter((tile) => tile.isTiled && tile.geometry.width > maxWidth)
-        .forEach((tile) => {
-          const g = tile.geometry;
-          tile.geometry = new Rect(
-            g.x + Math.floor((g.width - maxWidth) / 2),
-            g.y,
-            maxWidth,
-            g.height,
-          );
-        });
-    }
+    TilingEngine.limitTileWidth(screenData.tileables, screenData.workingArea, screenData.layout);
 
     if (CONFIG.soleWindowNoBorders && screenData.tileables.length === 1) {
       screenData.visibles.forEach((window) => {
@@ -559,6 +520,48 @@ class TilingEngine {
       "#######################################################Finished",
       `${screenData.srf}`,
     );
+  }
+
+  /**
+   * The area the layout may use: gaps, or the sole-window size limits
+   * (soleWindowWidth/Height, soleWindowNoGaps) and Monocle maximize.
+   * Shared by arranging and the drag preview so both always agree.
+   */
+  public static tilingArea(
+    workingArea: Rect,
+    gaps: IGaps,
+    tileCount: number,
+    layout: ILayout,
+  ): Rect {
+    if (
+      (CONFIG.monocleMaximize && layout instanceof MonocleLayout) ||
+      (tileCount === 1 && CONFIG.soleWindowNoGaps)
+    )
+      return workingArea;
+    if (
+      tileCount === 1 &&
+      ((CONFIG.soleWindowWidth < 100 && CONFIG.soleWindowWidth > 0) ||
+        (CONFIG.soleWindowHeight < 100 && CONFIG.soleWindowHeight > 0))
+    ) {
+      const h_gap =
+        (workingArea.height - workingArea.height * (CONFIG.soleWindowHeight / 100)) / 2;
+      const v_gap =
+        (workingArea.width - workingArea.width * (CONFIG.soleWindowWidth / 100)) / 2;
+      return workingArea.gap(v_gap, v_gap, h_gap, h_gap);
+    }
+    return workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
+  }
+
+  /** "limit tile width": too wide tiles are narrowed and centered */
+  public static limitTileWidth(tiles: WindowClass[], workingArea: Rect, layout: ILayout) {
+    if (!(CONFIG.limitTileWidthRatio > 0) || layout instanceof MonocleLayout) return;
+    const maxWidth = Math.floor(workingArea.height * CONFIG.limitTileWidthRatio);
+    tiles
+      .filter((tile) => tile.isTiled && tile.geometry.width > maxWidth)
+      .forEach((tile) => {
+        const g = tile.geometry;
+        tile.geometry = new Rect(g.x + Math.floor((g.width - maxWidth) / 2), g.y, maxWidth, g.height);
+      });
   }
 
   /* ============================================================ live drag & drop */
@@ -688,8 +691,8 @@ class TilingEngine {
       if (base.length === 0) return;
       const data = this.getTileables(srf);
       const gaps = this.getGaps(srf);
-      const area = data.workingArea.gap(gaps.left, gaps.right, gaps.top, gaps.bottom);
       const layout = this.layouts.getCurrentLayout(srf);
+      const area = TilingEngine.tilingArea(data.workingArea, gaps, base.length, layout);
       const tiles =
         !homeDrop && base.indexOf(window) >= 0 && layout instanceof SmartLayout
           ? this.orderLandingAt(layout, base, window, pos, area, gaps.between)
@@ -697,6 +700,7 @@ class TilingEngine {
       this.dragFinal.push({ srf, tiles });
       tiles.forEach((t) => (t.state = WindowState.Tiled));
       layout.apply(engineCtx, tiles, area, gaps.between);
+      TilingEngine.limitTileWidth(tiles, data.workingArea, layout);
       tiles.forEach((t) => {
         if (t === window) silhouette = t.geometry;
         else if (t.isTiled) t.commit();

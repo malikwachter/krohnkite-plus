@@ -158,5 +158,44 @@ test("order search: a plain swap would put the window elsewhere, the search puts
   const r = smart.compute(order, area, 0, order.indexOf(dolphin))[order.indexOf(dolphin)];
   assert(r.includesPoint(pos), `found order ${order.map((x) => x.name)} lands at ${[r.x, r.y, r.width, r.height]}`);
 });
+test("empty monitor: preview respects the sole window size limit, drop matches it", () => {
+  vm.runInContext("CONFIG.soleWindowWidth = 60; CONFIG.soleWindowHeight = 100", ctx);
+  const e4 = vm.runInContext("new TilingEngine()", ctx);
+  const c4 = vm.runInContext("(e) => new TilingController(e)", ctx)(e4);
+  const x1 = win("x1", outA), x2 = win("x2", outA);
+  [x1, x2].forEach((w) => e4.manage(w));
+  let movedTo = null;
+  const d4 = Object.assign({}, drv, {
+    moveWindowsToScreen(list) { const [out, ws] = list[0]; ws.forEach((w) => (w.window.out = out)); movedTo = out.name; e4.arrange(d4, "moved"); },
+  });
+  active = x2;
+  e4.arrange(d4, "init");
+  d4.cursorPosition = [2880, 540]; // middle of the empty monitor B
+  c4.onWindowDragging(d4, x2, x2.actualGeometry);
+  assert.deepStrictEqual(preview.r, [1920 + 384, 0, 1152, 1080], "60 % wide, centered: " + preview.r);
+  assert.deepStrictEqual(g(x1), [384, 0, 1152, 1080], "x1 alone on A, also limited to 60 % and centered");
+  c4.onWindowMoveOver(d4, x2);
+  assert.strictEqual(movedTo, "HDMI-A-1");
+  assert.deepStrictEqual(g(x2), [1920 + 384, 0, 1152, 1080], "dropped exactly like the preview");
+  vm.runInContext("CONFIG.soleWindowWidth = 100", ctx);
+});
+test("preview respects 'limit tile width' too", () => {
+  vm.runInContext("CONFIG.limitTileWidthRatio = 1.0", ctx); // max width = height = 1080
+  const e5 = vm.runInContext("new TilingEngine()", ctx);
+  const c5 = vm.runInContext("(e) => new TilingController(e)", ctx)(e5);
+  const y1 = win("y1", outA), y2 = win("y2", outA);
+  [y1, y2].forEach((w) => e5.manage(w));
+  const d5 = Object.assign({}, drv, {
+    moveWindowsToScreen(list) { const [out, ws] = list[0]; ws.forEach((w) => (w.window.out = out)); e5.arrange(d5, "moved"); },
+  });
+  active = y2;
+  e5.arrange(d5, "init");
+  d5.cursorPosition = [2880, 540];
+  c5.onWindowDragging(d5, y2, y2.actualGeometry);
+  assert.deepStrictEqual(preview.r, [1920 + 420, 0, 1080, 1080], "narrowed and centered: " + preview.r);
+  c5.onWindowMoveOver(d5, y2);
+  assert.deepStrictEqual(g(y2), [1920 + 420, 0, 1080, 1080]);
+  vm.runInContext("CONFIG.limitTileWidthRatio = 0", ctx);
+});
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);
