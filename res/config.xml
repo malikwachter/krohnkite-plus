@@ -8,6 +8,10 @@
       <!-- ***************************** -->
       <!-- ************Smart************ -->
       <!-- ***************************** -->
+    <entry name="smartLayoutEnabled" type="Bool">
+        <label>Enable Smart layout</label>
+        <default>true</default>
+    </entry>
     <entry name="smartLayoutOrder" type="Int">
 	    <label> Smart layout order</label>
         <default>1</default>
@@ -44,12 +48,8 @@
 	    <label>Pause tiling and notifications while a fullscreen window is active</label>
         <default>true</default>
     </entry>
-    <entry name="dragPreview" type="Bool">
-	    <label>Show where a dragged window will land</label>
-        <default>true</default>
-    </entry>
     <entry name="animationDuration" type="Int">
-	    <label>Animation speed in milliseconds (0 = off); needs the Krohnkite Smooth desktop effect for windows</label>
+	    <label>Animation speed in milliseconds (0 = off); needs the Kröhnkite-Plus Smooth desktop effect for windows</label>
         <default>150</default>
     </entry>
     <entry name="zoomMarginX" type="Int">
@@ -95,6 +95,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
       <!-- ***************************** -->
       <!-- ***********Layouts*********** -->
       <!-- ***************************** -->
+    <entry name="tileLayoutEnabled" type="Bool">
+        <label>Enable Tile layout</label>
+        <default>true</default>
+    </entry>
     <entry name="tileLayoutOrder" type="Int">
 	    <label> Tile layout order</label>
         <default>1</default>
@@ -109,6 +113,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>0</default>
     </entry>
 
+    <entry name="monocleLayoutEnabled" type="Bool">
+        <label>Enable Monocle layout</label>
+        <default>true</default>
+    </entry>
     <entry name="monocleLayoutOrder" type="Int">
 	    <label> Monocle layout order</label>
         <default>2</default>
@@ -122,6 +130,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>false</default>
     </entry>
 
+    <entry name="threeColumnLayoutEnabled" type="Bool">
+        <label>Enable Three Column layout</label>
+        <default>true</default>
+    </entry>
     <entry name="threeColumnLayoutOrder" type="Int">
 	    <label> Three Column layout order</label>
         <default>3</default>
@@ -131,6 +143,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>0</default>
     </entry>
 
+    <entry name="spiralLayoutEnabled" type="Bool">
+        <label>Enable Spiral layout</label>
+        <default>true</default>
+    </entry>
     <entry name="spiralLayoutOrder" type="Int">
 	    <label> Spiral layout order</label>
         <default>4</default>
@@ -140,6 +156,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>0</default>
     </entry>
 
+    <entry name="quarterLayoutEnabled" type="Bool">
+        <label>Enable Quarter layout</label>
+        <default>true</default>
+    </entry>
     <entry name="quarterLayoutOrder" type="Int">
 	    <label> Quarter layout order</label>
         <default>5</default>
@@ -149,6 +169,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>false</default>
     </entry>
 
+    <entry name="stackedLayoutEnabled" type="Bool">
+        <label>Enable Stacked layout</label>
+        <default>true</default>
+    </entry>
     <entry name="stackedLayoutOrder" type="Int">
 	    <label> Stacked layout order</label>
         <default>6</default>
@@ -158,6 +182,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>0</default>
     </entry>
 
+    <entry name="columnsLayoutEnabled" type="Bool">
+        <label>Enable Columns layout</label>
+        <default>true</default>
+    </entry>
     <entry name="columnsLayoutOrder" type="Int">
 	    <label> Columns layout order</label>
         <default>7</default>
@@ -165,10 +193,6 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
     <entry name="columnsLayoutCapacity" type="Int">
 	    <label>How many tiles can a layout contain before windows start floating or moving to another screen</label>
         <default>0</default>
-    </entry>
-    <entry name="enableColumnsLayout" type="Bool">
-	    <label>Enable/disable Columns layout</label>
-        <default>true</default>
     </entry>
     <entry name="columnsLayoutInitialRotationAngle" type="String">
 	    <label>Columns layout initial rotation angle</label>
@@ -182,7 +206,19 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
 	    <label>Columns layout default configuration.</label>
         <default></default>
     </entry>
+    <entry name="columnsApplyConfOnNewColumns" type="Bool">
+	    <label>Apply the "Config" to newly added columns.</label>
+        <default>false</default>
+    </entry>
+    <entry name="columnsLimitColumns" type="Bool">
+	    <label>Limit the maximum number of columns in the columns layout according to the "Config".</label>
+        <default>false</default>
+    </entry>
 
+    <entry name="spreadLayoutEnabled" type="Bool">
+        <label>Enable Spread layout</label>
+        <default>true</default>
+    </entry>
     <entry name="spreadLayoutOrder" type="Int">
 	    <label> Spread layout order</label>
         <default>8</default>
@@ -191,12 +227,24 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
 	    <label>How many tiles can a layout contain before windows start floating or moving to another screen</label>
         <default>0</default>
     </entry>
+    <entry name="spreadLayoutSpace" type="Int">
+	    <label>Spread layout space between tiles (percent)</label>
+        <default>4</default>
+    </entry>
 
+    <entry name="floatingLayoutEnabled" type="Bool">
+        <label>Enable Floating layout</label>
+        <default>true</default>
+    </entry>
     <entry name="floatingLayoutOrder" type="Int">
 	    <label> Floating layout order</label>
         <default>9</default>
     </entry>
 
+    <entry name="stairLayoutEnabled" type="Bool">
+        <label>Enable Stair layout</label>
+        <default>true</default>
+    </entry>
     <entry name="stairLayoutOrder" type="Int">
 	    <label> Stair layout order</label>
         <default>10</default>
@@ -210,6 +258,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>false</default>
     </entry>
 
+    <entry name="binaryTreeLayoutEnabled" type="Bool">
+        <label>Enable Binary Tree layout</label>
+        <default>true</default>
+    </entry>
     <entry name="binaryTreeLayoutOrder" type="Int">
 	    <label> BTree layout order</label>
         <default>11</default>
@@ -219,6 +271,10 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>0</default>
     </entry>
 
+    <entry name="cascadeLayoutEnabled" type="Bool">
+        <label>Enable Cascade layout</label>
+        <default>true</default>
+    </entry>
     <entry name="cascadeLayoutOrder" type="Int">
 	    <label> Cascade layout order</label>
         <default>12</default>
@@ -232,18 +288,73 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
       <!-- **********Surfaces*********** -->
       <!-- ***************************** -->
 
-    <entry name="surfacesDefaultConfig" type="String">
+    <entry name="srfExceededToScreen" type="Bool">
+	    <label>Move windows to next screen if surface(or layout) capacity is exceeded</label>
+        <default>false</default>
+    </entry>
+    <entry name="srfToScreenOrderLeft" type="Int">
+	    <label>The order of the left screen to move exceeded windows</label>
+        <default>1</default>
+    </entry>
+    <entry name="srfToScreenOrderTop" type="Int">
+	    <label>The order of the Top screen to move exceeded windows</label>
+        <default>2</default>
+    </entry>
+    <entry name="srfToScreenOrderRight" type="Int">
+	    <label>The order of the Right screen to move exceeded windows</label>
+        <default>3</default>
+    </entry>
+    <entry name="srfToScreenOrderBottom" type="Int">
+	    <label>The order of the Bottom screen to move exceeded windows</label>
+        <default>4</default>
+    </entry>
+
+    <entry name="srfExceededToVDesktop" type="Bool">
+	    <label>Move windows to next screen if surface(or layout) capacity is exceeded</label>
+        <default>false</default>
+    </entry>
+    <entry name="srfToVDesktopOrderLeft" type="Int">
+	    <label>The order of the left Virtual Desktop to move exceeded windows</label>
+        <default>1</default>
+    </entry>
+    <entry name="srfToVDesktopOrderTop" type="Int">
+	    <label>The order of the Top Virtual Desktop to move exceeded windows</label>
+        <default>2</default>
+    </entry>
+    <entry name="srfToVDesktopOrderRight" type="Int">
+	    <label>The order of the Right Virtual Desktop to move exceeded windows</label>
+        <default>3</default>
+    </entry>
+    <entry name="srfToVDesktopOrderBottom" type="Int">
+	    <label>The order of the Bottom Virtual Desktop to move exceeded windows</label>
+        <default>4</default>
+    </entry>
+
+    <entry name="srfOvercapacityEviction" type="Int">
+	    <label>Which overcapacity windows to evict: 0 - last focused, 1 - oldest</label>
+        <default>1</default>
+    </entry>
+
+    <entry name="srfOvercapacityMode" type="Int">
+	    <label>How to handle overcapacity windows: 0 - float, 1 - minimize</label>
+        <default>1</default>
+    </entry>
+
+    <entry name="srfAllowShortcutMoveToFullSurface" type="Bool">
+	    <label>Allow shortcut moves to a full surface</label>
+        <default>false</default>
+    </entry>
+
+    <entry name="srfDefineCfg" type="String">
+      <label>Define surfaces with user lable. Surface=userLabel</label>
+        <default></default>
+    </entry>
+
+    <entry name="srfDefaultConfig" type="String">
 	    <label>Surfaces settings change the default parameters for the surface</label>
         <default></default>
     </entry>
-    <entry name="surfacesIsMoveWindows" type="Bool">
-	    <label>Move windows to next screen if surface(or layout) capacity is exceeded</label>
-        <default>true</default>
-    </entry>
-    <entry name="surfacesIsMoveOldestWindows" type="Bool">
-	    <label>Move the oldest windows</label>
-        <default>false</default>
-    </entry>
+
 
       <!-- ***************************** -->
       <!-- **********Geometry*********** -->
@@ -290,6 +401,30 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
     </entry>
 
       <!-- ***************************** -->
+      <!-- *********Shortcuts*********** -->
+      <!-- ***************************** -->
+    <entry name="altRegisterTimeout" type="Int">
+        <label>Time Duration in milliseconds for alter register</label>
+        <default>3000</default>
+    </entry>
+    <entry name="altRegisterIsToggle" type="Bool">
+	    <label>Krohnkite alter register shorcut works as a switcher</label>
+        <default>false</default>
+    </entry>
+    <entry name="altRegisterIsPushedTwice" type="Bool">
+	    <label>Push twice the alter register shortcut to enable/disable the register</label>
+        <default>false</default>
+    </entry>
+    <entry name="shortcutSequenceTime" type="Int">
+        <label>Max waiting time the sequence of shortcuts.</label>
+        <default>400</default>
+    </entry>
+    <entry name="shortcutConf" type="String">
+	    <label>Case Insensitive. Redefining the default keybindings (see the wiki for details)</label>
+      <default></default>
+    </entry>
+
+      <!-- ***************************** -->
       <!-- **********Behavior*********** -->
       <!-- ***************************** -->
 
@@ -303,16 +438,6 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>true</default>
     </entry>
 
-    <entry name="directionalKeyDwm" type="Bool">
-	    <label>Up, Down, Left, and Right shortcut behaves like dwm</label>
-        <default>false</default>
-    </entry>
-
-    <entry name="directionalKeyFocus" type="Bool">
-	    <label>Up, Down, Left, and Right shortcut moves focus</label>
-        <default>true</default>
-    </entry>
-
     <entry name="focusNormal" type="Int">
         <label>What types of window can be focused using Krohnkite's focus keys.</label>
         <default>0</default>
@@ -321,42 +446,33 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <label>What types of window can be focused using Krohnkite's meta focus shortcuts.</label>
         <default>1</default>
     </entry>
-    <entry name="focusNormalDisableScreens" type="Bool">
-	    <label>Disable switching on adjacent screens for focus</label>
+    <entry name="focusMoveScreensNormal" type="Bool">
+      <label>Focusing/moving windows across screens in normal shortcut mode</label>
+        <default>true</default>
+    </entry>
+    <entry name="focusMoveVDesktopsNormal" type="Bool">
+      <label>Focusing/moving windows across VDesktops in normal shortcut mode</label>
+        <default>true</default>
+    </entry>
+    <entry name="focusMoveScreensMeta" type="Bool">
+      <label>Focusing/moving windows across screens in meta shortcut mode</label>
         <default>false</default>
     </entry>
-    <entry name="focusNormalDisableVDesktops" type="Bool">
-	    <label>Disable switching to other virtual desktops for focus</label>
-        <default>false</default>
-    </entry>
-    <entry name="focusMetaDisableScreens" type="Bool">
-	    <label>Disable switching on adjacent screens for focus</label>
-        <default>false</default>
-    </entry>
-    <entry name="focusMetaDisableVDesktops" type="Bool">
-	    <label>Disable switching to other virtual desktops for focus</label>
-        <default>false</default>
+    <entry name="focusMoveVDesktopsMeta" type="Bool">
+	    <label>Focusing/moving windows across VDesktops in meta shortcut mode</label>
+        <default>true</default>
     </entry>
     <entry name="movePointerOnFocus" type="Bool">
       <label>Move mouse cursor to the center of a window/screen when it becomes focused</label>
       <default>false</default>
     </entry>
-
-    <entry name="metaConf" type="String">
-	    <label>Case Insensitive. Redefining the default keybindings in Meta Mode (see the wiki for details)</label>
-      <default></default>
+    <entry name="movePointerOnFocusShortcutsOnly" type="Bool">
+      <label>Move the pointer on focus only when focus changes through a Krohnkite shortcut</label>
+      <default>false</default>
     </entry>
-    <entry name="metaTimeout" type="Int">
-        <label>Time Duration in milliseconds for Meta Mode</label>
-        <default>3000</default>
-    </entry>
-    <entry name="metaIsToggle" type="Bool">
-	    <label>Krohnkite Meta shorcut works as a switcher of the Meta Mode</label>
-        <default>false</default>
-    </entry>
-    <entry name="metaIsPushedTwice" type="Bool">
-	    <label>Push twice the meta shortcut to enable/disable the Meta Mode</label>
-        <default>false</default>
+    <entry name="movePointerOnResize" type="Bool">
+      <label>Move mouse cursor to the center of the focused window when it is resized</label>
+      <default>false</default>
     </entry>
 
     <entry name="newWindowPosition" type="Int">
@@ -370,7 +486,7 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
 
         <entry name="ignoreClass" type="String">
 	    <label>Ignore windows with certain classes(comma-separated list)</label>
-        <default>krunner,yakuake,spectacle,kded5,xwaylandvideobridge,plasmashell,ksplashqml,org.kde.plasmashell,org.kde.polkit-kde-authentication-agent-1,org.kde.kruler,kruler,kwin_wayland,ksmserver-logout-greeter</default>
+        <default></default>
     </entry>
 
     <entry name="ignoreTitle" type="String">
@@ -381,26 +497,6 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
     <entry name="ignoreRole" type="String">
 	    <label>Ignore windows with specific role(comma-separated list)</label>
         <default>quake</default>
-    </entry>
-
-    <entry name="floatingClass" type="String">
-	    <label>Float windows with certain classes(comma-separated list)</label>
-        <default></default>
-    </entry>
-
-    <entry name="floatingTitle" type="String">
-	    <label>Float windows with certain string in title(comma-separated list)</label>
-        <default></default>
-    </entry>
-
-    <entry name="floatDefault" type="Bool">
-	    <label>by default all new windows become floating</label>
-        <default>false</default>
-    </entry>
-
-    <entry name="floatUtility" type="Bool">
-	    <label>Automatically float utility windows (Dialog, Splash, Utility)</label>
-        <default>true</default>
     </entry>
 
     <entry name="ignoreActivity" type="String">
@@ -430,6 +526,56 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
 
     <entry name="screenDefaultLayout" type="String">
 	    <label>Assigning number of layout to screen(output) by default</label>
+        <default></default>
+    </entry>
+      <!-- ***************************** -->
+      <!-- *************Float*********** -->
+      <!-- ***************************** -->
+    <entry name="floatDefaultSizeEnable" type="Bool">
+      <label>Will Krohnkite override native window float size</label>
+        <default>false</default>
+    </entry>
+    <entry name="floatDefaultWidth" type="Int">
+	    <label>The initial width of a floating window in percent of the screen width.</label>
+        <default>50</default>
+    </entry>
+    <entry name="floatDefaultHeight" type="Int">
+	    <label>The initial height of a floating window in percent of the screen height.</label>
+        <default>50</default>
+    </entry>
+    <entry name="floatRandomEnable" type="Bool">
+      <label>Randomize the initial position of floating window.</label>
+        <default>true</default>
+    </entry>
+    <entry name="floatRandomWidth" type="Int">
+	    <label>Percentage of the range from the left border of the screen to the window placed in the center of the screen.Determines the randomization spread.</label>
+        <default>15</default>
+    </entry>
+    <entry name="floatRandomHeight" type="Int">
+	    <label>Percentage of the range from the top of the screen to the window placed in the center of the screen.Determines the randomization spread.</label>
+        <default>15</default>
+    </entry>
+    <entry name="floatSizeStepWidth" type="Int">
+	    <label>What percentage of the screen width will the floating window expand or contract by each time the keyboard shortcut is pressed?</label>
+        <default>6</default>
+    </entry>
+    <entry name="floatSizeStepHeight" type="Int">
+	    <label>What percentage of the screen height will the floating window expand or contract by each time the keyboard shortcut is pressed?</label>
+        <default>4</default>
+    </entry>
+    <entry name="floatAsDefault" type="Bool">
+	    <label>by default all new windows become floating</label>
+        <default>false</default>
+    </entry>
+
+    <entry name="floatUtility" type="Bool">
+	    <label>Automatically float utility windows (Dialog, Splash, Utility)</label>
+        <default>true</default>
+    </entry>
+
+    <!-- ############# -->
+    <entry name="floatConfig" type="String">
+	    <label>Override default screen gaps</label>
         <default></default>
     </entry>
 
@@ -556,35 +702,15 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
       <label>Do not draw gaps around sole window</label>
         <default>false</default>
     </entry>
+    <entry name="soleWindowOutputOverride" type="String">
+        <label>Override sole the window size by output</label>
+        <default></default>
+    </entry>
 
-    <entry name="floatEnable" type="Bool">
-      <label>Will Krohnkite control the float windows initial size</label>
-        <default>true</default>
-    </entry>
-    <entry name="floatInitWindowWidth" type="Int">
-	    <label>The initial width of a floating window in percent of the screen width.</label>
-        <default>50</default>
-    </entry>
-    <entry name="floatInitWindowHeight" type="Int">
-	    <label>The initial height of a floating window in percent of the screen height.</label>
-        <default>50</default>
-    </entry>
-    <entry name="floatRandomize" type="Bool">
-      <label>Randomize the initial position of floating window.</label>
-        <default>true</default>
-    </entry>
-    <entry name="floatRandomWidth" type="Int">
-	    <label>Percentage of the range from the left border of the screen to the window placed in the center of the screen.Determines the randomization spread.</label>
-        <default>15</default>
-    </entry>
-    <entry name="floatRandomHeight" type="Int">
-	    <label>Percentage of the range from the top of the screen to the window placed in the center of the screen.Determines the randomization spread.</label>
-        <default>15</default>
-    </entry>
 
     <entry name="unfitGreater" type="Bool">
-      <label>If enable make all windows floating if they minimum size to large for tile</label>
-        <default>true</default>
+      <label>(Experimental)If enable make all windows floating if they minimum size to large for tile</label>
+        <default>false</default>
     </entry>
     <entry name="unfitLess" type="Bool">
       <label>If enable make all windows floating if the maximum size to small for tile</label>
@@ -611,9 +737,49 @@ class=xdg-desktop-portal-kde : float, pos=center</default>
         <default>false</default>
     </entry>
 
+    <entry name="optVKeyboardSupport" type="Bool">
+        <label>Enable Virtual Keyboard support. 5DBus request when window becomes active.</label>
+        <default>false</default>
+    </entry>
+
     <entry name="keepTilingOnDrag" type="Bool">
 	    <label>Always preserve the tiling status of a window upon dragging</label>
         <default>true</default>
+    </entry>
+
+    <entry name="dragPreview" type="Bool">
+	    <label>Show where a dragged window will land (tiles and dock slots)</label>
+        <default>true</default>
+    </entry>
+
+    <entry name="dockFrameColor" type="Color">
+	    <label>Fill color of the drag preview rectangle</label>
+        <default>61, 135, 240, 77</default>
+    </entry>
+
+    <entry name="dockBorderColor" type="Color">
+	    <label>Border color of the drag preview rectangle</label>
+        <default>61, 135, 240, 230</default>
+    </entry>
+
+    <entry name="dockTopDragZone" type="Int">
+	    <label>Top drag zone thickness in pixels</label>
+        <default>15</default>
+    </entry>
+
+    <entry name="dockBottomDragZone" type="Int">
+	    <label>Bottom drag zone thickness in pixels</label>
+        <default>15</default>
+    </entry>
+
+    <entry name="dockLeftDragZone" type="Int">
+	    <label>Left drag zone thickness in pixels</label>
+        <default>15</default>
+    </entry>
+
+    <entry name="dockRightDragZone" type="Int">
+	    <label>Right drag zone thickness in pixels</label>
+        <default>15</default>
     </entry>
 
     <entry name="preventMinimize" type="Bool">

@@ -36,7 +36,7 @@ class MonocleLayout implements ILayout {
         if (current && current.isTiled) {
           tiles.forEach((window) => {
             if (window !== current)
-              (window.window as KWinWindow).window.minimized = true;
+              (window.window as DriverWindow).setMinimizedByScript(true);
           });
         }
       }, 50);
@@ -48,26 +48,22 @@ class MonocleLayout implements ILayout {
     return this;
   }
 
-  public handleShortcut(
-    ctx: EngineContext,
-    input: Shortcut,
-    data?: any,
-  ): boolean {
+  public handleShortcut(ctx: EngineContext, input: KrohnkiteAction): boolean {
     switch (input) {
-      // case Shortcut.Up:
-      // case Shortcut.Left:
-      case Shortcut.DWMLeft:
-      case Shortcut.FocusNext:
-      case Shortcut.FocusUp:
-      case Shortcut.FocusLeft:
+      // case KrohnkiteAction.Up:
+      // case KrohnkiteAction.Left:
+      case KrohnkiteAction.DWMLeft:
+      case KrohnkiteAction.FocusNext:
+      case KrohnkiteAction.FocusUp:
+      case KrohnkiteAction.FocusLeft:
         ctx.cycleFocus(-1);
         return true;
-      // case Shortcut.Down:
-      // case Shortcut.Right:
-      case Shortcut.DWMRight:
-      case Shortcut.FocusPrev:
-      case Shortcut.FocusDown:
-      case Shortcut.FocusRight:
+      // case KrohnkiteAction.Down:
+      // case KrohnkiteAction.Right:
+      case KrohnkiteAction.DWMRight:
+      case KrohnkiteAction.FocusPrev:
+      case KrohnkiteAction.FocusDown:
+      case KrohnkiteAction.FocusRight:
         ctx.cycleFocus(1);
         return true;
       default:

@@ -147,7 +147,7 @@ test("vertical resize inside a column", () => {
 test("column offset shortcut changes column count", () => {
   const l = new SmartLayout();
   const t4 = [tile(), tile(), tile(), tile()];
-  l.handleShortcut({ showNotification() {} }, ctx.Shortcut ? ctx.Shortcut.Increase : vm.runInContext("Shortcut.Increase", ctx));
+  l.handleShortcut({ showNotification() {} }, vm.runInContext("KrohnkiteAction.Increase", ctx));
   const xs = new Set(rects(l, t4).map((x) => x[0]));
   assert.strictEqual(xs.size, 3);
 });

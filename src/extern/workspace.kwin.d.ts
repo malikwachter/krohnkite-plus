@@ -17,11 +17,11 @@ interface Workspace {
   readonly activities: string[];
   readonly virtualScreenSize: QSize;
   readonly virtualScreenGeometry: QRect;
-  readonly stackingOrder: Window[];
+  readonly stackingOrder: KwinWindow[];
   readonly cursorPos: QPoint;
   // read-write props
   currentDesktop: VirtualDesktop;
-  activeWindow: Window;
+  activeWindow: KwinWindow;
   currentActivity: string;
   // signals
   windowAdded: QSignal; // (window: IWindow)
@@ -36,7 +36,7 @@ interface Workspace {
   activityRemoved: QSignal; // (activity new. const id: string)
   virtualScreenSizeChanged: QSignal;
   virtualScreenGeometryChanged: QSignal;
-  currentDesktopChanged: QSignal; // (desktop: IVirtualDesktop)
+  currentDesktopChanged: QSignal; // (previous: VirtualDesktop[, current: VirtualDesktop, output: Output])
   cursorPosChanged: QSignal;
   // slots
   slotSwitchDesktopNext(): void;
@@ -105,7 +105,10 @@ interface Workspace {
   slotWindowToDesktopUp(): void;
   slotWindowToDesktopDown(): void;
   // functions
-  sendClientToScreen(client: Window, output: Output): void;
+  sendClientToScreen(client: KwinWindow, output: Output): void;
+  // Per-screen virtual desktops (KWin >= 6.7). Optional: absent on older KWin.
+  currentDesktopForScreen?(output: Output): VirtualDesktop | null;
+  setCurrentDesktopForScreen?(desktop: VirtualDesktop, output: Output): void;
   showOutline(geometry: QRect): void;
   showOutline(x: number, y: number, width: number, height: number): void;
   hideOutline(): void;
@@ -115,12 +118,12 @@ interface Workspace {
     output: Output,
     desktop: VirtualDesktop,
   ): QRect;
-  clientArea(option: ClientAreaOption, window: Window): QRect;
+  clientArea(option: ClientAreaOption, window: KwinWindow): QRect;
   createDesktop(position: number, name: string): void;
   removeDesktop(desktop: VirtualDesktop): void;
   supportInformation(): string;
-  raiseWindow(window: Window): void;
-  getClient(windowId: number): Window;
-  windowAt(pos: QPoint, count: number): Window[];
+  raiseWindow(window: KwinWindow): void;
+  getClient(windowId: number): KwinWindow;
+  windowAt(pos: QPoint, count: number): KwinWindow[];
   isEffectActive(pluginId: string): boolean;
 }

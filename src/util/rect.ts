@@ -20,14 +20,14 @@ class Rect {
     return this.y + this.height;
   }
 
-  public get center(): [number, number] {
-    return [
-      this.x + Math.floor(this.width / 2),
-      this.y + Math.floor(this.height / 2),
-    ];
+  public get center(): QPoint {
+    return {
+      x: this.x + Math.floor(this.width / 2),
+      y: this.y + Math.floor(this.height / 2),
+    };
   }
-  public get activationPoint(): [number, number] {
-    return [this.x + Math.floor(this.width / 2), this.y + 10];
+  public get activationPoint(): QPoint {
+    return { x: this.x + Math.floor(this.width / 2), y: this.y + 10 };
   }
 
   public clone(): Rect {
@@ -75,9 +75,10 @@ class Rect {
   }
 
   public includesPoint(
-    [x, y]: [number, number],
+    point: QPoint,
     part: RectParts = RectParts.Whole,
   ): boolean {
+    const { x, y } = point;
     if (part === RectParts.Top)
       return (
         this.x <= x &&
@@ -112,50 +113,69 @@ class Rect {
   }
 
   public isTopZone(
-    [x, y]: [number, number],
-    activeZone: percentType = 10,
+    point: QPoint,
+    activeZone: number = 10,
+    unit: "percents" | "pixels" = "percents",
+    mirror: boolean = false,
   ): boolean {
+    const { x, y } = point;
+    let height =
+      unit === "percents" ? (this.height * activeZone) / 100 : activeZone;
+    const topEdge = mirror ? this.y - height : this.y;
+    if (mirror) height = height * 2;
     return (
-      this.y <= y &&
-      y <= this.y + (this.height * activeZone) / 100 &&
-      this.x <= x &&
-      x <= this.maxX
+      topEdge <= y && y <= topEdge + height && this.x <= x && x <= this.maxX
     );
   }
 
   public isBottomZone(
-    [x, y]: [number, number],
-    activeZone: percentType = 10,
+    point: QPoint,
+    activeZone: number = 10,
+    unit: "percents" | "pixels" = "percents",
+    mirror: boolean = false,
   ): boolean {
+    const { x, y } = point;
+    let height =
+      unit === "percents" ? (this.height * activeZone) / 100 : activeZone;
+    const bottomEdge = mirror ? this.maxY + height : this.maxY;
+    if (mirror) height = height * 2;
     return (
-      y >= this.maxY - (this.height * activeZone) / 100 &&
-      y <= this.maxY &&
+      y >= bottomEdge - height &&
+      y <= bottomEdge &&
       this.x <= x &&
       x <= this.maxX
     );
   }
 
   public isLeftZone(
-    [x, y]: [number, number],
-    activeZone: percentType = 10,
+    point: QPoint,
+    activeZone: number = 10,
+    unit: "percents" | "pixels" = "percents",
+    mirror: boolean = false,
   ): boolean {
+    const { x, y } = point;
+    let wide =
+      unit === "percents" ? (this.width * activeZone) / 100 : activeZone;
+    const leftEdge = mirror ? this.x - wide : this.x;
+    if (mirror) wide = wide * 2;
     return (
-      this.x <= x &&
-      x <= this.x + (this.width * activeZone) / 100 &&
-      this.y <= y &&
-      y <= this.maxY
+      leftEdge <= x && x <= leftEdge + wide && this.y <= y && y <= this.maxY
     );
   }
 
   public isRightZone(
-    [x, y]: [number, number],
-    activeZone: percentType = 10,
+    point: QPoint,
+    activeZone: number = 10,
+    unit: "percents" | "pixels" = "percents",
+    mirror: boolean = false,
   ): boolean {
+    const { x, y } = point;
+    let wide =
+      unit === "percents" ? (this.width * activeZone) / 100 : activeZone;
+    const rightEdge = mirror ? this.maxX + wide : this.maxX;
+    if (mirror) wide = wide * 2;
     return (
-      x >= this.maxX - (this.width * activeZone) / 100 &&
-      x <= this.maxX &&
-      this.y <= y &&
-      y <= this.maxY
+      x >= rightEdge - wide && x <= rightEdge && this.y <= y && y <= this.maxY
     );
   }
 
@@ -184,8 +204,8 @@ class Rect {
 
   public distance(other: Rect): number {
     return Math.sqrt(
-      (this.center[0] - other.center[0]) ** 2 +
-        (this.center[1] - other.center[1]) ** 2,
+      (this.center.x - other.center.x) ** 2 +
+        (this.center.y - other.center.y) ** 2,
     );
   }
 

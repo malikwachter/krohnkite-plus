@@ -7,7 +7,7 @@
 class DockSlot {
   readonly _position: DockPosition;
   readonly _order: number;
-  public window: WindowClass | null;
+  public windows: WindowClass[];
 
   public get position(): DockPosition {
     return this._position;
@@ -19,6 +19,22 @@ class DockSlot {
   constructor(position: DockPosition, order: number) {
     this._position = position;
     this._order = order;
-    this.window = null;
+    this.windows = [];
+  }
+
+  public add(window: WindowClass, index: number = this.windows.length): void {
+    const target = Math.max(0, Math.min(index, this.windows.length));
+    this.windows.splice(target, 0, window);
+  }
+
+  public remove(window: WindowClass): boolean {
+    const index = this.windows.indexOf(window);
+    if (index < 0) return false;
+    this.windows.splice(index, 1);
+    return true;
+  }
+
+  public indexOf(window: WindowClass): number {
+    return this.windows.indexOf(window);
   }
 }

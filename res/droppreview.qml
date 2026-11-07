@@ -74,7 +74,7 @@ Item {
             /*
              * A new drop place: the box grows out of the middle of the space
              * that is just being freed, in sync with the windows moving away
-             * (same duration and curve as the Krohnkite Smooth effect).
+             * (same duration and curve as the Kröhnkite-Plus Smooth effect).
              */
             function moveBox(x, y, w, h, ms) {
                 if (x === targetX && y === targetY && w === targetW && h === targetH) return;

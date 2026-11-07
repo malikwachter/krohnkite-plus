@@ -4,7 +4,7 @@
     SPDX-License-Identifier: MIT
 */
 
-interface Window {
+interface KwinWindow {
   readonly bufferGeometry: QRect;
   readonly clientGeometry: QRect;
   readonly pos: QPoint;
@@ -54,7 +54,7 @@ interface Window {
   readonly minSize: QSize;
   readonly maxSize: QSize;
   readonly transient: boolean;
-  readonly transientFor: Window;
+  readonly transientFor: KwinWindow;
   readonly modal: boolean;
   readonly move: boolean;
   readonly resize: boolean;

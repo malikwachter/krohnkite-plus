@@ -21,7 +21,7 @@ class StackedLayout implements ILayout {
   constructor(capacity?: number | null) {
     this.capacity = capacity !== undefined ? capacity : null;
     this.parts = new RotateLayoutPart(
-      new HalfSplitLayoutPart(new StackLayoutPart(), new StackLayoutPart())
+      new HalfSplitLayoutPart(new StackLayoutPart(), new StackLayoutPart()),
     );
   }
 
@@ -30,7 +30,7 @@ class StackedLayout implements ILayout {
     tiles: WindowClass[],
     basis: WindowClass,
     delta: RectDelta,
-    gap: number
+    gap: number,
   ) {
     this.parts.adjust(area, tiles, basis, delta, gap);
   }
@@ -39,7 +39,7 @@ class StackedLayout implements ILayout {
     ctx: EngineContext,
     tileables: WindowClass[],
     area: Rect,
-    gap: number
+    gap: number,
   ): void {
     tileables.forEach((tileable) => (tileable.state = WindowState.Tiled));
 
@@ -57,9 +57,9 @@ class StackedLayout implements ILayout {
     return other;
   }
 
-  public handleShortcut(ctx: EngineContext, input: Shortcut) {
+  public handleShortcut(ctx: EngineContext, input: KrohnkiteAction) {
     switch (input) {
-      case Shortcut.Rotate:
+      case KrohnkiteAction.Rotate:
         this.parts.rotate(90);
         break;
       default:

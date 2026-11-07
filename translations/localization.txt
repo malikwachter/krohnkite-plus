@@ -1,3 +1,8 @@
-echo "SOURCES = config.ui" > temp.pro
-lupdate -no-obsolete temp.pro -ts translations.ts
-ts2po -i translations.ts -o translations.po
+# Regenerate the translation template and compile the .mo files:
+#
+#   task translations
+#
+# The script copies res/config.ui into a temporary directory, runs lupdate and
+# ts2po, merges the template into russian.po/chinese.po with
+# --no-fuzzy-matching (new strings stay untranslated for review), removes
+# obsolete entries and compiles the .mo files used by the KWin package.

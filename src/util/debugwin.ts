@@ -4,7 +4,7 @@
     SPDX-License-Identifier: MIT
 */
 
-function debugWin(win: Window): string {
+function debugWin(win: KwinWindow): string {
   var w_props: { name: string; opt: any }[] = [
     { name: "caption", opt: win.caption },
     { name: "output.name", opt: win.output.name },

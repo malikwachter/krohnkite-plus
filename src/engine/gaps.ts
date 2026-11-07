@@ -6,7 +6,7 @@
 */
 
 class DefaultGapsCfg implements IGaps {
-  static _gapsInstance: DefaultGapsCfg;
+  static _gapsInstance: DefaultGapsCfg | undefined;
 
   public readonly left: number;
   public readonly right: number;
@@ -47,63 +47,41 @@ class DefaultGapsCfg implements IGaps {
     }
     return DefaultGapsCfg._gapsInstance;
   }
+  public static reset(): void {
+    DefaultGapsCfg._gapsInstance = undefined;
+  }
   public cloneAndUpdate(cfg: Partial<IGaps>): IGaps {
     return Object.assign({} as IGaps, DefaultGapsCfg.instance, cfg);
   }
 }
-
 class gapsSurfaceCfg {
-  public outputName: string;
-  public activityId: string;
-  public vDesktopName: string;
+  public label: string;
   public cfg: IGaps;
 
-  constructor(
-    outputName: string,
-    activityId: string,
-    vDesktopName: string,
-    cfg: IGaps
-  ) {
-    this.outputName = outputName;
-    this.activityId = activityId;
-    this.vDesktopName = vDesktopName;
+  constructor(label: string, cfg: IGaps) {
+    this.label = label;
     this.cfg = cfg;
   }
   public isFit(srf: ISurface): boolean {
-    return (
-      (this.outputName === "" || this.outputName === srf.output.name) &&
-      (this.vDesktopName === "" || this.vDesktopName === srf.vDesktop.name) &&
-      (this.activityId === "" || this.activityId === srf.activity)
-    );
+    return srf.isFit(this.label);
   }
   public toString(): string {
-    return `gapsSurfaceCfg: Output Name: ${this.outputName}, Activity ID: ${this.activityId}, Virtual Desktop Name: ${this.vDesktopName} cfg: ${this.cfg}`;
+    return `gapsSurfaceCfg: Label: ${this.label} cfg: ${this.cfg}`;
   }
 
-  public static parseGapsUserSurfacesCfg(): gapsSurfaceCfg[] {
-    let surfacesCfg: gapsSurfaceCfg[] = [];
+  public static parseGapsUserSurfacesCfg(): SurfaceCfg<IGaps>[] {
+    let surfacesCfg: SurfaceCfg<IGaps>[] = [];
     if (CONFIG.gapsOverrideConfig.length === 0) return surfacesCfg;
     CONFIG.gapsOverrideConfig.forEach((cfg) => {
       let surfaceCfgString = cfg.split(":").map((part) => part.trim());
-      if ([2, 4].indexOf(surfaceCfgString.length) < 0) {
+      if (surfaceCfgString.length !== 2) {
         warning(
-          `Invalid Gaps surface config: ${cfg}, config must have one or three colons`
+          `Invalid Gaps surface config: ${cfg}, config must have exactly one colon (expected: surfaceLabel:left=5,right=10,...)`,
         );
         return;
       }
-      let outputName = surfaceCfgString[0];
-      let activityId: string;
-      let vDesktopName: string;
-      let userCfg: string;
-      if (surfaceCfgString.length === 4) {
-        activityId = surfaceCfgString[1];
-        vDesktopName = surfaceCfgString[2];
-        userCfg = surfaceCfgString[3];
-      } else {
-        activityId = "";
-        vDesktopName = "";
-        userCfg = surfaceCfgString[1];
-      }
+      let label = surfaceCfgString[0];
+      let userCfg = surfaceCfgString[1];
       let splittedUserCfg = userCfg
         .split(",")
         .map((part) => part.trim().toLowerCase());
@@ -114,19 +92,17 @@ class gapsSurfaceCfg {
       }
       if (Object.keys(partialGapsCfg).length > 0) {
         surfacesCfg.push(
-          new gapsSurfaceCfg(
-            outputName,
-            activityId,
-            vDesktopName,
-            DefaultGapsCfg.instance.cloneAndUpdate(partialGapsCfg) as IGaps
-          )
+          new SurfaceCfg<IGaps>(
+            label,
+            DefaultGapsCfg.instance.cloneAndUpdate(partialGapsCfg),
+          ),
         );
       }
     });
     return surfacesCfg;
   }
   private static parseSplittedGapsCfg(
-    splittedUserCfg: string[]
+    splittedUserCfg: string[],
   ): Partial<IGaps> | Err {
     let errors: string[] = [];
     let value: number | Err;
@@ -174,7 +150,7 @@ class gapsSurfaceCfg {
           break;
         default:
           errors.push(
-            ` "${part}" unknown parameter name. It can be l,r,t,b,e or left,right,top,bottom,between`
+            ` "${part}" unknown parameter name. It can be l,r,t,b,e or left,right,top,bottom,between`,
           );
           return;
       }

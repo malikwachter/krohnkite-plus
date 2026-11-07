@@ -4,16 +4,14 @@
     SPDX-License-Identifier: MIT
 */
 
-type positionType = "single" | "left" | "middle" | "right";
-
 class ColumnLayout implements ILayout {
   public static readonly id = "Column";
   public readonly classID = ColumnLayout.id;
-  public position: positionType;
   public windowIds: Set<string>;
   public renderedWindowsIds: Array<string>;
   public renderedWindowsRects: Array<Rect>;
   public weight: number;
+  public minWeight: number;
   public timestamp: number;
   private parts: RotateLayoutPart<StackLayoutPart>;
   private numberFloatedOrMinimized: number;
@@ -29,8 +27,8 @@ class ColumnLayout implements ILayout {
   }
 
   constructor() {
-    this.position = "single";
     this.weight = 1.0;
+    this.minWeight = 0.0;
     this.parts = new RotateLayoutPart(new StackLayoutPart());
     this.windowIds = new Set();
     this.renderedWindowsIds = [];
@@ -86,14 +84,14 @@ class ColumnLayout implements ILayout {
 
   public getWindowIdOnRight(x: number): string | null {
     for (let i = 0; i < this.renderedWindowsIds.length; i++) {
-      if (x < this.renderedWindowsRects[i].center[0] + 10)
+      if (x < this.renderedWindowsRects[i].center.x + 10)
         return this.renderedWindowsIds[i];
     }
     return null;
   }
   public getWindowIdOnTop(y: number): string | null {
     for (let i = 0; i < this.renderedWindowsIds.length; i++) {
-      if (y < this.renderedWindowsRects[i].center[1] + 10)
+      if (y < this.renderedWindowsRects[i].center.y + 10)
         return this.renderedWindowsIds[i];
     }
     return null;

@@ -1,6 +1,19 @@
-# Krohnkite (Smart fork)
+# Kröhnkite-Plus
 
-This fork adds smarter window handling on top of Krohnkite. Everything lives on the new **Smart** tab in the script settings.
+Kröhnkite-Plus is a fork of [Kröhnkite](https://codeberg.org/anametologin/Krohnkite) (the dynamic tiling script for KWin 6) with smarter window handling: a Smart layout, per-app window rules, smart floating, gaming mode, a live drag preview, smooth animations, zoom, undo/redo and a memory across restarts. It follows the upstream releases; everything upstream offers is still there (see below). The new options live on the **Smart** tab in the script settings.
+
+Internally the script keeps the id `krohnkite`, so existing settings and shortcuts carry over.
+
+## Keys added by Kröhnkite-Plus
+
+| Key              | Action                    |
+| ---------------- | ------------------------- |
+| Meta + Z         | Zoom (toggle)             |
+| Meta + Ctrl + Z  | Undo                      |
+| Meta + Ctrl + Y  | Redo                      |
+| _unbound_        | Use Smart Layout          |
+
+All keys can be changed in System Settings > Shortcuts > KWin. The upstream keys are listed in the [upstream documentation](https://codeberg.org/anametologin/Krohnkite/wiki).
 
 ## Smart layout
 
@@ -46,21 +59,21 @@ Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.
 ## Gaming mode
 
 * Games (window classes containing `steam_app_`, `gamescope`, `steam_proton` – configurable) are never tiled.
-* While a fullscreen window is active (game, video), Krohnkite pauses: no window is moved or resized and no notification pops up. Everything that happened meanwhile is arranged once you leave fullscreen.
+* While a fullscreen window is active (game, video), Kröhnkite-Plus pauses: no window is moved or resized and no notification pops up. Everything that happened meanwhile is arranged once you leave fullscreen.
 
 ## Drag preview
 
-While dragging a tiled window, the drop is previewed live – on every monitor: a soft silhouette in the accent color shows exactly where the window lands, and the other windows already move to where they will be (the target monitor makes room, the old one closes the gap). Every tile under the cursor is a drop place; dropping does exactly what the preview showed.
+While dragging a tiled window (layouts without their own dragging, such as Smart, Tile or Columns), the drop is previewed live – on every monitor: a soft silhouette in the accent color shows exactly where the window lands, and the other windows already move to where they will be (the target monitor makes room, the old one closes the gap). Every tile under the cursor is a drop place; dropping does exactly what the preview showed. Dock zones and the Binary Tree layout keep the upstream drag behaviour. The preview is switched with *Show where a dragged window will land* on the Options tab.
 
-## Smooth animations (companion effect "Krohnkite Smooth")
+## Smooth animations (companion effect "Kröhnkite-Plus Smooth")
 
 KWin scripts can only move windows instantly, so animations live in a small desktop effect that ships with this fork (`krohnkite-smooth-*.zip`, installed by `install.sh`, listed under System Settings → Desktop Effects):
 
-* windows glide and scale smoothly whenever Krohnkite changes their size or position – focus grow, the drag preview making room, the dropped window settling into its place, windows opening/closing;
+* windows glide and scale smoothly whenever Kröhnkite-Plus changes their size or position – focus grow, the drag preview making room, the dropped window settling into its place, windows opening/closing;
 * nothing is animated while you drag or resize a window with the mouse; maximize/fullscreen are left to KDE's own effects;
 * the drag preview box grows out of the middle of the space that is being freed, in sync with the windows moving away.
 
-Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Krohnkite passes the value to the effect at login.
+Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Kröhnkite-Plus passes the value to the effect when the script starts.
 
 ## Zoom
 
@@ -72,33 +85,23 @@ Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Krohnkite p
 
 ## Memory across restarts
 
-Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login. Delete the file to start fresh.
+Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login and after a settings change. Delete the file to start fresh.
 
 ## Build & install
 
 ```
 make package        # krohnkite-*.kwinscript + krohnkite-smooth-*.zip (needs node/npm, zip or 7z)
 ./install.sh        # installs both and enables the effect
-npm test            # layout / rule tests in node
+npm test            # upstream tests + the Kröhnkite-Plus tests in node
 ```
 
 ---
 
 # Kröhnkite
 
-# Moved to https://codeberg.org/anametologin/Krohnkite
+[Documentation](https://codeberg.org/anametologin/Krohnkite/wiki) | [Tips](https://codeberg.org/anametologin/Krohnkite/wiki/Tips)
 
-<details>
-<summary>
-reason
-</summary>
-Microsoft have a lot of military contracts and can be blocked by my govs. In general, the standard good-bad/free-unfree crap that starts when politicians try to divide a loaf of sausage.
-</details>
-
-
-
-A dynamic tiling extension for KWin 6 only.
-
+Author of [Kröhnkite](https://github.com/esjeon/krohnkite). A dynamic tiling extension for KWin 6 only.
 Kröhnkite is mainly inspired by [dwm][] from suckless folks, and aims to
 provide rock solid stability while fully integrating into KWin.
 
@@ -108,42 +111,128 @@ K and looks cool.
 [dwm]: https://dwm.suckless.org/
 [wikipedia]: https://en.wikipedia.org/wiki/Kr%C3%B6hnkite
 
-![screenshot](img/screenshot.png)
+![Kröhnkite binary tree layout](img/demo.gif)
 
 ## Features
 
 - DWM-like window tiling
-  - Dynamically tile windows, rather than manually placing each.
+  - Dynamically tile windows, rather than manually placing each
   - Floating windows
 - Fully integrates into KWin features, including:
   - **Multi-screen**
   - **Activities & Virtual desktop**
-  - Basic window management (minimize, fullscreen, switching, etc)
+  - Basic window management (minimize, fullscreen, switching, etc.)
 - Multiple Layout Support
   - Tiling layout
   - Monocle layout
   - Desktop-friendly layouts (Spread, Stair)
 
-## Development Requirement
+## Development Requirements
 
 - Typescript (see package.json)
 - [go-task](https://github.com/go-task/task)
 - p7zip (7z)
+- python3 (reload helper and its tests)
+
+`go-task reload`, `go-task reload-file`, and the development autoinstall daemon
+(`tools/autoinstall`) also need a running KWin session with `qdbus6` reachable on
+the session bus; nothing else in the project uses it.
+
+Run the automated tests with `go-task test` (or `npm run check`). The reload
+helper tests use an isolated fake `qdbus6`; they do not contact KWin.
 
 ## Look at me
+### Reload Krohnkite configuration
+&emsp;<b>Important:</b> After changing the configuration, simply clicking `Apply` is not enough, ask KWin to reload its configuration
+   ```sh
+   qdbus6 org.kde.KWin /KWin org.kde.KWin.reconfigure
+   ```
 
-1. If you change the Krohnkite configuration, you will need to reboot. Do not toggle the script on and off, this will start multiple instances of it.
-2. Delete unused KWin shortcuts you can use any D-Bus program which can invoke D-Bus methods. Service name -`org.kde.kglobalaccel` path - `/component/kwin` method - `org.kde.kglobalaccel.Component.cleanUp`. ArchLinux example:
+### Apply code changes without logout
 
-```
-qdbus6 org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.cleanUp
+```sh
+go-task reload
 ```
 
-3. If you have a gap or vice versa you have gray(white etc) rectangle that means that there is a program with size 1x1 that have to be filtered by title or other ways. Make sure that the following programs, if you have them, have been added to the filter:
+This builds, installs, and reloads Kröhnkite through KWin's scripting interface.
+Every reload copies the complete bundle to a fresh cache directory, bypassing
+cached QML and JavaScript, and starts the reloaded script through KWin's scripting
+interface. KWin starts every script that is still pending at that point; a reload
+leaves the reloaded script as the pending one. No logout or compositor restart is
+required. The copied bundle stays available for lazy
+resource loading, and superseded bundles are deleted. After each successful
+reload, the helper records that bundle path under the cache directory. If a later
+replacement is refused by KWin, it best-effort reloads the last known working
+bundle; recovery is unavailable when no prior bundle is recorded or its files are
+gone, and does not guarantee exact restoration. QML errors inside a bundle appear
+in KWin's journal only, so a bundle that loads but fails to run is not rolled back.
+For a command preview: `python3 tools/reload-script.py pkg --dry-run`.
 
+A package that is already built or downloaded needs no rebuild:
+
+```sh
+go-task reload-file -- path/to/krohnkite-*.kwinscript
 ```
-xwaylandvideobridge,plasmashell,ksplashqml
+
+The helper accepts a build directory or a `.kwinscript` archive.
+
+`go-task reload` and `go-task reload-file` are the paths that take effect without
+a restart. A package installed or upgraded any other way - `go-task install` or
+`kpackagetool6` - is picked up only after KWin starts again, so log out and back
+in (or restart the compositor). The autoinstall daemon runs the same helper after
+every successful install, but only when Krohnkite is already loaded; a package
+installed by it while the script is not loaded is used on the next login.
+
+### Enable Krohnkite
 ```
+kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true && qdbus6 org.kde.KWin /KWin reconfigure
+```
+### Disable Krohnkite
+```
+kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled false && qdbus6 org.kde.KWin /KWin reconfigure
+```
+### Troubleshooting
+
+1. Delete unused KWin shortcuts. You can use any D-Bus program which can invoke D-Bus methods. Service name -`org.kde.kglobalaccel` path - `/component/kwin` method - `org.kde.kglobalaccel.Component.cleanUp`. Arch Linux example:
+
+   ```sh
+   qdbus6 org.kde.kglobalaccel /component/kwin org.kde.kglobalaccel.Component.cleanUp
+   ```
+
+2. If you have a gap or you have gray rectangle (or white, etc.), that means that there is a program with size 1x1 that has to be filtered by title or other ways. Make sure that the following programs, if you have them, have been added to the filter:
+
+   ```
+   xwaylandvideobridge,plasmashell,ksplashqml
+   ```
+
+### Collect diagnostics for a bug report
+
+Krohnkite ships a read-only diagnostics collector (Python 3 is required):
+
+```sh
+python3 ~/.local/share/kwin/scripts/krohnkite/contents/code/collect-diagnostics.py
+```
+
+It writes `krohnkite-diagnostics-*.txt` with the Plasma, KWin and Qt versions,
+the display layout, enabled KWin scripts, every Krohnkite setting, and shortcut
+conflicts. Values of user-defined title and desktop rules are hidden by default;
+the collector can include them only when a maintainer asks for them. The report
+is generated locally and is never uploaded. It does not contain your host name,
+user name, home directory paths, IP or MAC addresses, UUIDs, monitor serial
+numbers or EDID data, open windows, window titles, KWin window rules, or journal
+contents.
+
+If Krohnkite is installed system-wide or the path above does not exist, download
+the latest collector:
+
+```sh
+curl -fsSLO https://codeberg.org/anametologin/Krohnkite/raw/branch/master/tools/collect-diagnostics.py
+python3 collect-diagnostics.py
+```
+
+Review the generated file before attaching it to an issue. If a maintainer asks
+for the hidden user-defined values, rerun with `--include-user-rules` and review
+the result again before sharing it.
 
 ## Installation
 
@@ -154,10 +243,10 @@ You can install Kröhnkite in multiple ways.
 You can download `krohnkite-x.x.x.x.kwinscript` file, and install it through
 _System Settings_.
 
-1.  Download the kwinscript file
-2.  Open `System Settings` > `Window Management` > `KWin Scripts`
-3.  Press `Import KWin script...` on the top-right corner
-4.  Select the downloaded file
+1. Download the kwinscript file
+2. Open `System Settings` > `Window Management` > `KWin Scripts`
+3. Press `Import KWin script...` on the top-right corner
+4. Select the downloaded file
 
 Alternatively, through command-line:
 get info about package:
@@ -186,12 +275,15 @@ kpackagetool6 -t KWin/Script -r krohnkite
 
 ### Installing from Git repository
 
-Make sure you have [go-task](https://taskfile.dev/installation/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and [7-zip](https://www.7-zip.org/download.html) packages installed. All packages after building will be in `builds` folder.
+Make sure you have [go-task](https://taskfile.dev/installation/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm), [7-zip](https://www.7-zip.org/download.html) and Python 3 packages installed. All packages after building will be in `builds` folder.
 The simplest method to automatically build and install kwinscript package would be:
 
 ```
- go-task install
+go-task install
 ```
+
+The new code is used after the next login; use `go-task reload` to switch without
+logging out.
 
 You can also build `.kwinscript` package file using:
 
@@ -205,152 +297,85 @@ uninstall package:
 go-task uninstall
 ```
 
+## Tests
+
+Run the full test suite with `go-task test` (or `npm run check`). The layout
+icon tests run against the real installer in isolated temporary XDG data
+directories. The native Qt UI rendering check runs when PySide6 is installed
+and otherwise reports an explicit skip. `npm test` runs only the layout icon
+tests.
+
 ## Settings
 
 ### Add a class name, a resource name or a window caption to ignore or float
 
-1. to found window's className,resourcename or caption see [readme](https://github.com/anametologin/krohnkite#search-a-window-parameters-to-filter-float-etc)
+1. to find window's className, resourcename, or caption, see [readme](https://github.com/anametologin/krohnkite#search-a-window-parameters-to-filter-float-etc)
 2. you can use the name of class in square brackets: `[myNamE]` will float or ignore all windows with class or resource names such: 'myname1', 'Myname2', 'Notmyname555' etc...
 
 ### Choose layout for screen by default
 
 1. Open Krohnkite options: ![options](img/conf.png)
-2. Tab `Rules->Screen default layout`. Layout configuration has format `OutputName:ActivityId:VirtualDesktopName:layoutName` multi monitor example: `HDMI-A-1:99a12h44-e9a6-1142-55eedaa7-3a922a15ab08::columns,DP-2:spread,DP-3:Desktop 3:tile,:threecolumn` - result will be:
+2. Tab `Rules->Screen default layout`. Layout configuration has format `OutputName:ActivityId:VirtualDesktopName:layoutName`.
 
-- set `columns` layout as default on monitor `HDMI-A-1`, only on activity with id:`99a12h44-e9a6-1142-55eedaa7-3a922a15ab08`, every Virtual Desktops on this activity.(if you specify `activity id` you have to to specify virtual desktop name or leave it blank)
-- set `spreadlayout` layout as default on monitor `DP-2`, every Activities, every Virtual Desktops;
-- set `tilelayout` layout as default on monitor `DP-3`, on every activity, only on virtual desktop with name `Desktop 3`
-- set `threecolumnlayout` layout as default on all monitors,all activities and all Virtual Desktops not covered by the previous rules
+Multi monitor example:
 
-2. How to find `outputName`, `activityId`, `VirtualDesktopName`, `layoutName`:
-   Right after system boot run KSystemLog
+`HDMI-A-1:99a12h44-e9a6-1142-55eedaa7-3a922a15ab08::columns,DP-2:spread,DP-3:Desktop 3:tile,:threecolumn`
 
-- Push ignore button
-- Type in filter string: `krohnkite`
-- Right after `KROHNKITE: starting the script` string you will see one if you have one monitor or multiple lines: Screen(output):`Screen Name`,Desktop(name):`Virtual Desktop Name`,Activity:`Activity Id`,layouts: `numbered layouts` (the case doesn't matter,`layout` ending can be omitted): `tilelayout`, `monoclelayout`, `columns`, `threecolumnlayout,` `spreadlayout`, `stairlayout`, `spirallayout`, `stackedlayout`, `floatinglayout`, `btreelayout`
+The result will be:
 
-3. `Apply` -> `reboot`
+- set `columns` layout as default on monitor `HDMI-A-1`, only on activity with id:`99a12h44-e9a6-1142-55eedaa7-3a922a15ab08`, every virtual desktop on this activity. If you specify `activity id`, you have to specify the virtual desktop name or leave it blank;
+- set `spreadlayout` layout as default on monitor `DP-2`, on every Activity, on every virtual desktop;
+- set `tilelayout` layout as default on monitor `DP-3`, on every activity, only on virtual desktop with name `Desktop 3`;
+- set `threecolumnlayout` layout as default on all monitors, all activities, and all virtual desktops not covered by the previous rules.
+
+2. How to find `outputName`, `activityId`, `VirtualDesktopName`, `layoutName`: Right after system boot, run `KSystemLog`
+
+   - Push ignore button
+   - Type in filter string: `krohnkite`
+   - Right after `KROHNKITE: starting the script` string you will see one if you have one monitor or multiple lines: Screen(output):`Screen Name`,Desktop(name):`Virtual Desktop Name`,Activity:`Activity Id`,layouts: `numbered layouts` (the case doesn't matter,`layout` ending can be omitted): `tilelayout`, `monoclelayout`, `columns`, `threecolumnlayout,` `spreadlayout`, `stairlayout`, `spirallayout`, `stackedlayout`, `floatinglayout`, `btreelayout`
+
+3. Press `Apply`, then run
+   `qdbus6 org.kde.KWin /KWin org.kde.KWin.reconfigure`.
 
 ### Search a window parameters to filter, float etc.
 
 1. Krohnkite options: ![options](img/conf.png)
 2. Options->Debug new Windows
-3. Reboot
+3. Press `Apply`, then run `qdbus6 org.kde.KWin /KWin org.kde.KWin.reconfigure`
 4. Run KSystemLog
 5. Push `Ignore` button
 6. Type in filter string: `krohnkite`
 7. All created windows krohnkite working with will be there.
 8. Every debug entry contains parameters except those that are false and empty.
 
-## Default Key Bindings
+## Icons
 
-| Key              | Action             |
-| ---------------- | ------------------ |
-| Meta + .         | Focus Next         |
-| Meta + ,         | Focus Previous     |
-|                  |                    |
-| Meta + J         | Focus Down         |
-| Meta + K         | Focus Up           |
-| Meta + H         | Focus Left         |
-| Meta + L         | Focus Right        |
-|                  |                    |
-| Meta + Shift + J | Move Down/Next     |
-| Meta + Shift + K | Move Up/Previous   |
-| Meta + Shift + H | Move Left          |
-| Meta + Shift + L | Move Right         |
-|                  |                    |
-| Meta + I         | Increase           |
-| Meta + D         | Decrease           |
-| Meta + F         | Toggle Floating    |
-| Meta + \         | Next Layout        |
-| Meta + \|        | Previous Layout    |
-|                  |                    |
-| Meta + Return    | Set as Master      |
-| Meta + Z         | Zoom (toggle)      |
-| Meta + Ctrl + Z  | Undo               |
-| Meta + Ctrl + Y  | Redo               |
-|                  |                    |
-| Meta + T         | Use Tile Layout    |
-| Meta + M         | Use Monocle Layout |
-| _unbound_        | Use Spread Layout  |
-| _unbound_        | Use Stair Layout   |
+Kröhnkite ships its artwork as shared SVGs: layout pictograms in `res/layouts/`
+and the application icon in `res/appicon/`. Install registers
+`krohnkite-layout-*` under `$XDG_DATA_HOME/icons/hicolor/scalable/actions` and
+`krohnkite.svg` under `$XDG_DATA_HOME/icons/hicolor/scalable/apps` (normally
+`~/.local/share/icons`). `res/metadata.json` refers to the application icon by
+its theme name, so KWin, System Settings and the KDE Store entry all use the
+same artwork without any raster copy. Python 3 is required. `xdg-icon-resource`
+refreshes the icon cache; if it is unavailable, the icons are still installed
+and the refresh is retried on the next start.
 
-## Tips
-
-### Setting Up for Multi-Screen
-
-Krohnkite supports multi-screen setup, but KWin has to be configured to unlock
-the full potential of the script.
-
-1. Enable `Separate Screen Focus` feature:
-
-- `System Settings` > `Window Management` > `Window Behavior` > `Multiscreen Behaviour`
-
-  `OR` use console commands:
+Direct `.kwinscript` installs register the icons at KWin startup when the
+optional `org.kde.plasma.plasma5support` QML module is available (some Plasma 6
+systems ship it separately). Without that module the script still runs, KWin
+logs a warning, and the icons are not installed automatically; run the
+package's `contents/code/install-icons.py` manually, for example:
 
 ```
-   kwriteconfig6 --file ~/.config/kwinrc --group Windows --key ActiveMouseScreen false
-   kwriteconfig6 --file ~/.config/kwinrc --group Windows --key SeparateScreenFocus true
+python3 ~/.local/share/kwin/scripts/krohnkite/contents/code/install-icons.py
 ```
 
-2. Bind keys for global shortcut `Switch to Next/Previous Screen`
-   (Recommend: `Meta + ,` / `Meta + .`)
-3. Bind keys for global shortcut `Window to Next/Previous Screen`
-   (Recommend: `Meta + <` / `Meta + >`)
+Repository installs (`go-task install`) are not affected. Reopen settings after
+installation. `go-task uninstall` removes only these icons.
 
-### Removing Title Bars
-
-Breeze window decoration can be configured to completely remove title bars from
-all windows:
-
-1. `System Setting` > `Application Style` > `Window Decorations`
-2. Click `Configure Breeze` inside the decoration preview.
-3. `Window-Specific Overrides` tab > `Add` button
-4. Enter the followings, and press `Ok`:
-   - `Regular expression to match`: `.*`
-   - Tick `Hide window title bar`
-
-### Changing Border Colors
-
-Changing the border color makes it easier to identify current window. This is
-convinient if title bars are removed.
-
-1. You can use the Oxygen decoration theme. [Oxygen theme settings][]
-2. You can install third-party decorations, see [Border color conversation][]
-3. You can add to the WM section in $HOME/.config/kdeglobals (this changes the default Breeze decoration frame colors):
-    - `frame=R,G,B`
-    - `inactiveFrame=R,G,B`
-
-[Oxygen theme settings]: https://github.com/anametologin/krohnkite/assets/165245883/51b4cb48-33c7-4627-a119-33d1abbe2b99
-[Border color conversation]: https://github.com/anametologin/krohnkite/issues/15
-
-### Setting Minimum Geometry Size
-
-Some applications like discord and KDE settings dont tile nicely as they have a minimum size requirement.
-This causes the applications to overlap with other applications. To mitigate this we can set minimum size for all windows to be 0.
-
-1. `System Setting` > `Window Management` > `Window Rules`
-2. Click on `+ Add New...`
-3. Set `Window class` to be `Unimportant`
-4. Set `Window types` to `Normal Window`
-5. Click `+ Add Properties...`
-6. Add the `Minimum Size` Property
-7. Set the fields to `Force` and `0` x `0`
-8. Apply
-
-### Prevent borders and shadows from disappearing.
-
-When a window is marked "maximized" in Breeze theme, its borders are removed to save screen space.
-This behavior may not be preferable depending on your setup. This can be mitigated by disabling maximized windows using Window Rules.
-
-1. `System Setting` > `Window Management` > `Window Rules`
-2. Click on `+ Add New...`
-3. Set `Window class` to be `Unimportant`
-4. Set `Window types` to `Normal Window`
-5. Click `+ Add Properties...`
-6. Add the `Maximized horizontally` and `Maximized vertically` Properties.
-7. Set the options to `Force` and `No`.
-8. Apply
+The application icon is resolved by its theme name only: if it was never
+installed, KWin shows a blank icon for the script instead of falling back to
+another one. Running the installer once is enough to fix that.
 
 ## Useful Development Resources
 

@@ -4,6 +4,7 @@
 /.idea/
 /.task/
 **/__pycache__/
+/bin/
 
 /TODO.md
 /krohnkite.js
@@ -11,8 +12,12 @@
 /*.qml
 *.kwinscript
 *.bak
+krohnkite-diagnostics-*.txt
 
 config.py*
+pnpm-lock.yaml
+
+# Kröhnkite-Plus
 /pkg-effect/
 *.zip
 /test/.effect-cmd.txt

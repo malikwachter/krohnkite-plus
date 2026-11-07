@@ -132,35 +132,15 @@ function overlap(
 }
 
 class SurfaceCfg<SurfaceCfgType> {
-  public outputName: string;
-  public activityId: string;
-  public vDesktopName: string;
+  public userLabel: string;
   public cfg: SurfaceCfgType;
 
-  constructor(
-    outputName: string,
-    activityId: string,
-    vDesktopName: string,
-    cfg: SurfaceCfgType,
-  ) {
-    this.outputName = outputName;
-    this.activityId = activityId;
-    this.vDesktopName = vDesktopName;
+  constructor(userLabel: string, cfg: SurfaceCfgType) {
+    this.userLabel = userLabel;
     this.cfg = cfg;
   }
-  public isFit(
-    output: Output,
-    activity: string,
-    vDesktop: VirtualDesktop,
-  ): boolean {
-    return (
-      (this.outputName === "" || this.outputName === output.name) &&
-      (this.activityId === "" || this.activityId === activity) &&
-      (this.vDesktopName === "" || this.vDesktopName === vDesktop.name)
-    );
-  }
   public toString(): string {
-    return `Surface: Output Name: ${this.outputName}, Activity ID: ${this.activityId}, Virtual Desktop Name: ${this.vDesktopName} cfg: ${this.cfg}`;
+    return `Surface: Label: ${this.userLabel} cfg: ${this.cfg}`;
   }
 }
 
@@ -176,28 +156,11 @@ interface IUnvalidatedSurfaceCfg {
   unvalidatedCfg: string[];
 }
 
-function getSurfacesCfg(userConfig: string[]): IUnvalidatedSurfaceCfg[] {
-  let surfacesCfg: IUnvalidatedSurfaceCfg[] = [];
-  if (userConfig.length === 0) return surfacesCfg;
-  userConfig.forEach((cfg) => {
-    let surfaceCfgString = cfg.split(":").map((part) => part.trim());
-    if (surfaceCfgString.length !== 4) {
-      warning(
-        `Invalid User surface config: ${cfg}, config must have three colons`,
-      );
-      return;
-    }
-    surfacesCfg.push({
-      outputName: surfaceCfgString[0],
-      activityId: surfaceCfgString[1],
-      vDesktopName: surfaceCfgString[2],
-      unvalidatedCfg: surfaceCfgString[3]
-        .split(",")
-        .map((part) => part.trim().toLowerCase()),
-    } as IUnvalidatedSurfaceCfg);
-  });
-
-  return surfacesCfg;
+interface IDefinedSurface {
+  label: string;
+  outputNames: string[];
+  virtualDesktopNames: string[];
+  activityId: string;
 }
 
 function surfaceIdParse(id: string): [string, string, string] {

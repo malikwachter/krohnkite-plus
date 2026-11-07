@@ -18,7 +18,7 @@ interface Tile {
   readonly positionInLayout: number;
   readonly parent: Tile;
   readonly tiles: Tile[];
-  readonly windows: Window[];
+  readonly windows: KwinWindow[];
   readonly isLayout: boolean;
   readonly canBeRemoved: boolean;
 }

@@ -151,7 +151,7 @@ class SmartLayout implements ILayout {
     if (probe) {
       /* nothing to report */
     } else if (solved.violation > 0) {
-      const msg = `Krohnkite Smart: windows do not fit ${area.width}x${area.height} (${plan.key}): ${tiles
+      const msg = `Kröhnkite-Plus: windows do not fit ${area.width}x${area.height} (${plan.key}): ${tiles
         .map((t) => `${t.windowClassName} min ${t.minSize.width}x${t.minSize.height}`)
         .join(", ")}`;
       if (msg !== this.lastFitWarning) notice(msg);
@@ -575,17 +575,17 @@ class SmartLayout implements ILayout {
 
   /* ================================================================ shortcuts */
 
-  public handleShortcut(ctx: EngineContext, input: Shortcut): boolean {
+  public handleShortcut(ctx: EngineContext, input: KrohnkiteAction): boolean {
     switch (input) {
-      case Shortcut.Increase:
+      case KrohnkiteAction.Increase:
         if (this.columnOffset < SmartLayout.MAX_COLUMNS) this.columnOffset++;
         ctx.showNotification(this.description);
         return true;
-      case Shortcut.Decrease:
+      case KrohnkiteAction.Decrease:
         if (this.columnOffset > -SmartLayout.MAX_COLUMNS) this.columnOffset--;
         ctx.showNotification(this.description);
         return true;
-      case Shortcut.Rotate:
+      case KrohnkiteAction.Rotate:
         this.orientation =
           this.orientation === "auto"
             ? "rows"
@@ -594,7 +594,7 @@ class SmartLayout implements ILayout {
               : "auto";
         ctx.showNotification(this.description);
         return true;
-      case Shortcut.RotatePart: {
+      case KrohnkiteAction.RotatePart: {
         // forget every remembered ratio -> back to the automatic sizes
         this.memory = {};
         this.columnOffset = 0;
@@ -602,9 +602,9 @@ class SmartLayout implements ILayout {
         ctx.showNotification("Smart: reset");
         return true;
       }
-      case Shortcut.DWMLeft:
-      case Shortcut.DWMRight:
-        return this.shiftFirstSplit(input === Shortcut.DWMRight ? 0.05 : -0.05);
+      case KrohnkiteAction.DWMLeft:
+      case KrohnkiteAction.DWMRight:
+        return this.shiftFirstSplit(input === KrohnkiteAction.DWMRight ? 0.05 : -0.05);
       default:
         return false;
     }

@@ -178,7 +178,7 @@ class UndoHistory {
       if (s.state === "float") {
         if (rect !== null) w.floatGeometry = rect;
         if (w.state === WindowState.Floating) {
-          if (rect !== null && !w.actualGeometry.equals(rect)) w.forceSetGeometry(rect);
+          if (rect !== null && !w.actualGeometry.equals(rect)) w.forceSetGeometry(ctx, rect);
         } else w.state = WindowState.Floating;
       } else if (w.state !== WindowState.Tiled) w.state = WindowState.Tiled;
     });
@@ -209,7 +209,7 @@ class UndoHistory {
       if (!entry) moves.push((entry = [outputs[s.output], []]));
       entry[1].push(w);
     });
-    if (moves.length > 0) ctx.moveWindowsToScreen(moves); // arranges afterwards
+    if (moves.length > 0) engine.moveWindowsToOutputs(ctx, moves); // arranges afterwards
     else engine.arrange(ctx, "undo");
   }
 }

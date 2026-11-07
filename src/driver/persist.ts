@@ -30,6 +30,13 @@ class StateStore {
   private static readonly DIR = '"$HOME/.local/share/krohnkite"';
   private static readonly FILE = '"$HOME/.local/share/krohnkite/state.json"';
 
+  /*
+   * The newest state of this KWin session. A configuration reload replaces
+   * the driver, and its write to disk may still be running when the new
+   * driver loads, so the new driver starts from this copy instead.
+   */
+  private static latest: string | null = null;
+
   private lastSaved: string | null;
   private saveScheduled: boolean;
 
@@ -47,6 +54,12 @@ class StateStore {
 
   public load(callback: (state: IPersistedState | null) => void) {
     if (this.shell === null) return callback(null);
+    const latest = StateStore.latest;
+    if (latest !== null) {
+      this.lastSaved = latest;
+      this.setTimeout(() => callback(JSON.parse(latest) as IPersistedState), 0);
+      return;
+    }
     this.shell.run(`cat ${StateStore.FILE} 2>/dev/null`, (code, stdout) => {
       if (code !== 0 || !stdout || stdout.trim() === "") return callback(null);
       try {
@@ -81,7 +94,21 @@ class StateStore {
     }, 2000);
   }
 
+  /** save right away if the state changed (the driver is going away) */
+  public saveNow(collect: () => IPersistedState) {
+    if (this.shell === null) return;
+    let json: string;
+    try {
+      json = JSON.stringify(collect());
+    } catch (e) {
+      warning(`could not collect the state: ${e}`);
+      return;
+    }
+    if (json !== this.lastSaved) this.write(json);
+  }
+
   private write(json: string) {
+    StateStore.latest = json;
     const b64 = StateStore.base64(json);
     const tmp = '"$HOME/.local/share/krohnkite/state.json.tmp"';
     const cmd =

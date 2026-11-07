@@ -5,12 +5,14 @@
 */
 
 class DockEntry implements IDockEntry {
+  public tilesArea: Rect | null;
   private _slots: DockSlot[];
-  private surfaceCfg: SurfaceCfg<IDockCfg>;
+  private dockCfg: IDockCfg;
   private _id: string;
 
-  constructor(cfg: SurfaceCfg<IDockCfg>, id: string) {
-    this.surfaceCfg = cfg;
+  constructor(cfg: IDockCfg, id: string) {
+    this.tilesArea = null;
+    this.dockCfg = cfg;
     this._slots = this.parseSlots();
     this._id = id;
   }
@@ -25,20 +27,20 @@ class DockEntry implements IDockEntry {
 
   public remove(window: WindowClass) {
     for (let slot of this.slots) {
-      //if (slot.window !== null && slot.window.id === window.id) {
-      if (slot.window === window) {
-        slot.window = null;
-        break;
-      }
+      slot.remove(window);
+    }
+  }
+
+  public clearSlots(): void {
+    for (const slot of this.slots) {
+      slot.windows = [];
     }
   }
 
   public arrange(dockedWindows: WindowClass[], workingArea: Rect): Rect {
     const IS_WIDE = workingArea.width > workingArea.height;
-    let dockCfg: IDockCfg;
-
-    let renderedTime = getTime();
-    let renderedOutputId = this.id;
+    const renderedTime = getTime();
+    const renderedOutputId = this.id;
 
     this.arrangeSlots(dockedWindows);
     this.assignSizes(workingArea);
@@ -53,113 +55,211 @@ class DockEntry implements IDockEntry {
     let topBorder = workingArea.y;
     let height = workingArea.height;
 
-    function leftSlotArrange() {
-      if (leftSlot !== null) {
-        dockCfg = leftSlot.window!.dock!.cfg;
-        let leftSlotHeight = Math.min(
-          (workingArea.height * dockCfg.vHeight) / 100,
+    const mark = (window: WindowClass) => {
+      window.dock.renderedTime = renderedTime;
+      window.dock.renderedOutputId = renderedOutputId;
+    };
+
+    const leftSlotArrange = () => {
+      if (leftSlot === null) return;
+      const windows = leftSlot.windows;
+      if (windows.length === 1) {
+        const cfg = windows[0].dock.cfg;
+        const leftSlotHeight = Math.min(
+          (workingArea.height * cfg.vHeight) / 100,
           height,
         );
-
-        let initRect = new Rect(
+        const initRect = new Rect(
           leftBorder,
           topBorder,
-          (workingArea.width * dockCfg.vWide) / 100,
+          (workingArea.width * cfg.vWide) / 100,
           leftSlotHeight,
         );
         leftBorder = leftBorder + initRect.width;
         width = width - initRect.width;
-
-        leftSlot.window!.geometry = DockEntry.align(
+        windows[0].geometry = DockEntry.align(
           initRect,
           leftSlot.position,
-          dockCfg,
+          cfg,
           height,
         );
-        leftSlot.window!.dock!.renderedTime = renderedTime;
-        leftSlot.window!.dock!.renderedOutputId = renderedOutputId;
+        mark(windows[0]);
+        return;
       }
-    }
-    function rightSlotArrange() {
-      if (rightSlot !== null) {
-        dockCfg = rightSlot.window!.dock!.cfg;
-        let rightSlotHeight = Math.min(
-          (workingArea.height * dockCfg.vHeight) / 100,
+      const cfg = windows[0].dock.cfg;
+      const stripWidth = Math.min(
+        (workingArea.width * cfg.vWide) / 100,
+        width,
+      );
+      const [alignedWidth, alignedLeft] = DockEntry.alignEdge(
+        stripWidth,
+        leftBorder,
+        cfg.vEdgeGap,
+        leftSlot.position,
+        cfg.vEdgeAlignment,
+      );
+      this.layoutVertical(
+        windows,
+        alignedLeft,
+        topBorder,
+        alignedWidth,
+        height,
+        cfg,
+        mark,
+      );
+      leftBorder = leftBorder + stripWidth;
+      width = width - stripWidth;
+    };
+    const rightSlotArrange = () => {
+      if (rightSlot === null) return;
+      const windows = rightSlot.windows;
+      if (windows.length === 1) {
+        const cfg = windows[0].dock.cfg;
+        const rightSlotHeight = Math.min(
+          (workingArea.height * cfg.vHeight) / 100,
           height,
         );
-        let initRect = new Rect(
+        const initRect = new Rect(
           workingArea.x +
             workingArea.width -
-            (workingArea.width * dockCfg.vWide) / 100,
+            (workingArea.width * cfg.vWide) / 100,
           topBorder,
-          (workingArea.width * dockCfg.vWide) / 100,
+          (workingArea.width * cfg.vWide) / 100,
           rightSlotHeight,
         );
         width = width - initRect.width;
-
-        rightSlot.window!.geometry = DockEntry.align(
+        windows[0].geometry = DockEntry.align(
           initRect,
           rightSlot.position,
-          dockCfg,
+          cfg,
           height,
         );
-        rightSlot.window!.dock!.renderedTime = renderedTime;
-        rightSlot.window!.dock!.renderedOutputId = renderedOutputId;
+        mark(windows[0]);
+        return;
       }
-    }
-    function topSlotArrange() {
-      if (topSlot !== null) {
-        dockCfg = topSlot.window!.dock!.cfg;
-        let topSlotWidth = Math.min(
-          (workingArea.width * dockCfg.hWide) / 100,
+      const cfg = windows[0].dock.cfg;
+      const stripWidth = Math.min(
+        (workingArea.width * cfg.vWide) / 100,
+        width,
+      );
+      const [alignedWidth, alignedLeft] = DockEntry.alignEdge(
+        stripWidth,
+        workingArea.x + workingArea.width - stripWidth,
+        cfg.vEdgeGap,
+        rightSlot.position,
+        cfg.vEdgeAlignment,
+      );
+      this.layoutVertical(
+        windows,
+        alignedLeft,
+        topBorder,
+        alignedWidth,
+        height,
+        cfg,
+        mark,
+      );
+      width = width - stripWidth;
+    };
+    const topSlotArrange = () => {
+      if (topSlot === null) return;
+      const windows = topSlot.windows;
+      if (windows.length === 1) {
+        const cfg = windows[0].dock.cfg;
+        const topSlotWidth = Math.min(
+          (workingArea.width * cfg.hWide) / 100,
           width,
         );
-        let initRect = new Rect(
+        const initRect = new Rect(
           leftBorder,
           topBorder,
           topSlotWidth,
-          (workingArea.height * dockCfg.hHeight) / 100,
+          (workingArea.height * cfg.hHeight) / 100,
         );
         topBorder = topBorder + initRect.height;
         height = height - initRect.height;
-
-        topSlot.window!.geometry = DockEntry.align(
+        windows[0].geometry = DockEntry.align(
           initRect,
           topSlot.position,
-          dockCfg,
+          cfg,
           width,
         );
-        topSlot.window!.dock!.renderedTime = renderedTime;
-        topSlot.window!.dock!.renderedOutputId = renderedOutputId;
+        mark(windows[0]);
+        return;
       }
-    }
-    function bottomSlotArrange() {
-      if (bottomSlot !== null) {
-        dockCfg = bottomSlot.window!.dock!.cfg;
-        let bottomSlotWidth = Math.min(
-          (workingArea.width * dockCfg.hWide) / 100,
+      const cfg = windows[0].dock.cfg;
+      const stripHeight = Math.min(
+        (workingArea.height * cfg.hHeight) / 100,
+        height,
+      );
+      const [alignedHeight, alignedTop] = DockEntry.alignEdge(
+        stripHeight,
+        topBorder,
+        cfg.hEdgeGap,
+        topSlot.position,
+        cfg.hEdgeAlignment,
+      );
+      this.layoutHorizontal(
+        windows,
+        leftBorder,
+        alignedTop,
+        width,
+        alignedHeight,
+        cfg,
+        mark,
+      );
+      topBorder = topBorder + stripHeight;
+      height = height - stripHeight;
+    };
+    const bottomSlotArrange = () => {
+      if (bottomSlot === null) return;
+      const windows = bottomSlot.windows;
+      if (windows.length === 1) {
+        const cfg = windows[0].dock.cfg;
+        const bottomSlotWidth = Math.min(
+          (workingArea.width * cfg.hWide) / 100,
           width,
         );
-        let initRect = new Rect(
+        const initRect = new Rect(
           leftBorder,
           workingArea.y +
             workingArea.height -
-            (workingArea.height * dockCfg.hHeight) / 100,
+            (workingArea.height * cfg.hHeight) / 100,
           bottomSlotWidth,
-          (workingArea.height * dockCfg.hHeight) / 100,
+          (workingArea.height * cfg.hHeight) / 100,
         );
         height = height - initRect.height;
-
-        bottomSlot.window!.geometry = DockEntry.align(
+        windows[0].geometry = DockEntry.align(
           initRect,
           bottomSlot.position,
-          dockCfg,
+          cfg,
           width,
         );
-        bottomSlot.window!.dock!.renderedTime = renderedTime;
-        bottomSlot.window!.dock!.renderedOutputId = renderedOutputId;
+        mark(windows[0]);
+        return;
       }
-    }
+      const cfg = windows[0].dock.cfg;
+      const stripHeight = Math.min(
+        (workingArea.height * cfg.hHeight) / 100,
+        height,
+      );
+      const [alignedHeight, alignedTop] = DockEntry.alignEdge(
+        stripHeight,
+        workingArea.y + workingArea.height - stripHeight,
+        cfg.hEdgeGap,
+        bottomSlot.position,
+        cfg.hEdgeAlignment,
+      );
+      this.layoutHorizontal(
+        windows,
+        leftBorder,
+        alignedTop,
+        width,
+        alignedHeight,
+        cfg,
+        mark,
+      );
+      height = height - stripHeight;
+    };
 
     if (IS_WIDE) {
       leftSlotArrange();
@@ -172,40 +272,116 @@ class DockEntry implements IDockEntry {
       leftSlotArrange();
       rightSlotArrange();
     }
-    return new Rect(leftBorder, topBorder, width, height);
+    this.tilesArea = new Rect(leftBorder, topBorder, width, height);
+    return this.tilesArea;
   }
 
-  public handleShortcut(window: WindowClass, shortcut: Shortcut): boolean {
-    const slot = this.getSlotByWindow(window);
-    let desiredPosition: DockPosition;
-    if (!slot || !window.dock) {
-      return false;
+  public handleShortcut(
+    window: WindowClass,
+    shortcut: KrohnkiteAction,
+  ): boolean {
+    const found = this.findWindow(window);
+    if (found === null) return false;
+    const { slot, index } = found;
+    const isVertical =
+      slot.position === DockPosition.left ||
+      slot.position === DockPosition.right;
+
+    if (isVertical) {
+      switch (shortcut) {
+        case KrohnkiteAction.MoveUp:
+        case KrohnkiteAction.MoveDown: {
+          const delta = shortcut === KrohnkiteAction.MoveUp ? -1 : 1;
+          if (this.moveWithinSlot(slot, index, delta)) return true;
+          return this.moveToSide(
+            window,
+            slot,
+            shortcut === KrohnkiteAction.MoveUp
+              ? DockPosition.top
+              : DockPosition.bottom,
+          );
+        }
+        case KrohnkiteAction.MoveLeft:
+          if (slot.position === DockPosition.left) return false;
+          return this.moveToSide(window, slot, DockPosition.left);
+        case KrohnkiteAction.MoveRight:
+          if (slot.position === DockPosition.right) return false;
+          return this.moveToSide(window, slot, DockPosition.right);
+        default:
+          return false;
+      }
     }
+
     switch (shortcut) {
-      case Shortcut.SwapLeft:
-        desiredPosition = DockPosition.left;
-        break;
-      case Shortcut.SwapUp:
-        desiredPosition = DockPosition.top;
-        break;
-      case Shortcut.SwapRight:
-        desiredPosition = DockPosition.right;
-        break;
-      case Shortcut.SwapDown:
-        desiredPosition = DockPosition.bottom;
-        break;
+      case KrohnkiteAction.MoveLeft:
+      case KrohnkiteAction.MoveRight: {
+        const delta = shortcut === KrohnkiteAction.MoveLeft ? -1 : 1;
+        if (this.moveWithinSlot(slot, index, delta)) return true;
+        return this.moveToSide(
+          window,
+          slot,
+          shortcut === KrohnkiteAction.MoveLeft
+            ? DockPosition.left
+            : DockPosition.right,
+        );
+      }
+      case KrohnkiteAction.MoveUp:
+        if (slot.position === DockPosition.top) return false;
+        return this.moveToSide(window, slot, DockPosition.top);
+      case KrohnkiteAction.MoveDown:
+        if (slot.position === DockPosition.bottom) return false;
+        return this.moveToSide(window, slot, DockPosition.bottom);
       default:
         return false;
     }
+  }
 
-    if (slot.position !== desiredPosition) {
-      const desiredSlot = this.getSlotByPosition(desiredPosition);
-      if (desiredSlot !== null && desiredSlot.window === null) {
-        window.dock.position = desiredPosition;
-        return true;
-      }
+  private moveWithinSlot(
+    slot: DockSlot,
+    index: number,
+    delta: -1 | 1,
+  ): boolean {
+    const targetIndex = index + delta;
+    if (targetIndex < 0 || targetIndex >= slot.windows.length) return false;
+    const window = slot.windows[index];
+    slot.windows[index] = slot.windows[targetIndex];
+    slot.windows[targetIndex] = window;
+    return true;
+  }
+
+  private moveToSide(
+    window: WindowClass,
+    source: DockSlot,
+    position: DockPosition,
+  ): boolean {
+    const target = this.getSlotByPosition(position);
+    if (target === null || target === source) return false;
+    if (!source.remove(window)) return false;
+    target.windows.push(window);
+    window.dock.position = position;
+    return true;
+  }
+
+  public setCrossSize(window: WindowClass, size: number): boolean {
+    const found = this.findWindow(window);
+    if (found === null) return false;
+    const key: "vWide" | "hHeight" =
+      found.slot.position === DockPosition.left ||
+      found.slot.position === DockPosition.right
+        ? "vWide"
+        : "hHeight";
+    for (const member of found.slot.windows) member.dock.cfg[key] = size;
+    return true;
+  }
+
+  public findWindow(
+    window: WindowClass,
+  ): { slot: DockSlot; index: number } | null {
+    for (const slot of this.slots) {
+      const index = slot.windows.indexOf(window);
+      if (index >= 0) return { slot, index };
     }
-    return false;
+    return null;
   }
 
   private static align(
@@ -293,282 +469,308 @@ class DockEntry implements IDockEntry {
     }
   }
 
-  private getSlot(position: DockPosition): DockSlot | null {
-    let slot = this.slots.find((slot) => slot.position === position) || null;
-    if (slot === null || slot.window === null) {
-      return null;
-    } else if (
-      slot.window.state !== WindowState.Docked ||
-      slot.window.dock!.position !== position
-    ) {
-      slot.window = null;
-      return null;
-    } else {
-      return slot;
+  private layoutVertical(
+    windows: WindowClass[],
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    cfg: IDockCfg,
+    mark: (window: WindowClass) => void,
+  ) {
+    let gap = Math.max(0, cfg.vGap);
+    if (gap * (windows.length + 1) > height)
+      gap = Math.max(0, height / (windows.length + 1));
+    const available = Math.max(
+      0,
+      height - gap * (windows.length + 1),
+    );
+    const sizes = DockEntry.distribute(
+      windows.map((window) => window.dock.cfg.vHeight),
+      available,
+      windows.map((window) => window.minSize.height),
+    );
+    let cursor = y + gap;
+    windows.forEach((window, index) => {
+      window.geometry = new Rect(x, cursor, width, sizes[index]);
+      cursor = cursor + sizes[index] + gap;
+      mark(window);
+    });
+  }
+
+  private layoutHorizontal(
+    windows: WindowClass[],
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    cfg: IDockCfg,
+    mark: (window: WindowClass) => void,
+  ) {
+    let gap = Math.max(0, cfg.hGap);
+    if (gap * (windows.length + 1) > width)
+      gap = Math.max(0, width / (windows.length + 1));
+    const available = Math.max(
+      0,
+      width - gap * (windows.length + 1),
+    );
+    const sizes = DockEntry.distribute(
+      windows.map((window) => window.dock.cfg.hWide),
+      available,
+      windows.map((window) => window.minSize.width),
+    );
+    let cursor = x + gap;
+    windows.forEach((window, index) => {
+      window.geometry = new Rect(cursor, y, sizes[index], height);
+      cursor = cursor + sizes[index] + gap;
+      mark(window);
+    });
+  }
+
+  private static distribute(
+    weights: number[],
+    available: number,
+    minimums: number[],
+  ): number[] {
+    const count = weights.length;
+    if (count === 0) return [];
+    const positive = weights.map((weight) => Math.max(0, weight));
+    const sum = positive.reduce((total, weight) => total + weight, 0);
+    const sizes =
+      sum > 0
+        ? positive.map((weight) => (available * weight) / sum)
+        : positive.map(() => available / count);
+    const totalMinimum = minimums.reduce(
+      (total, minimum) => total + Math.max(0, minimum),
+      0,
+    );
+    if (totalMinimum > available) return sizes;
+
+    for (let pass = 0; pass < count; pass++) {
+      let deficit = 0;
+      let flexible = 0;
+      for (let i = 0; i < count; i++) {
+        if (sizes[i] < minimums[i]) {
+          deficit += minimums[i] - sizes[i];
+          sizes[i] = minimums[i];
+        } else {
+          flexible += sizes[i] - minimums[i];
+        }
+      }
+      if (deficit <= 0 || flexible <= 0) break;
+      for (let i = 0; i < count; i++) {
+        const extra = sizes[i] - minimums[i];
+        if (extra > 0) sizes[i] -= (deficit * extra) / flexible;
+      }
     }
+    return sizes;
+  }
+
+  private getSlot(position: DockPosition): DockSlot | null {
+    const slot = this.getSlotByPosition(position);
+    if (slot === null) return null;
+    this.getValidWindows(slot);
+    return slot.windows.length > 0 ? slot : null;
+  }
+
+  private getValidWindows(slot: DockSlot): WindowClass[] {
+    slot.windows = slot.windows.filter(
+      (window) =>
+        window.state === WindowState.Docked &&
+        window.dock.position === slot.position,
+    );
+    return slot.windows;
   }
 
   private getSlotByPosition(position: DockPosition): DockSlot | null {
     return this.slots.find((slot) => slot.position === position) || null;
   }
 
-  private getSlotByWindow(window: WindowClass) {
-    let slot = this.slots.find((slot) => slot.window === window) || null;
-    if (slot === null || slot.window === null) {
-      return null;
-    } else if (slot.window.state !== WindowState.Docked) {
-      slot.window = null;
-      return null;
-    } else {
-      return slot;
-    }
-  }
-
   private arrangeSlots(dockedWindows: WindowClass[]) {
-    let contenders = this.arrangeContenders(dockedWindows, true);
-    if (contenders.length !== 0 && this.isHasEmptySlot()) {
-      contenders.forEach((w) => (w.dock!.position = null));
-      contenders = this.arrangeContenders(contenders, false);
+    const dockedSet = new Set(dockedWindows);
+    const placed = new Set<WindowClass>();
+
+    for (const slot of this.slots) {
+      slot.windows = slot.windows.filter((window) => {
+        if (!dockedSet.has(window) || window.state !== WindowState.Docked)
+          return false;
+        if (
+          window.dock.position !== null &&
+          window.dock.position !== slot.position
+        )
+          return false;
+        window.dock.position = slot.position;
+        placed.add(window);
+        return true;
+      });
     }
-    contenders.forEach((w) => {
-      w.state = WindowState.Tiled;
-    });
+
+    const remaining = dockedWindows.filter((window) => !placed.has(window));
+    for (const window of remaining) {
+      if (
+        window.dock.position !== null &&
+        this.getSlotByPosition(window.dock.position) === null
+      )
+        window.dock.position = null;
+    }
+    remaining.sort((a, b) => this.compareDockPriority(a, b));
+
+    for (const window of remaining) {
+      let slot: DockSlot | null =
+        window.dock.position !== null
+          ? this.getSlotByPosition(window.dock.position)
+          : null;
+      if (slot === null) {
+        slot = this.slots.length > 0 ? this.slots[0] : null;
+        if (slot === null) {
+          window.state = WindowState.Tiled;
+          continue;
+        }
+        window.dock.position = slot.position;
+      }
+      slot.windows.push(window);
+    }
   }
 
-  private arrangeContenders(
-    windows: WindowClass[],
-    init: boolean,
-  ): WindowClass[] {
-    let contenders: WindowClass[] = [];
-    for (const slot of this.slots) {
-      if (!init && slot.window !== null) continue;
-      if (windows.length === 0 && contenders.length === 0) {
-        slot.window = null;
-        continue;
-      }
-      let tempDockedWindows: WindowClass[] = [];
-      contenders.push(
-        ...windows.filter((w) => {
-          if (w.dock === null) {
-            w.dock = new Dock(this.surfaceCfg.cfg);
-            return true;
-          }
-          if (w.dock.position === slot.position) {
-            return true;
-          }
-          if (w.dock.position === null) return true;
-
-          tempDockedWindows.push(w);
-        }),
-      );
-      windows = tempDockedWindows;
-
-      if (contenders.length !== 0) {
-        this.contendersSort(contenders, slot.position, this.id);
-        slot.window = contenders.pop()!;
-        slot.window.dock!.position = slot.position;
-      } else {
-        slot.window = null;
-      }
-    }
-    return contenders;
+  private compareDockPriority(a: WindowClass, b: WindowClass): number {
+    if (a.dock.priority !== b.dock.priority)
+      return b.dock.priority - a.dock.priority;
+    const aTime = a.dock.renderedTime;
+    const bTime = b.dock.renderedTime;
+    if (aTime === null && bTime !== null) return -1;
+    if (bTime === null && aTime !== null) return 1;
+    if (aTime !== null && bTime !== null && aTime !== bTime)
+      return aTime - bTime;
+    if (a.dock.renderedOutputId === this.id && b.dock.renderedOutputId !== this.id)
+      return -1;
+    if (b.dock.renderedOutputId === this.id && a.dock.renderedOutputId !== this.id)
+      return 1;
+    return 0;
   }
 
   private assignSizes(workingArea: Rect) {
-    const MAX_SIZE = 50;
+    const MAX_SIDE_SIZE = 70;
+    const MAX_OPPOSITE_SIDES_SIZE = 70;
     const MAX_GAPS = {
       width: workingArea.width * 0.05,
       height: workingArea.height * 0.05,
     };
 
-    let oppositeSlot: DockSlot | null = null;
-    let donePositions: DockPosition[] = [];
-    let dockCfg: IDockCfg;
-    let oppositeDockCfg: IDockCfg;
+    interface Group {
+      windows: WindowClass[];
+      crossKey: "vWide" | "hHeight";
+      crossSize: number;
+    }
+
+    const groups = new Map<DockPosition, Group>();
 
     for (const slot of this.slots) {
-      if (slot.window === null) continue;
-      dockCfg = slot.window!.dock!.cfg;
-      const minSize: ISize = {
-        width: Math.max(
-          (slot.window.minSize.width * 100) / workingArea.width,
-          5,
-        ),
-        height: Math.max(
-          (slot.window.minSize.height * 100) / workingArea.height,
-          5,
-        ),
-      };
+      const windows = this.getValidWindows(slot);
+      if (windows.length === 0) continue;
+      const isVertical =
+        slot.position === DockPosition.left ||
+        slot.position === DockPosition.right;
+      const crossKey: "vWide" | "hHeight" = isVertical ? "vWide" : "hHeight";
+      const alongKey: "vHeight" | "hWide" = isVertical ? "vHeight" : "hWide";
+      const gapKey: "vGap" | "hGap" = isVertical ? "vGap" : "hGap";
+      const edgeGapKey: "vEdgeGap" | "hEdgeGap" = isVertical
+        ? "vEdgeGap"
+        : "hEdgeGap";
+      const edgeAlignment: EdgeAlignment = isVertical
+        ? windows[0].dock.cfg.vEdgeAlignment
+        : windows[0].dock.cfg.hEdgeAlignment;
+      const crossDimension = Math.max(
+        1,
+        isVertical ? workingArea.width : workingArea.height,
+      );
+      const alongDimension = Math.max(
+        1,
+        isVertical ? workingArea.height : workingArea.width,
+      );
 
-      if (donePositions.indexOf(slot.position) >= 0) continue;
-      switch (slot.position) {
-        case DockPosition.top:
-          oppositeSlot = this.getSlot(DockPosition.bottom);
-          break;
-        case DockPosition.bottom:
-          oppositeSlot = this.getSlot(DockPosition.top);
-          break;
-        case DockPosition.left:
-          oppositeSlot = this.getSlot(DockPosition.right);
-          break;
-        case DockPosition.right:
-          oppositeSlot = this.getSlot(DockPosition.left);
-          break;
-        default:
-          warning("DockEntry assignSizes - invalid position");
-          break;
+      let crossSize = 0;
+      let gap = 0;
+      let edgeGap = 0;
+      for (const window of windows) {
+        const cfg = window.dock.cfg;
+        crossSize = Math.max(crossSize, cfg[crossKey]);
+        gap = Math.max(gap, cfg[gapKey]);
+        edgeGap = Math.max(edgeGap, cfg[edgeGapKey]);
+      }
+      gap = Math.max(
+        0,
+        Math.min(gap, isVertical ? MAX_GAPS.height : MAX_GAPS.width),
+      );
+      edgeGap = Math.max(0, edgeGap);
+      const edgeReserve =
+        edgeAlignment === EdgeAlignment.middle ? 2 * edgeGap : edgeGap;
+
+      for (const window of windows) {
+        const cfg = window.dock.cfg;
+        const minCross = Math.max(
+          ((isVertical ? window.minSize.width : window.minSize.height) * 100) /
+            crossDimension,
+          5,
+        );
+        const minAlong = Math.max(
+          ((isVertical ? window.minSize.height : window.minSize.width) * 100) /
+            alongDimension,
+          5,
+        );
+        if (cfg[alongKey] < minAlong) cfg[alongKey] = minAlong;
+        /* A single window uses an absolute percentage; several windows use
+         * weights that may exceed 100 and are normalized during layout. */
+        if (windows.length === 1 && cfg[alongKey] > 100) cfg[alongKey] = 100;
+        cfg[gapKey] = gap;
+        cfg[edgeGapKey] = edgeGap;
+        crossSize = Math.max(
+          crossSize,
+          minCross + (100 * edgeReserve) / crossDimension,
+        );
       }
 
-      switch (slot.position) {
-        case DockPosition.left:
-        case DockPosition.right:
-          if (dockCfg.vGap > MAX_GAPS.width) dockCfg.vGap = MAX_GAPS.width;
-          if (
-            dockCfg.vWide <
-            minSize.width + (200 * dockCfg.vGap) / workingArea.width
-          )
-            dockCfg.vWide =
-              minSize.width + (200 * dockCfg.vGap) / workingArea.width;
-          if (oppositeSlot !== null) {
-            oppositeDockCfg = oppositeSlot.window!.dock!.cfg;
-            let opMinSize: ISize = {
-              width: Math.max(
-                (oppositeSlot.window!.minSize.width * 100) / workingArea.width,
-                5,
-              ),
-              height: Math.max(
-                (oppositeSlot.window!.minSize.height * 100) /
-                  workingArea.height,
-                5,
-              ),
-            };
-            if (oppositeDockCfg.vGap > MAX_GAPS.width)
-              oppositeDockCfg.vGap = MAX_GAPS.width;
-            if (
-              oppositeDockCfg.vWide <
-              opMinSize.width + (200 * oppositeDockCfg.vGap) / workingArea.width
-            )
-              oppositeDockCfg.vWide =
-                opMinSize.width +
-                (200 * oppositeDockCfg.vGap) / workingArea.width;
-            if (dockCfg.vWide + oppositeDockCfg.vWide > MAX_SIZE) {
-              if (
-                dockCfg.vWide > MAX_SIZE / 2 &&
-                oppositeDockCfg.vWide > MAX_SIZE / 2
-              ) {
-                dockCfg.vWide = MAX_SIZE / 2;
-                oppositeDockCfg.vWide = MAX_SIZE / 2;
-              } else if (dockCfg.vWide > MAX_SIZE / 2) {
-                dockCfg.vWide = MAX_SIZE - oppositeDockCfg.vWide;
-              } else {
-                oppositeDockCfg.vWide = MAX_SIZE - dockCfg.vWide;
-              }
-            }
-            if (oppositeDockCfg.vHeight > 100) oppositeDockCfg.vHeight = 100;
-            if (oppositeDockCfg.vHeight < minSize.height)
-              oppositeDockCfg.vHeight = minSize.height;
-            donePositions.push(oppositeSlot.position);
-          } else {
-            if (dockCfg.vWide > MAX_SIZE) {
-              dockCfg.vWide = MAX_SIZE;
-            }
-          }
-          if (dockCfg.vHeight > 100) dockCfg.vHeight = 100;
-          if (dockCfg.vHeight < minSize.height)
-            dockCfg.vHeight = minSize.height;
-          break;
-        case DockPosition.top:
-        case DockPosition.bottom:
-          if (dockCfg.hGap > MAX_GAPS.height) dockCfg.hGap = MAX_GAPS.height;
-          if (
-            dockCfg.hHeight <
-            minSize.height + (200 * dockCfg.hGap) / workingArea.height
-          )
-            dockCfg.hHeight =
-              minSize.height + (200 * dockCfg.hGap) / workingArea.height;
-          if (oppositeSlot !== null) {
-            oppositeDockCfg = oppositeSlot.window!.dock!.cfg;
+      // A dock strip is capped at 70% of the work area. When both opposite
+      // strips are present they share the same 70% budget.
+      crossSize = Math.min(crossSize, MAX_SIDE_SIZE);
+      for (const window of windows) window.dock.cfg[crossKey] = crossSize;
+      groups.set(slot.position, {
+        windows,
+        crossKey,
+        crossSize,
+      });
+    }
 
-            let opMinSize: ISize = {
-              width: Math.max(
-                (oppositeSlot.window!.minSize.width * 100) / workingArea.width,
-                5,
-              ),
-              height: Math.max(
-                (oppositeSlot.window!.minSize.height * 100) /
-                  workingArea.height,
-                5,
-              ),
-            };
-
-            if (oppositeDockCfg.hGap > MAX_GAPS.height)
-              oppositeDockCfg.hGap = MAX_GAPS.height;
-            if (
-              oppositeDockCfg.hHeight <
-              opMinSize.height +
-                (200 * oppositeDockCfg.hGap) / workingArea.height
-            )
-              oppositeDockCfg.hHeight =
-                opMinSize.height +
-                (200 * oppositeDockCfg.hGap) / workingArea.height;
-
-            if (dockCfg.hHeight + oppositeDockCfg.hHeight > MAX_SIZE) {
-              if (
-                dockCfg.hHeight > MAX_SIZE / 2 &&
-                oppositeDockCfg.hHeight > MAX_SIZE / 2
-              ) {
-                dockCfg.hHeight = MAX_SIZE / 2;
-                oppositeDockCfg.hHeight = MAX_SIZE / 2;
-              } else if (dockCfg.hHeight > MAX_SIZE / 2) {
-                dockCfg.hHeight = MAX_SIZE - oppositeDockCfg.hHeight;
-              } else {
-                oppositeDockCfg.hHeight = MAX_SIZE - dockCfg.hHeight;
-              }
-            }
-            if (oppositeDockCfg.hWide > 100) oppositeDockCfg.hWide = 100;
-            if (oppositeDockCfg.hWide < opMinSize.width)
-              oppositeDockCfg.hWide = opMinSize.width;
-            donePositions.push(oppositeSlot.position);
-          } else {
-            if (dockCfg.hHeight > MAX_SIZE) {
-              dockCfg.hHeight = MAX_SIZE;
-            }
-          }
-          if (dockCfg.hWide > 100) dockCfg.hWide = 100;
-          if (dockCfg.hWide < minSize.width) dockCfg.hWide = minSize.width;
-          break;
+    const clampPair = (
+      firstPosition: DockPosition,
+      secondPosition: DockPosition,
+    ) => {
+      const first = groups.get(firstPosition);
+      const second = groups.get(secondPosition);
+      if (first === undefined || second === undefined) return;
+      let firstSize = first.crossSize;
+      let secondSize = second.crossSize;
+      if (firstSize + secondSize <= MAX_OPPOSITE_SIDES_SIZE) return;
+      if (
+        firstSize > MAX_OPPOSITE_SIDES_SIZE / 2 &&
+        secondSize > MAX_OPPOSITE_SIDES_SIZE / 2
+      ) {
+        firstSize = MAX_OPPOSITE_SIDES_SIZE / 2;
+        secondSize = MAX_OPPOSITE_SIDES_SIZE / 2;
+      } else if (firstSize > MAX_OPPOSITE_SIDES_SIZE / 2) {
+        firstSize = MAX_OPPOSITE_SIDES_SIZE - secondSize;
+      } else {
+        secondSize = MAX_OPPOSITE_SIDES_SIZE - firstSize;
       }
-    }
-  }
+      first.crossSize = firstSize;
+      second.crossSize = secondSize;
+      for (const window of first.windows)
+        window.dock.cfg[first.crossKey] = firstSize;
+      for (const window of second.windows)
+        window.dock.cfg[second.crossKey] = secondSize;
+    };
 
-  private contendersSort(
-    contenders: WindowClass[],
-    position: DockPosition,
-    id: string,
-  ) {
-    function compare(a: WindowClass, b: WindowClass) {
-      if (a.dock === null && b.dock === null) return 0;
-      else if (a.dock === null) return -1;
-      else if (b.dock === null) return 1;
-      else if (a.dock.position === position && b.dock.position !== position)
-        return 1;
-      else if (b.dock.position === position && a.dock.position !== position)
-        return -1;
-      else if (a.dock.priority > b.dock.priority) return 1;
-      else if (b.dock.priority > a.dock.priority) return -1;
-      else if (a.dock.renderedTime === null && b.dock.renderedTime === null)
-        return 0;
-      else if (a.dock.renderedTime === null) return -1;
-      else if (b.dock.renderedTime === null) return 1;
-      else if (a.dock.renderedOutputId === id && b.dock.renderedOutputId !== id)
-        return 1;
-      else if (b.dock.renderedOutputId === id && a.dock.renderedOutputId !== id)
-        return -1;
-      else if (a.dock.renderedTime > b.dock.renderedTime) return 1;
-      else if (b.dock.renderedTime > a.dock.renderedTime) return -1;
-      else return 0;
-    }
-    contenders.sort(compare);
+    clampPair(DockPosition.left, DockPosition.right);
+    clampPair(DockPosition.top, DockPosition.bottom);
   }
 
   private parseSlots(): DockSlot[] {
@@ -588,9 +790,5 @@ class DockEntry implements IDockEntry {
 
     slots.sort((a, b) => a.order - b.order);
     return slots;
-  }
-
-  private isHasEmptySlot(): boolean {
-    return !this.slots.every((slot) => slot.window !== null);
   }
 }

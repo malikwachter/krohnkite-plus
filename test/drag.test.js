@@ -23,23 +23,39 @@ function win(cls, out, minW = 0, minH = 0) {
   const id = cls + ++n;
   const w = {
     id, windowClassName: cls, fullScreen: false, maximized: false, minimized: false, shouldIgnore: false,
-    shouldFloat: false, weight: null, placement: null, hasPreferredFloatGeometry: false,
+    shouldFloat: false, weight: null, placement: null, isCommittedEver: false,
+    floatConfig: { auto: false, shouldFloat: false, stepWidth: 5, stepHeight: 5 }, floatGeometry: R(0, 0, 400, 300),
+    windowCaption: cls, stackingOrder: 0, srfTime: 0, updateSrfTime() {}, forgetRequestedGeometry() {},
+    isAlive: () => true, setMinimizedByScript() {}, dispose() {},
     minSize: { width: minW, height: minH }, maxSize: { width: 99999, height: 99999 },
     geometry: R(0, 0, 100, 100), out,
     get surface() { return this.out === outA ? sA : sB; }, set surface(s) {},
-    commit(g) { if (g) { commits[id] = [g.x, g.y, g.width, g.height]; this.geometry = g; } },
+    commit(_ctx, g) { if (g) { commits[id] = [g.x, g.y, g.width, g.height]; this.geometry = g; } },
     visible(s) { return s.output === this.out; },
-    getInitFloatGeometry: () => R(0, 0, 400, 300), moveMouseToFocus() {}, rememberFloatGeometry() {},
+    moveMouseToFocus() {}, rememberFloatGeometry() {},
   };
   return vm.runInContext("(w) => new WindowClass(w)", ctx)(w);
 }
+/* the relocation queue of the new driver: move the windows, then arrange */
+const relocator = (eng, d, onMoved) => () => {
+  const r = eng.relocationWindows;
+  let name = null;
+  r.toOutputs.entries().forEach(([out, ws]) => { ws.forEach((w) => (w.window.out = out)); name = out.name; });
+  r.clear();
+  if (onMoved) onMoved(name);
+  eng.arrange(d, "moveWindowToOutput");
+  return true;
+};
 const drv = {
-  backend: "test", get currentSurfaces() { return [sA, sB]; }, cursorPosition: [0, 0],
+  backend: "test", get currentSurfaces() { return [sA, sB]; }, cursorPosition: { x: 0, y: 0 },
   get currentSurface() { return active ? active.surface : sA; }, set currentSurface(v) {},
   get currentWindow() { return active; }, set currentWindow(w) { active = w; },
   isMetaMode: false, isPaused: false, setTimeout() {}, showNotification() {}, metaPushed() {}, stateMaybeChanged() {},
   showDropPreview(r, swap) { preview = r && { r: [r.x, r.y, r.width, r.height], swap }; },
-  moveWindowsToScreen(list) { const [out, ws] = list[0]; ws.forEach((w) => (w.window.out = out)); moved = out.name; engine.arrange(drv, "moved"); },
+  onLayoutStart() {}, onLayoutSettled() {}, onWindowSizeCommitted() {}, requestPointerOnFocus() {},
+  showDragPreview() {}, hideDragPreview() {}, getNeighborOutput: () => null,
+  getSurface: (out) => (out === outA ? sA : sB),
+  relocateWindows() { return relocator(engine, drv, (n) => (moved = n))(); },
 };
 const engine = vm.runInContext("new TilingEngine()", ctx);
 const control = vm.runInContext("(e) => new TilingController(e)", ctx)(engine);
@@ -55,7 +71,7 @@ const b1 = win("b1", outB), b2 = win("b2", outB);
 active = a1;
 engine.arrange(drv, "init");
 
-const drag = (w, x, y) => { drv.cursorPosition = [x, y]; control.onWindowDragging(drv, w, w.actualGeometry); };
+const drag = (w, x, y) => { drv.cursorPosition = { x, y }; control.onWindowDragging(drv, w, w.actualGeometry, "test"); };
 
 test("initial layout", () => {
   assert.deepStrictEqual(g(a1), [0, 0, 960, 1080]);
@@ -90,7 +106,7 @@ test("dragging onto the other monitor: it makes room, the old one closes the gap
   assert.deepStrictEqual(g(a3), [960, 0, 960, 1080], "a3 takes the other half");
 });
 test("drop on the other monitor does exactly what the preview showed", () => {
-  control.onWindowMoveOver(drv, a1);
+  control.onWindowMoveOver(drv, a1, "test");
   assert.strictEqual(moved, "HDMI-A-1");
   assert.strictEqual(preview, null, "preview hidden");
   assert.deepStrictEqual(g(a1), [1920, 0, 960, 1080]);
@@ -100,14 +116,14 @@ test("drop on the other monitor does exactly what the preview showed", () => {
 });
 test("drop on the same monitor swaps with the hovered tile", () => {
   drag(a2, 1500, 500); // a2 over a3
-  control.onWindowMoveOver(drv, a2);
+  control.onWindowMoveOver(drv, a2, "test");
   assert.deepStrictEqual(g(a2), [960, 0, 960, 1080]);
   assert.deepStrictEqual(g(a3), [0, 0, 960, 1080]);
 });
 test("drop back home restores everything", () => {
   drag(b2, 2300, 500); // over a1 (now on B)
   drag(b2, 3300, 800); // back over its own slot
-  control.onWindowMoveOver(drv, b2);
+  control.onWindowMoveOver(drv, b2, "test");
   assert.deepStrictEqual(g(b2), [2880, 540, 960, 540]);
   assert.deepStrictEqual(g(a1), [1920, 0, 960, 1080]);
 });
@@ -123,17 +139,17 @@ test("screenshot case: the window lands under the cursor on every tile, even wit
     const claude = win("claude", outA, 600, 500), konsole = win("konsole", outA, 300, 200);
     [settings, dolphin, claude, konsole].forEach((w) => e2.manage(w));
     const d2 = Object.assign({}, drv, { get currentSurfaces() { return [sA]; },
-      moveWindowsToScreen() { throw new Error("no monitor change expected"); } });
+      relocateWindows() { throw new Error("no monitor change expected"); } });
     active = dolphin;
     e2.arrange(d2, "init");
     const target = { systemsettings: settings, claude, konsole }[targetName];
     const [x, y] = centre(g(target));
-    d2.cursorPosition = [x, y];
-    c2.onWindowDragging(d2, dolphin, dolphin.actualGeometry);
+    d2.cursorPosition = { x, y };
+    c2.onWindowDragging(d2, dolphin, dolphin.actualGeometry, "test");
     const p = preview.r;
     assert(p[0] <= x && x < p[0] + p[2] && p[1] <= y && y < p[1] + p[3],
       `over ${targetName}: silhouette ${p} not under cursor ${x},${y}`);
-    c2.onWindowMoveOver(d2, dolphin);
+    c2.onWindowMoveOver(d2, dolphin, "test");
     const r = g(dolphin);
     assert(r[0] <= x && x < r[0] + r[2] && r[1] <= y && y < r[1] + r[3],
       `dropped on ${targetName}: landed at ${r}, cursor ${x},${y}`);
@@ -151,7 +167,7 @@ test("order search: a plain swap would put the window elsewhere, the search puts
   const claude = t("claude", 600, 500), konsole = t("konsole", 300, 200);
   const area = R(0, 0, 1920, 1045);
   const swapped = [settings, claude, dolphin, konsole];
-  const pos = [1440, 261]; // centre of claude's old slot (top right)
+  const pos = { x: 1440, y: 261 }; // centre of claude's old slot (top right)
   const plain = smart.compute(swapped, area, 0, 2)[2];
   assert(!plain.includesPoint(pos), "precondition: plain swap misses (" + [plain.x, plain.width] + ")");
   const order = e3.orderLandingAt(smart, swapped, dolphin, pos, area, 0);
@@ -159,25 +175,24 @@ test("order search: a plain swap would put the window elsewhere, the search puts
   assert(r.includesPoint(pos), `found order ${order.map((x) => x.name)} lands at ${[r.x, r.y, r.width, r.height]}`);
 });
 test("empty monitor: preview respects the sole window size limit, drop matches it", () => {
-  vm.runInContext("CONFIG.soleWindowWidth = 60; CONFIG.soleWindowHeight = 100", ctx);
+  vm.runInContext("CONFIG.soleWindowDefaultProps = Object.assign({}, CONFIG.soleWindowDefaultProps, { width: 60, height: 100 })", ctx);
   const e4 = vm.runInContext("new TilingEngine()", ctx);
   const c4 = vm.runInContext("(e) => new TilingController(e)", ctx)(e4);
   const x1 = win("x1", outA), x2 = win("x2", outA);
   [x1, x2].forEach((w) => e4.manage(w));
   let movedTo = null;
-  const d4 = Object.assign({}, drv, {
-    moveWindowsToScreen(list) { const [out, ws] = list[0]; ws.forEach((w) => (w.window.out = out)); movedTo = out.name; e4.arrange(d4, "moved"); },
-  });
+  const d4 = Object.assign({}, drv, {});
+  d4.relocateWindows = relocator(e4, d4, (n) => (movedTo = n));
   active = x2;
   e4.arrange(d4, "init");
-  d4.cursorPosition = [2880, 540]; // middle of the empty monitor B
-  c4.onWindowDragging(d4, x2, x2.actualGeometry);
+  d4.cursorPosition = { x: 2880, y: 540 }; // middle of the empty monitor B
+  c4.onWindowDragging(d4, x2, x2.actualGeometry, "test");
   assert.deepStrictEqual(preview.r, [1920 + 384, 0, 1152, 1080], "60 % wide, centered: " + preview.r);
   assert.deepStrictEqual(g(x1), [384, 0, 1152, 1080], "x1 alone on A, also limited to 60 % and centered");
-  c4.onWindowMoveOver(d4, x2);
+  c4.onWindowMoveOver(d4, x2, "test");
   assert.strictEqual(movedTo, "HDMI-A-1");
   assert.deepStrictEqual(g(x2), [1920 + 384, 0, 1152, 1080], "dropped exactly like the preview");
-  vm.runInContext("CONFIG.soleWindowWidth = 100", ctx);
+  vm.runInContext("CONFIG.soleWindowDefaultProps = Object.assign({}, CONFIG.soleWindowDefaultProps, { width: 100 })", ctx);
 });
 test("preview respects 'limit tile width' too", () => {
   vm.runInContext("CONFIG.limitTileWidthRatio = 1.0", ctx); // max width = height = 1080
@@ -185,15 +200,14 @@ test("preview respects 'limit tile width' too", () => {
   const c5 = vm.runInContext("(e) => new TilingController(e)", ctx)(e5);
   const y1 = win("y1", outA), y2 = win("y2", outA);
   [y1, y2].forEach((w) => e5.manage(w));
-  const d5 = Object.assign({}, drv, {
-    moveWindowsToScreen(list) { const [out, ws] = list[0]; ws.forEach((w) => (w.window.out = out)); e5.arrange(d5, "moved"); },
-  });
+  const d5 = Object.assign({}, drv, {});
+  d5.relocateWindows = relocator(e5, d5);
   active = y2;
   e5.arrange(d5, "init");
-  d5.cursorPosition = [2880, 540];
-  c5.onWindowDragging(d5, y2, y2.actualGeometry);
+  d5.cursorPosition = { x: 2880, y: 540 };
+  c5.onWindowDragging(d5, y2, y2.actualGeometry, "test");
   assert.deepStrictEqual(preview.r, [1920 + 420, 0, 1080, 1080], "narrowed and centered: " + preview.r);
-  c5.onWindowMoveOver(d5, y2);
+  c5.onWindowMoveOver(d5, y2, "test");
   assert.deepStrictEqual(g(y2), [1920 + 420, 0, 1080, 1080]);
   vm.runInContext("CONFIG.limitTileWidthRatio = 0", ctx);
 });

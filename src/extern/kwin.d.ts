@@ -8,7 +8,7 @@
 // API Reference:
 //     https://techbase.kde.org/Development/Tutorials/KWin/Scripting/API_4.9
 interface KWin {
-  readConfig<T>(property: string, defaultValue: T): T;
+  readConfig<T>(property: keyof typeof ConfigVariables, defaultValue: T): T;
   registerShortcut(
     name: string,
     desc: string,

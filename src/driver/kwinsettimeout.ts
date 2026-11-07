@@ -8,11 +8,15 @@
 class KWinTimerPool {
   public static readonly instance = new KWinTimerPool();
 
-  public timers: QTimer[];
+  private timers: QTimer[];
+  private activeTimers: Array<{ timer: QTimer; callback: () => void }>;
+  private generation: number;
   public numTimers: number;
 
   constructor() {
     this.timers = [];
+    this.activeTimers = [];
+    this.generation = 0;
     this.numTimers = 0;
   }
 
@@ -30,6 +34,7 @@ class KWinTimerPool {
       this.timers.pop() ||
       Qt.createQmlObject("import QtQuick 2.0; Timer {}", scriptRoot);
 
+    const generation = this.generation;
     const callback = () => {
       try {
         timer.triggered.disconnect(callback);
@@ -41,13 +46,45 @@ class KWinTimerPool {
       } catch (e) {
         /* ignore */
       }
-      this.timers.push(timer);
+      this.removeActive(timer, callback);
+      if (generation === this.generation) this.timers.push(timer);
     };
 
     timer.interval = timeout;
     timer.repeat = false;
     timer.triggered.connect(callback);
+    this.activeTimers.push({ timer, callback });
     timer.start();
+  }
+
+  /** Stop every pending callback and release all dynamically-created timers. */
+  public dispose() {
+    this.generation++;
+    for (const entry of this.activeTimers.splice(0)) {
+      try {
+        entry.timer.stop();
+        entry.timer.triggered.disconnect(entry.callback);
+        entry.timer.destroy();
+      } catch (_) {
+        /* The QML object may already be gone during script destruction. */
+      }
+    }
+    for (const timer of this.timers.splice(0)) {
+      try {
+        timer.stop();
+        timer.destroy();
+      } catch (_) {
+        /* The QML object may already be gone during script destruction. */
+      }
+    }
+    this.numTimers = 0;
+  }
+
+  private removeActive(timer: QTimer, callback: () => void) {
+    const idx = this.activeTimers.findIndex(
+      (entry) => entry.timer === timer && entry.callback === callback,
+    );
+    if (idx >= 0) this.activeTimers.splice(idx, 1);
   }
 }
 

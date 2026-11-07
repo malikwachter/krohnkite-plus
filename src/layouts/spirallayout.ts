@@ -55,7 +55,7 @@ class SpiralLayout implements ILayout {
     });
   }
 
-  //handleShortcut?(ctx: EngineContext, input: Shortcut, data?: any): boolean;
+  //handleShortcut?(ctx: EngineContext, input: KrohnkiteAction, data?: any): boolean;
 
   public toString(): string {
     return "Spiral()";

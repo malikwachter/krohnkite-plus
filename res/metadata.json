@@ -1,20 +1,24 @@
 {
   "KPackageStructure": "KWin/Script",
   "KPlugin": {
-    "Name": "Krohnkite (Smart)",
-    "Description": "A dynamic tiling script for KWin with smart layout and per-app rules ($REV)",
-    "Icon": "dialog-tile-clones",
+    "Name": "Kröhnkite-Plus",
+    "Description": "A dynamic tiling script for KWin with a smart layout, per-app rules, zoom and undo ($REV)",
+    "Icon": "krohnkite",
 
     "Authors": [
       {
         "Email": "esjeon@hyunmu.am",
         "Name": "Eon S. Jeon"
+      },
+      {
+        "Email": "127975472+malikwachter@users.noreply.github.com",
+        "Name": "MAw"
       }
     ],
     "Id": "krohnkite",
     "Version": "$VER",
     "License": "MIT",
-    "Website": "https://github.com/anametologin/krohnkite#readme"
+    "Website": "https://github.com/malikwachter/krohnkite-plus#readme"
   },
   "X-Plasma-API": "declarativescript",
   "X-Plasma-API-Minimum-Version": "6.0",

@@ -25,16 +25,23 @@ class EngineContext {
     this.drvctx.currentWindow = window;
   }
 
-  public get cursorPos(): [number, number] | null {
+  public raiseWindow(window: WindowClass): void {
+    this.drvctx.raiseWindow(window);
+  }
+
+  public get cursorPos(): QPoint | null {
     return this.drvctx.cursorPosition;
   }
 
   public get surfaceParams(): string {
     let srf = this.drvctx.currentSurface;
-    return srf.output.name, srf.activity, srf.vDesktop.name;
+    return (srf.output.name, srf.activity, srf.vDesktop.name);
   }
 
-  constructor(private drvctx: IDriverContext, private engine: TilingEngine) {}
+  constructor(
+    private drvctx: IDriverContext,
+    private engine: TilingEngine,
+  ) {}
 
   public setTimeout(func: () => void, timeout: number): void {
     this.drvctx.setTimeout(func, timeout);
@@ -44,14 +51,10 @@ class EngineContext {
     this.engine.focusOrder(this.drvctx, step);
   }
 
-  public moveWindow(window: WindowClass, target: WindowClass, after?: boolean) {
-    this.engine.windows.move(window, target, after);
-  }
-
   public moveWindowByWinId(
     window: WindowClass,
     targetId: string,
-    after?: boolean
+    after?: boolean,
   ) {
     let target = this.engine.windows.getWindowById(targetId);
     if (target === null) return;
@@ -61,7 +64,23 @@ class EngineContext {
     return this.engine.windows.getWindowById(id);
   }
 
+  public setPrevMaster(window: WindowClass, prev: WindowClass): void {
+    this.engine.windows.setPrevMaster(window, prev);
+  }
+
+  public getPrevMaster(window: WindowClass): WindowClass | null {
+    return this.engine.windows.getPrevMaster(window);
+  }
+
   public showNotification(text: string) {
     this.drvctx.showNotification(text);
+  }
+
+  public showLayoutOSD() {
+    this.drvctx.showLayoutOSD();
+  }
+
+  public showLayoutShortcut(id: string) {
+    this.drvctx.showLayoutShortcut(id);
   }
 }

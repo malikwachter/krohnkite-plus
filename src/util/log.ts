@@ -39,7 +39,7 @@ class Logging implements ILogModules {
     let key: keyof ILogFilters;
     for (key in filter) {
       if (this._filters[key] == null || filter[key] == null) continue;
-      const isContain = KWinWindow.isContain(
+      const isContain = DriverWindow.isContain(
         this._filters[key] as string[],
         (filter[key] as string[])[0],
       );

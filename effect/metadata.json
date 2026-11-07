@@ -8,12 +8,12 @@
       }
     ],
     "Category": "Window Management",
-    "Description": "Smoothly animates window size and position changes made by Krohnkite (focus grow, drag preview, drop)",
+    "Description": "Smoothly animates window size and position changes made by Kröhnkite-Plus (focus grow, drag preview, drop)",
     "EnabledByDefault": false,
     "Icon": "preferences-system-windows-effect",
     "Id": "krohnkite_smooth",
     "License": "MIT",
-    "Name": "Krohnkite Smooth",
+    "Name": "Kröhnkite-Plus Smooth",
     "Version": "$VER"
   },
   "X-KDE-Ordering": 60,

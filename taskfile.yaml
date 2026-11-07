@@ -9,7 +9,7 @@ vars:
   KWINPKG_FILE_EXT: "kwinscript"
 
   GIT_BRANCH:
-    sh: 'git symbolic-ref --short -q HEAD | read gb && ([ $gb = "master" ] || [ $gb = "main" ] || [ $gb = "" ]) &&  echo "" || echo "-${gb}"'
+    sh: 'gb=$(git symbolic-ref --short -q HEAD); case "$gb" in master|main) echo "-git" ;; release|release/*) echo "" ;; *) echo "-$(printf "%s" "$gb" | tr "/" "_")" ;; esac'
   KWINPKG_FILE: "{{.PROJECT_NAME }}-{{.PROJECT_VER }}{{.GIT_BRANCH}}_{{.PROJECT_REV }}.{{.KWINPKG_FILE_EXT}}"
   PACKAGE: "builds/{{.KWINPKG_FILE}}"
   KWINPKG_DIR: "pkg"
@@ -29,15 +29,36 @@ tasks:
       - rm -vf {{.NODE_SCRIPT}} package-lock.json
 
   install:
+    desc: Build and install the package, then refresh its icons
     deps: [kwin-pkg-file]
     cmds:
       - "kpackagetool6 -t KWin/Script -s {{.PROJECT_NAME}} && kpackagetool6 -t KWin/Script -u {{.PACKAGE}} || kpackagetool6 -t KWin/Script -i {{.PACKAGE}}"
+      - python3 tools/install-icons.py
+
+  reload:
+    desc: Build, install and reload without logging out
+    deps: [install]
+    cmds:
+      - python3 tools/reload-script.py {{.KWINPKG_DIR}}
+
+  reload-file:
+    desc: Reload a prebuilt .kwinscript file without rebuilding
+    cmds:
+      - python3 tools/reload-script.py {{.CLI_ARGS}}
 
   uninstall:
     cmds:
       - "kpackagetool6 -t KWin/Script -r  {{.PROJECT_NAME}}"
+      - python3 tools/install-icons.py --uninstall
+
+  test:
+    desc: Run the type check and the test suite
+    deps: [install-deps]
+    cmds:
+      - npm run check
 
   kwin-pkg-file:
+    desc: Build the .kwinscript package into builds/
     aliases: [package]
     deps:
       - kwin-pkg
@@ -60,6 +81,16 @@ tasks:
       - cp res/main.qml {{.KWINPKG_DIR}}/contents/ui/main.qml
       - cp res/config.ui {{.KWINPKG_DIR}}/contents/ui/config.ui
       - cp res/popup.qml  {{.KWINPKG_DIR}}/contents/ui/popup.qml
+      - cp res/layoutchooser.qml {{.KWINPKG_DIR}}/contents/ui/layoutchooser.qml
+      - cp res/iconinstaller.qml {{.KWINPKG_DIR}}/contents/ui/iconinstaller.qml
+      - cp -r res/layouts {{.KWINPKG_DIR}}/contents/ui/
+      - cp -r res/appicon {{.KWINPKG_DIR}}/contents/ui/
+      - cp tools/install-icons.py {{.KWINPKG_DIR}}/contents/code/install-icons.py
+      - cp tools/collect-diagnostics.py {{.KWINPKG_DIR}}/contents/code/collect-diagnostics.py
+      - cp res/dragpreview.qml  {{.KWINPKG_DIR}}/contents/ui/dragpreview.qml
+      - cp res/droppreview.qml  {{.KWINPKG_DIR}}/contents/ui/droppreview.qml
+      - cp res/droppreview-window.qml  {{.KWINPKG_DIR}}/contents/ui/droppreview-window.qml
+      - cp res/shellrunner.qml  {{.KWINPKG_DIR}}/contents/ui/shellrunner.qml
       - cp res/shortcuts.qml  {{.KWINPKG_DIR}}/contents/ui/shortcuts.qml
       - cp res/dbus.qml  {{.KWINPKG_DIR}}/contents/ui/dbus.qml
       - cp {{.NODE_SCRIPT}} {{.KWINPKG_DIR}}/contents/code/script.js
@@ -70,6 +101,16 @@ tasks:
       - res/main.qml
       - res/config.ui
       - res/popup.qml
+      - res/layoutchooser.qml
+      - res/iconinstaller.qml
+      - res/layouts/*.svg
+      - res/appicon/*.svg
+      - tools/install-icons.py
+      - tools/collect-diagnostics.py
+      - res/dragpreview.qml
+      - res/droppreview.qml
+      - res/droppreview-window.qml
+      - res/shellrunner.qml
       - res/shortcuts.qml
       - res/dbus.qml
       - "{{.NODE_SCRIPT}}"
@@ -79,6 +120,16 @@ tasks:
       - "{{.KWINPKG_DIR}}/contents/ui/main.qml"
       - "{{.KWINPKG_DIR}}/contents/ui/config.ui"
       - "{{.KWINPKG_DIR}}/contents/ui/popup.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/layoutchooser.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/iconinstaller.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/layouts/*.svg"
+      - "{{.KWINPKG_DIR}}/contents/ui/appicon/*.svg"
+      - "{{.KWINPKG_DIR}}/contents/code/install-icons.py"
+      - "{{.KWINPKG_DIR}}/contents/code/collect-diagnostics.py"
+      - "{{.KWINPKG_DIR}}/contents/ui/dragpreview.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/droppreview.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/droppreview-window.qml"
+      - "{{.KWINPKG_DIR}}/contents/ui/shellrunner.qml"
       - "{{.KWINPKG_DIR}}/contents/ui/shortcuts.qml"
       - "{{.KWINPKG_DIR}}/contents/ui/dbus.qml"
       - "{{.KWINPKG_DIR}}/contents/code/script.js"
@@ -104,6 +155,7 @@ tasks:
       - "{{.NODE_SCRIPT}}"
 
   install-deps:
+    if: "[ ! -f nodeps.bak ]"
     run: once
     cmds:
       - npm install --save-dev
@@ -115,3 +167,8 @@ tasks:
       - 'sed -i "s/\"version\": [^,]*/\"version\": \"{{.PROJECT_VER}}\"/" package.json'
     preconditions:
       - test -f package.json
+
+  translations:
+    desc: Regenerate the translation template and compile the .mo files
+    cmds:
+      - bash tools/update-translations.sh

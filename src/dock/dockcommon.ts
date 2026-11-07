@@ -5,10 +5,10 @@
 */
 
 const DockPosition = {
-  left: 1,
-  right: 2,
-  top: 3,
-  bottom: 4,
+  left: "left",
+  right: "right",
+  top: "top",
+  bottom: "bottom",
 } as const;
 type DockPosition = (typeof DockPosition)[keyof typeof DockPosition];
 
@@ -53,19 +53,34 @@ interface IDock {
   renderedTime: number | null;
   priority: number;
   position: DockPosition | null;
+  caption: string | null;
   autoDock: boolean;
   cfg: IDockCfg;
   clone(): IDock;
 }
 
 interface IDockEntry {
+  tilesArea: Rect | null;
   id: string;
   slots: DockSlot[];
   remove(window: WindowClass): void;
+  clearSlots(): void;
   arrange(dockedWindows: WindowClass[], workingArea: Rect): Rect;
-  handleShortcut(window: WindowClass, shortcut: Shortcut): boolean;
+  handleShortcut(window: WindowClass, shortcut: KrohnkiteAction): boolean;
 }
 
 interface IDockStore {
   render(srf: ISurface, win: WindowClass[], workingArea: Rect): Rect;
+  attachWindow(window: WindowClass): void;
+}
+
+interface DockDragSnapshot {
+  srfId: string;
+  slots: { position: DockPosition; windows: WindowClass[] }[];
+  states: {
+    window: WindowClass;
+    state: WindowState;
+    dockPosition: DockPosition | null;
+    geometry: Rect;
+  }[];
 }

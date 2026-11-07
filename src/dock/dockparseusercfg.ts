@@ -4,42 +4,67 @@
     SPDX-License-Identifier: MIT
 */
 
-function parseDockUserSurfacesCfg(): SurfaceCfg<IDockCfg>[] {
-  //format: "OuputName:ActivityId:VirtualDesktopName:shortname=value,shortname=value..."
-  let surfacesCfg: SurfaceCfg<IDockCfg>[] = [];
-  getSurfacesCfg(CONFIG.dockSurfacesConfig).forEach((srf) => {
-    let partialDockCfg = parseSplittedUserCfg(srf.unvalidatedCfg);
+function parseDockUserSurfacesCfg(): DockSurfaceCfg[] {
+  //format: "srfLabel:shortname=value,shortname=value..."
+  let surfacesCfg: DockSurfaceCfg[] = [];
+  for (const line of CONFIG.dockSurfacesConfig) {
+    const eqIdx = line.indexOf(":");
+    if (eqIdx === -1) {
+      warning(
+        `Invalid dock surface config: "${line}" — missing ":" (expected: srfLabel:shortname=value,...)`,
+      );
+      continue;
+    }
+    const srfLabel = line.slice(0, eqIdx).trim();
+    if (srfLabel.length === 0) {
+      warning(`Invalid dock surface config: "${line}" — label is empty`);
+      continue;
+    }
+
+    const paramsStr = line.slice(eqIdx + 1).trim();
+    const rawCfg =
+      paramsStr.length > 0
+        ? paramsStr
+            .split(",")
+            .map((p) => p.trim())
+            .filter((p) => p.length > 0)
+        : [];
+    const partialDockCfg = parseSplittedUserCfg(rawCfg);
     if (partialDockCfg instanceof Err) {
-      warning(`Invalid User surface config: ${srf}. ${partialDockCfg}`);
-      return;
+      warning(`Invalid dock surface config: "${line}". ${partialDockCfg}`);
+      continue;
     }
     if (Object.keys(partialDockCfg).length > 0) {
-      surfacesCfg.push(
-        new SurfaceCfg<IDockCfg>(
-          srf.outputName,
-          srf.activityId,
-          srf.vDesktopName,
-          DefaultDockCfg.instance.cloneAndUpdate(partialDockCfg) as IDockCfg
-        )
-      );
+      surfacesCfg.push({
+        srfLabel,
+        cfg: DefaultDockCfg.instance.cloneAndUpdate(partialDockCfg) as IDockCfg,
+      });
     }
-  });
+  }
   return surfacesCfg;
 }
 
 function parseDockUserWindowClassesCfg(): {
   [windowClassName: string]: IDock;
 } {
+  //format with caption: "WindowClass:<caption(window title)>:<special flags>:shortname=value,shortname=value..."
   //format: "WindowClass:<special flags>:shortname=value,shortname=value..."
   let userWindowClassesCfg: { [windowClassName: string]: IDock } = {};
+  let captionUserCfg: string | null = null;
+  let withCaption: number = 0;
   if (CONFIG.dockWindowClassConfig.length === 0) return userWindowClassesCfg;
   CONFIG.dockWindowClassConfig.forEach((cfg) => {
     let windowCfgString = cfg.split(":").map((part) => part.trim());
-    if (windowCfgString.length !== 3) {
-      warning(`Invalid window class config: "${cfg}" should have two colons`);
+    if (windowCfgString.length === 4) {
+      withCaption = 1;
+      captionUserCfg = windowCfgString[withCaption];
+    } else if (windowCfgString.length !== 3) {
+      warning(
+        `Invalid window class config: "${cfg}" should have two colons or three colons if you want configure the window title`,
+      );
       return;
     }
-    let splittedUserCfg = windowCfgString[2]
+    let splittedUserCfg = windowCfgString[withCaption + 2]
       .split(",")
       .map((part) => part.trim().toLowerCase());
     let partialDockCfg: Partial<IDockCfg> | Err;
@@ -50,7 +75,7 @@ function parseDockUserWindowClassesCfg(): {
         return;
       }
     } else partialDockCfg = {};
-    let splittedSpecialFlags = windowCfgString[1]
+    let splittedSpecialFlags = windowCfgString[withCaption + 1]
       .split(",")
       .map((part) => part.trim().toLowerCase());
     let dock = parseSpecialFlags(splittedSpecialFlags, partialDockCfg);
@@ -58,6 +83,7 @@ function parseDockUserWindowClassesCfg(): {
       warning(`Invalid User window class config: ${cfg}. ${dock}`);
       return;
     }
+    dock.caption = captionUserCfg;
     userWindowClassesCfg[windowCfgString[0]] = dock;
   });
   return userWindowClassesCfg;
@@ -65,7 +91,7 @@ function parseDockUserWindowClassesCfg(): {
 
 function parseSpecialFlags(
   splittedSpecialFlags: string[],
-  partialDockCfg: Partial<IDockCfg>
+  partialDockCfg: Partial<IDockCfg>,
 ): IDock {
   let dock = new Dock(DefaultDockCfg.instance.cloneAndUpdate(partialDockCfg));
   splittedSpecialFlags.forEach((flag) => {
@@ -96,7 +122,7 @@ function parseSpecialFlags(
         break;
       default:
         warning(
-          `parse Special Flags: ${splittedSpecialFlags}.Unknown special flag: ${flag}`
+          `parse Special Flags: ${splittedSpecialFlags}.Unknown special flag: ${flag}`,
         );
     }
   });
@@ -104,7 +130,7 @@ function parseSpecialFlags(
 }
 
 function parseSplittedUserCfg(
-  splittedUserCfg: string[]
+  splittedUserCfg: string[],
 ): Partial<IDockCfg> | Err {
   let errors: string[] = [];
   const shortNames: { [shortName: string]: keyof IDockCfg } = {
@@ -165,7 +191,7 @@ function parseSplittedUserCfg(
           break;
         default:
           errors.push(
-            ` "${part}" value can be o,m or i or output,middle,input or 0,1,2`
+            ` "${part}" value can be o,m or i or output,middle,input or 0,1,2`,
           );
           return;
       }
@@ -188,7 +214,7 @@ function parseSplittedUserCfg(
           break;
         default:
           errors.push(
-            ` "${part}" value can be c,t or b or center,top,bottom or 0,1,2`
+            ` "${part}" value can be c,t or b or center,top,bottom or 0,1,2`,
           );
           return;
       }
@@ -211,7 +237,7 @@ function parseSplittedUserCfg(
           break;
         default:
           errors.push(
-            `"${part}" value can be c,l or r or center,left,right or 0,1,2`
+            `"${part}" value can be c,l or r or center,left,right or 0,1,2`,
           );
           return;
       }

@@ -179,6 +179,7 @@ class LayoutStore {
 
   public setLayout(srf: ISurface, layoutClassID: string): ILayout | null {
     if (srf.ignore) return null;
+    if (CONFIG.layoutOrder.indexOf(layoutClassID) === -1) return null;
     return this.getEntry(srf).setLayout(layoutClassID);
   }
 

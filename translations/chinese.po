@@ -1,1029 +1,1425 @@
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: Krohnkite\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-23 13:05+0300\n"
-"PO-Revision-Date: 2025-07-25 08:33+0800\n"
+"POT-Creation-Date: 2026-11-03 14:01+0300\n"
+"PO-Revision-Date: 2026-11-03 14:10+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Translate Toolkit 3.20.0\n"
 
 #: KrohnkiteConfigForm%231
 msgid "Form"
-msgstr "格式"
+msgstr "表单"
 
 #: KrohnkiteConfigForm%232
-msgid "<html><head/><body><p><br/></p></body></html>"
-msgstr "<html><head/><body><p><br/></p></body></html>"
-
-#: KrohnkiteConfigForm%233
 msgid "Layouts"
 msgstr "布局"
 
-#: KrohnkiteConfigForm%234
-msgid "<html><head/><body><p>0 - to disable</p></body></html>"
-msgstr "<html><head/><body><p>0 - 以禁用</p></body></html>"
-
-#: KrohnkiteConfigForm%235
+#: KrohnkiteConfigForm%233
 msgid "Tile Layout"
 msgstr "平铺布局"
 
+#: KrohnkiteConfigForm%234
+msgid "Tile Layout preview"
+msgstr "平铺布局预览"
+
+#: KrohnkiteConfigForm%235
+msgid "Capacity"
+msgstr "容量"
+
 #: KrohnkiteConfigForm%236
+msgid "Order in layout rotation"
+msgstr "布局轮换顺序"
+
+#: KrohnkiteConfigForm%237
 msgid "Order:"
 msgstr "顺序："
 
-#: KrohnkiteConfigForm%237
+#: KrohnkiteConfigForm%238
+msgid "<html><head/><body><p>0 - to disable</p></body></html>"
+msgstr "<html><head/><body><p>0 - 禁用</p></body></html>"
+
+#: KrohnkiteConfigForm%239
 msgid "0"
 msgstr "0"
 
-#: KrohnkiteConfigForm%238
+#: KrohnkiteConfigForm%2310
 msgid "90"
 msgstr "90"
 
-#: KrohnkiteConfigForm%239
+#: KrohnkiteConfigForm%2311
 msgid "180"
 msgstr "180"
 
-#: KrohnkiteConfigForm%2310
+#: KrohnkiteConfigForm%2312
 msgid "270"
 msgstr "270"
 
-#: KrohnkiteConfigForm%2311
+#: KrohnkiteConfigForm%2313
 msgid "Initial rotation angle"
 msgstr "初始旋转角度"
 
-#: KrohnkiteConfigForm%2312
+#: KrohnkiteConfigForm%2314
 msgid "Monocle Layout"
 msgstr "单页布局"
 
-#: KrohnkiteConfigForm%2313
+#: KrohnkiteConfigForm%2315
+msgid "Monocle Layout preview"
+msgstr "单页布局预览"
+
+#: KrohnkiteConfigForm%2316
 msgid "All windows will be maximized in Monocle layout"
 msgstr "在单页布局中所有窗口都将最大化"
 
-#: KrohnkiteConfigForm%2314
+#: KrohnkiteConfigForm%2317
 msgid "Fully maximize windows (no borders, no gaps)"
 msgstr "完全最大化窗口（无边框、无间隙）"
 
-#: KrohnkiteConfigForm%2315
+#: KrohnkiteConfigForm%2318
 msgid "Minimize unfocused windows (WIP)"
 msgstr "最小化非焦点窗口（WIP）"
 
-#: KrohnkiteConfigForm%2316
+#: KrohnkiteConfigForm%2319
 msgid "Three Column Layout"
 msgstr "三列布局"
 
-#: KrohnkiteConfigForm%2317
+#: KrohnkiteConfigForm%2320
+msgid "Three Column Layout preview"
+msgstr "三列布局预览"
+
+#: KrohnkiteConfigForm%2321
 msgid "Spiral Layout"
 msgstr "螺旋布局"
 
-#: KrohnkiteConfigForm%2318
+#: KrohnkiteConfigForm%2322
+msgid "Spiral Layout preview"
+msgstr "螺旋布局预览"
+
+#: KrohnkiteConfigForm%2323
 msgid "Quarter Layout"
 msgstr "四分布局"
 
-#: KrohnkiteConfigForm%2319
+#: KrohnkiteConfigForm%2324
+msgid "Quarter Layout preview"
+msgstr "四分布局预览"
+
+#: KrohnkiteConfigForm%2325
 msgid "Reset Quarter layout after closing a window"
 msgstr "在关闭窗口后重置四分布局"
 
-#: KrohnkiteConfigForm%2320
+#: KrohnkiteConfigForm%2326
 msgid "Stacked Layout"
 msgstr "堆叠布局"
 
-#: KrohnkiteConfigForm%2321
+#: KrohnkiteConfigForm%2327
+msgid "Stacked Layout preview"
+msgstr "堆叠布局预览"
+
+#: KrohnkiteConfigForm%2328
 msgid "Columns Layout"
 msgstr "列式布局"
 
-#: KrohnkiteConfigForm%2322
+#: KrohnkiteConfigForm%2329
+msgid "Columns Layout preview"
+msgstr "列式布局预览"
+
+#: KrohnkiteConfigForm%2330
 msgid "Creating a new window in the shortest column"
 msgstr "在最短列创建新窗口"
 
-#: KrohnkiteConfigForm%2323
+#: KrohnkiteConfigForm%2331
 msgid "Balanced"
 msgstr "平衡"
 
-#: KrohnkiteConfigForm%2324
+#: KrohnkiteConfigForm%2332
 msgid "Config"
 msgstr "配置"
 
-#: KrohnkiteConfigForm%2325
-msgid ""
-"<html><head/><body><p>Comma-separated list "
-"OutputName:VirtualDesktopName:ActivityId:ColumnWeight:ColumnWeight:... OutputName value "
-"you will see if run KSystemLog and type krohnkite in filter string. The data will right "
-"under Krohenkite start string.If all weights are equal they will not be taken into "
-"account </p><p>Example: Any monitors 3 columns without weights:</p><p>:::1:1:1</"
-"p><p>Example with desktop name and activity id 3 columns the third one is twice as big "
-"as the first two:</p><p>HDMI-A-1:Desktop 1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:1:1:2</"
-"p></body></html>"
-msgstr ""
-"<html><head/><body><p>逗号分隔列表格式：输出名称:虚拟桌面名称:活动ID:列权重:列权重:...其"
-"中\"输出名称\"（OutputName）的值可通过运行KSystemLog并在筛选器中输入\"krohnkite\"查看。数"
-"据位于Krohnkite启动信息下方。若所有权重值相同，则权重配置将被忽略。</p><p>示例：三列等宽"
-"布局的无权重配置（任意显示器）：</p><p>:::1:1:1</p><p>示例：包含桌面名称和活动ID的三列布"
-"局，其中第三列的宽度是前两列的两倍：</p><p>HDMI-A-1:桌面1:99e10d31-e8f3-44aa-"
-"bbed-2a543f13fa54:1:1:2</p></body></html>"
-
-#: KrohnkiteConfigForm%2326
-msgid "Spread Layout"
-msgstr "展开/扩散布局"
-
-#: KrohnkiteConfigForm%2327
-msgid "Floating Layout"
-msgstr "浮动布局"
-
-#: KrohnkiteConfigForm%2328
-msgid "Stair Layout"
-msgstr "阶梯式布局"
-
-#: KrohnkiteConfigForm%2329
-msgid "Reverse the stair layout's direction"
-msgstr "反转阶梯式布局方向"
-
-#: KrohnkiteConfigForm%2330
-msgid "Binary Tree Layout"
-msgstr "二分树布局"
-
-#: KrohnkiteConfigForm%2331
-msgid "Cascade Layout"
-msgstr "层叠布局"
-
-#: KrohnkiteConfigForm%2332
-msgid "Geometry"
-msgstr "几何"
-
 #: KrohnkiteConfigForm%2333
-msgid "Default Gaps"
-msgstr "默认间隙"
+msgid "<html><head/><body><p>Comma-separated list OutputName:VirtualDesktopName:ActivityId:ColumnWeight:ColumnWeight:... OutputName value you will see if run KSystemLog and type krohnkite in filter string. The data will right under Krohenkite start string.If all weights are equal they will not be taken into account </p><p>Example: Any monitors 3 columns without weights:</p><p>:::1:1:1</p><p>Example with desktop name and activity id 3 columns the third one is twice as big as the first two:</p><p>HDMI-A-1:Desktop 1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:1:1:2</p></body></html>"
+msgstr "<html><head/><body><p>逗号分隔列表格式：OutputName:VirtualDesktopName:ActivityId:ColumnWeight:ColumnWeight:... 运行 KSystemLog 并在筛选器中输入 krohnkite 即可看到 OutputName 的值。数据位于 \"Krohnkite start\" 字符串之后。如果所有 ColumnWeight 都相等，则不会考虑权重。 </p><p>示例：任意显示器，3 列且无权重：</p><p>:::1:1:1</p><p>带桌面名称和活动 ID 的示例：3 列，第三列是前两列的两倍：</p><p>HDMI-A-1:Desktop 1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:1:1:2</p></body></html>"
 
 #: KrohnkiteConfigForm%2334
-msgid "Top"
-msgstr "顶部"
+msgid "Apply the \"Config\" to newly added columns."
+msgstr "将“Config”应用于新增列。"
 
 #: KrohnkiteConfigForm%2335
-msgid "px"
-msgstr "px"
+msgid "Use config for new columns"
+msgstr "对新列使用配置"
 
 #: KrohnkiteConfigForm%2336
-msgid "Bottom"
-msgstr "底部"
+msgid "Limit the maximum number of columns in the columns layout according to the \"Config\"."
+msgstr "根据“Config”限制列式布局中的最大列数。"
 
 #: KrohnkiteConfigForm%2337
-msgid "Left"
-msgstr "左侧"
+msgid "Limit columns"
+msgstr "限制列数"
 
 #: KrohnkiteConfigForm%2338
-msgid "Right"
-msgstr "右侧"
+msgid "Spread Layout"
+msgstr "展开布局"
 
 #: KrohnkiteConfigForm%2339
-msgid "Between tiles"
-msgstr "窗口间隙（平铺窗口间距）"
+msgid "Spread Layout preview"
+msgstr "展开布局预览"
 
 #: KrohnkiteConfigForm%2340
-msgid "Override default gaps for a screen"
-msgstr "为平铺覆盖默认间隙"
-
-#: KrohnkiteConfigForm%2341
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default gaps "
-"parameters for the specified Screen Name(OutputName). Format:</span></p><p><span "
-"style=\" font-size:12pt; font-"
-"weight:700;\">OutputName:&lt;left,right,top,bottom,between&gt;=number,...&lt;Enter&gt;</"
-"span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">OutputName:ActivityId:VirtualDesktopName:&lt;left,right,top,bottom,between&gt;=number,...&lt;Enter&gt;"
-"</span></p><p><span style=\" font-size:12pt; font-weight:700;\">xrandr --listmonitors</"
-"span><span style=\" font-size:12pt;\"> to define Output names</span></p><p><span "
-"style=\" font-size:12pt; font-weight:700;\">left,right,top,bottom,between</span><span "
-"style=\" font-size:12pt;\"> or you can use shortname</span><span style=\" font-"
-"size:12pt; font-weight:700;\"> l,r,t,b,e </span></p><p><span style=\" font-size:12pt;"
-"\">You can only write down the parameters you want to change. Examples:</span></"
-"p><p><span style=\" font-size:12pt;\">on monitor with Output name </span><span style=\" "
-"font-size:12pt; font-weight:700;\">DP-2 </span><span style=\" font-size:12pt;\">will "
-"override right gap to 10, left gap to 20 and between gap to 10</span></p><p><span "
-"style=\" font-size:12pt; font-weight:700;\">DP-2:r=10,l=20,between=10</span></p><p><span "
-"style=\" font-size:12pt;\">this one, will override between gaps only for defined "
-"display, virtual desktop and activity</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:Desktop 1:e=0</span></p></"
-"body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">为指定屏幕名称（输出名称）覆盖默认"
-"间隙参数。格式：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">输出名"
-"称:&lt;左,右,上,下,平铺窗口间距&gt;=数值,...&lt;回车&gt;</span></p><p><span style=\" "
-"font-size:12pt; font-weight:700;\">输出名称:活动ID:虚拟桌面名称:&lt;左,右,上,下,平铺窗口"
-"间距&gt;=数值,...&lt;回车&gt;</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">通过xrandr --listmonitors</span><span style=\" font-size:12pt;\"> 定义输出"
-"名称</span></p><p><span style=\" font-size:12pt; font-weight:700;\">左,右,上,下,平铺窗口"
-"间距</span><span style=\" font-size:12pt;\"> 或可用短参数名 </span><span style=\" font-"
-"size:12pt; font-weight:700;\">l,r,t,b,e</span></p><p><span style=\" font-size:12pt;\">仅"
-"需填写需修改的参数。示例：</span></p><p><span style=\" font-size:12pt;\">对输出名为 </"
-"span><span style=\" font-size:12pt; font-weight:700;\">DP-2 </span><span style=\" font-"
-"size:12pt;\">的显示器：右侧间隙设为10，左侧20，间距10</span></p><p><span style=\" font-"
-"size:12pt; font-weight:700;\">DP-2:r=10,l=20,e=10</span></p><p><span style=\" font-"
-"size:12pt;\">此示例将为特定显示器/虚拟桌面/活动单独设置间距：</span></p><p><span "
-"style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-"
-"bbed-2a543f13fa54:Desktop 1:e=0</span></p></body></html>"
-
-#: KrohnkiteConfigForm%2342
-msgid "OutputName:<left,right,top,bottom,between>=number,...<Enter>"
-msgstr "输出名称：<左,右,上,下,平铺窗口间距>=数值,...<Enter>"
-
-#: KrohnkiteConfigForm%2343
-msgid "Maximum Tile Width"
-msgstr "最大平铺宽度"
-
-#: KrohnkiteConfigForm%2344
-msgid "Ratio of the max width to screen height "
-msgstr "最大宽度比例适合屏幕高度"
-
-#: KrohnkiteConfigForm%2345
-msgid ""
-"<html><head/><body><p>value 1.6 means the width of the tile can be 60% greater than  the "
-"height</p></body></html>"
-msgstr "<html><head/><body><p>数值为1.6时意味着平铺宽度会比高度多60%</p></body></html>"
-
-#: KrohnkiteConfigForm%2346
-msgid "Limit the width of tiled windows"
-msgstr "限制平铺窗口宽度"
-
-#: KrohnkiteConfigForm%2347
-msgid "Behavior"
-msgstr "行为"
-
-#: KrohnkiteConfigForm%2348
-msgid "Layout Adjustment"
-msgstr "布局调整"
-
-#: KrohnkiteConfigForm%2349
-msgid ""
-"Resizing window will cause layout to be adjusted. The actual behaviour might differ "
-"based on layout in use."
-msgstr "调整窗口大小将使布局随之改变。实际行为会因使用中的布局而不同。"
-
-#: KrohnkiteConfigForm%2350
-msgid "Adjust layout by resizing windows"
-msgstr "调整窗口大小时改变布局。"
-
-#: KrohnkiteConfigForm%2351
-msgid ""
-"If enabled, resizing window will immediately adjust layout. If disabled, layout will be "
-"adjusted *after* window resizing is over."
-msgstr "若启用，调整窗口大小时将实时改动布局；若禁用，布局将在调整窗口大小*结束后*改动。"
-
-#: KrohnkiteConfigForm%2352
-msgid "Adjust layout in realtime as window is being resized"
-msgstr "当窗口正处于调整大小时，布局也会实时变动。"
-
-#: KrohnkiteConfigForm%2353
-msgid "Directional Keys Behaviors"
-msgstr "方向键行为"
-
-#: KrohnkiteConfigForm%2354
-msgid "Up"
-msgstr "上"
-
-#: KrohnkiteConfigForm%2355
-msgid "Directional"
-msgstr "方向"
-
-#: KrohnkiteConfigForm%2356
-msgid "DWM st&yle"
-msgstr "DWM风格"
-
-#: KrohnkiteConfigForm%2357
-msgid "Focus Next"
-msgstr "聚焦下一个"
-
-#: KrohnkiteConfigForm%2358
-msgid "Down"
-msgstr "下"
-
-#: KrohnkiteConfigForm%2359
-msgid "Focus Prev"
-msgstr "聚焦上一个"
-
-#: KrohnkiteConfigForm%2360
-msgid "Adjust Layout"
-msgstr "调整布局"
-
-#: KrohnkiteConfigForm%2361
-msgid "Focus Up"
-msgstr "聚焦上方"
-
-#: KrohnkiteConfigForm%2362
-msgid "Focus Down"
-msgstr "聚焦下方"
-
-#: KrohnkiteConfigForm%2363
-msgid "Focus Left"
-msgstr "聚焦左方"
-
-#: KrohnkiteConfigForm%2364
-msgid "Focus Right"
-msgstr "聚焦右方"
-
-#: KrohnkiteConfigForm%2365
-msgid "Position of the New Window"
-msgstr "新窗口位置"
-
-#: KrohnkiteConfigForm%2366
-msgid "Last"
-msgstr "下一个"
-
-#: KrohnkiteConfigForm%2367
-msgid "First"
-msgstr "第一个"
-
-#: KrohnkiteConfigForm%2368
-msgid "Second"
-msgstr "第二个"
-
-#: KrohnkiteConfigForm%2369
-msgid "Rules"
-msgstr "规则"
-
-#: KrohnkiteConfigForm%2370
-msgid "Ignore Windows"
-msgstr "忽略窗口"
-
-#: KrohnkiteConfigForm%2371
-msgid "By Title"
-msgstr "通过标题"
-
-#: KrohnkiteConfigForm%2372
-msgid "By Class"
-msgstr "通过类型"
-
-#: KrohnkiteConfigForm%2373
-msgid "Comma-separated list of window classes. Matching windows will not be tiled."
-msgstr "通过逗号分隔窗口类型列表。匹配的窗口将不会被平铺。"
-
-#: KrohnkiteConfigForm%2374
-msgid ""
-"Comma-separated list of keywords(or substrings). Any windows with matching title will "
-"not be tiled."
-msgstr "通过逗号分隔关键词（或副字符串）列表。任何匹配到的窗口都不会被平铺。"
-
-#: KrohnkiteConfigForm%2375
-msgid "By Role"
-msgstr "通过角色"
-
-#: KrohnkiteConfigForm%2376
-msgid "Float Windows"
-msgstr "浮动窗口"
-
-#: KrohnkiteConfigForm%2377
-msgid ""
-"Comma-separated list of window classes. Matching windows will become float automatically."
-msgstr "通过逗号分隔窗口类型列表。任何匹配到的窗口都会自动变为浮动。"
-
-#: KrohnkiteConfigForm%2378
-msgid ""
-"Comma-separated list of keywords(or substrings). Any windows with matching title will "
-"become float automatically"
-msgstr "通过逗号分隔关键词（或副字符串）列表。任何匹配到标题的窗口都会自动变为浮动。"
-
-#: KrohnkiteConfigForm%2379
-msgid ""
-"This is mainly for debugging purpose, but can also be used to meet some specific "
-"requirements."
-msgstr "这主要用于调试目的，但也可用于满足某些特定需求。"
-
-#: KrohnkiteConfigForm%2380
-msgid ""
-"Float utility windows\n"
-"(applies to window type Dialog, Splash, Utility)"
-msgstr ""
-"浮动工具窗口\n"
-"（适用于以下窗口类型：对话框、启动画面、工具窗口）"
-
-#: KrohnkiteConfigForm%2381
-msgid "Disable Tiling"
-msgstr "禁用平铺"
-
-#: KrohnkiteConfigForm%2382
-msgid ""
-"<html><head/><body><p>Comma-separated list of activity IDs. See Readme or Issue #125 to "
-"know IDs. Windows in corresponding activities will not be tiled.</p></body></html>"
-msgstr ""
-"<html><head/><body><p>通过逗号分隔活动ID列表。参见Readme或Issue #125以了解ID。对应活动中"
-"的窗口将不会被平铺。</p></body></html>"
-
-#: KrohnkiteConfigForm%2383
-msgid "On Activity (activityId)"
-msgstr "在活动上（活动ID）"
-
-#: KrohnkiteConfigForm%2384
-msgid "On Screen (name)"
-msgstr "在屏幕上（屏幕名称）"
-
-#: KrohnkiteConfigForm%2385
-msgid ""
-"Comma-separated list of screen names. Windows in corresponding screens will not be tiled."
-msgstr "通过逗号分隔屏幕名称列表。对应屏幕中的窗口将不会被平铺。"
-
-#: KrohnkiteConfigForm%2386
-msgid "On Virtual Desktop"
-msgstr "在虚拟桌面上"
-
-#: KrohnkiteConfigForm%2387
-msgid ""
-"Comma-separated list of Virtual Desktops names. Windows corresponding to these will not "
-"be tiled."
-msgstr "通过逗号分隔虚拟桌面名称列表。对应虚拟桌面中的窗口将不会被平铺。"
-
-#: KrohnkiteConfigForm%2388
-msgid "Always, except by class"
-msgstr "总是，以类型排除"
-
-#: KrohnkiteConfigForm%2389
-msgid ""
-"Comma-separated list of window classes. Matching windows will become tiled automatically."
-msgstr "通过逗号分隔窗口类型列表。匹配窗口将自动平铺。"
-
-#: KrohnkiteConfigForm%2390
-msgid "Screen default layout"
-msgstr "屏幕默认布局"
-
-#: KrohnkiteConfigForm%2391
-msgid ""
-"<html><head/><body><p>Comma-separated list OutputName:LayoutName. 'Layout' word can be "
-"omit. </p><p>2 monitors example: HDMI-A-1:spread,DP-2:tile</p><p>Example with desktop "
-"name: HDMI-A-1:Desktop 1:1,HDMI-A-1:Desktop 2:columns</p></body></html>"
-msgstr ""
-"<html><head/><body><p>逗号分隔列表格式：输出名称:布局名称。“布局”一词可省略。 </p><p>双显"
-"示器示例：HDMI-A-1:spread,DP-2:tile</p><p>附带桌面名称示例：HDMI-A-1:Desktop 1:1,HDMI-"
-"A-1:Desktop 2:columns</p></body></html>"
-
-#: KrohnkiteConfigForm%2392
-msgid "OutputName:LayoutName,..."
-msgstr "输出名称：布局名……"
-
-#: KrohnkiteConfigForm%2393
-msgid "Dock"
-msgstr "停靠"
-
-#: KrohnkiteConfigForm%2394
-msgid "<html><head/><body><p>hv - short name</p></body></html>"
-msgstr "<html><head/><body><p>hv - 短参数名</p></body></html>"
-
-#: KrohnkiteConfigForm%2395
-msgid "Surfaces configuration"
-msgstr "表面配置"
-
-#: KrohnkiteConfigForm%2396
-msgid "Order of docked windows"
-msgstr "停靠窗口顺序"
-
-#: KrohnkiteConfigForm%2397
-msgid "Off"
-msgstr "关闭"
-
-#: KrohnkiteConfigForm%2398
-msgid "Third"
-msgstr "第三"
-
-#: KrohnkiteConfigForm%2399
-msgid "Fourth"
-msgstr "第四"
-
-#: KrohnkiteConfigForm%23100
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default parameters for "
-"every surface. Format: </span><span style=\" font-size:12pt; font-"
-"weight:700;\">OuputName:ActivityId:VirtualDesktopName:shortname=value,shortname=value... "
-"&lt;Enter&gt;</span></p><p><span style=\" font-size:12pt;\">You can only write down "
-"parameters you want to change. You can see the short name of the parameter if you hover "
-"over any default parameter above.</span></p><p><span style=\" font-size:12pt;\">Next "
-"example override three params on all surfaces with OutputName=HDMI-A-1 </span></"
-"p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:::hh=80,vw=80,ha=left</"
-"span></p><p><span style=\" font-size:12pt;\">this one, will override two params only for "
-"defined display, virtual desktop and activity</span></p><p><span style=\" font-"
-"size:12pt; font-weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:Desktop "
-"1:vg=5,va=2</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">为每个显示表面覆盖默认参数。格式："
-"</span><span style=\" font-size:12pt; font-weight:700;\">输出名称:活动ID:虚拟桌面名称:短"
-"参数名=值,短参数名=值... &lt;回车键&gt;</span></p><p><span style=\" font-size:12pt;\">只"
-"需填写需要修改的参数。将鼠标悬停在上方任意默认参数上即可查看对应的短参数名。</span></"
-"p><p><span style=\" font-size:12pt;\">以下示例在所有输出名称为HDMI-A-1的显示面上覆盖三个"
-"参数：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-"
-"A-1:::hh=80,vw=80,ha=left</span></p><p><span style=\" font-size:12pt;\">此示例仅针对指定"
-"显示器、虚拟桌面和活动覆盖两个参数：</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:Desktop 1:vg=5,va=2</span></"
-"p></body></html>"
-
-#: KrohnkiteConfigForm%23101
-msgid "Default settings for a docked window"
-msgstr "停靠窗口的默认设置"
-
-#: KrohnkiteConfigForm%23102
-msgid "Up/Bottom Dock"
-msgstr "顶部/底部停靠"
-
-#: KrohnkiteConfigForm%23103
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" "
-"font-weight:700;\">hh</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" "
-"font-weight:700;\">hh</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23104
-msgid " %"
-msgstr " %"
-
-#: KrohnkiteConfigForm%23105
-msgid "Height"
-msgstr "高度"
-
-#: KrohnkiteConfigForm%23106
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">hw</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">hw</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23107
-msgid "<html><head/><body><p>vw - short name</p></body></html>"
-msgstr "<html><head/><body><p>vw - 短参数名</p></body></html>"
-
-#: KrohnkiteConfigForm%23108
-msgid "Wide"
-msgstr "宽度"
-
-#: KrohnkiteConfigForm%23109
-msgid "Gaps"
-msgstr "间隙"
-
-#: KrohnkiteConfigForm%23110
-msgid "Horizontal "
-msgstr "水平"
-
-#: KrohnkiteConfigForm%23111
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">hgv</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">hgv</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23112
-msgid " px"
-msgstr "px"
-
-#: KrohnkiteConfigForm%23113
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" "
-"font-weight:700;\">hgh</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" "
-"font-weight:700;\">hgh</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23114
-msgid "Vertical"
-msgstr "垂直"
-
-#: KrohnkiteConfigForm%23115
-msgid "Alignment"
-msgstr "校准"
-
-#: KrohnkiteConfigForm%23116
-msgid "Horizontal"
-msgstr "水平"
-
-#: KrohnkiteConfigForm%23117
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">he</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">he</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23118
-msgid "Outside"
-msgstr "外侧"
-
-#: KrohnkiteConfigForm%23119
-msgid "Middle"
-msgstr "中间"
-
-#: KrohnkiteConfigForm%23120
-msgid "Inside"
-msgstr "内侧"
-
-#: KrohnkiteConfigForm%23121
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" "
-"font-weight:700;\">ha</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" "
-"font-weight:700;\">ha</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23122
-msgid "Center"
-msgstr "中心"
-
-#: KrohnkiteConfigForm%23123
-msgid "Left/Right Dock"
-msgstr "左侧/右侧停靠"
-
-#: KrohnkiteConfigForm%23124
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">vh</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">vh</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23125
-msgid "Horizontal Spacer 'horizontalSpacer_4', 40 x 20"
-msgstr "水平空隙 'horizontalSpacer_4', 40 x 20"
-
-#: KrohnkiteConfigForm%23126
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">vw</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">vw</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23127
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" "
-"font-weight:700;\">vgh</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" "
-"font-weight:700;\">vgh</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23128
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" "
-"font-weight:700;\">vgv</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" "
-"font-weight:700;\">vgv</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23129
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">va</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">va</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23130
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" "
-"font-weight:700;\">ve</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" "
-"font-weight:700;\">ve</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23131
-msgid "Window class configuration"
-msgstr "窗口类型设置"
-
-#: KrohnkiteConfigForm%23132
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default parameters for "
-"the specified WindowClass. Format:</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">WindowClass:SpecialFlag,SpecialFlag...:shortname=value,shortname=value...</"
-"span></p><p><span style=\" font-size:12pt; font-weight:700;\">pin - </span><span "
-"style=\" font-size:12pt;\">docked window with this flag will displace another if their "
-"positions are equal.</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">left,right,top,bottom</span><span style=\" font-size:12pt;\"> - you can "
-"use one them to explicitly set the initial position.</span></p><p><span style=\" font-"
-"size:12pt; font-weight:700;\">auto</span><span style=\" font-size:12pt;\"> - "
-"automatically makes a window docked. Krohnkite version &gt;=0.9.9.1</span></p><p><span "
-"style=\" font-size:12pt;\">You can only write down the parameters you want to change. "
-"You can see the short name of the parameter if you hover over any default parameter "
-"above.</span></p><p><span style=\" font-size:12pt;\">Examples:</span></p><p><span "
-"style=\" font-size:12pt;\">1. if Elisa switches to dock it will have higher priority, "
-"top dock position and 10% of screen height </span></p><p><span style=\" font-size:12pt;"
-"\">org.kde.elisa</span><span style=\" font-size:12pt; font-weight:700;\">:pin,top:hh=10</"
-"span></p><p><span style=\" font-size:12pt;\">2. Conky automatic docking</span></"
-"p><p><span style=\" font-family:'Hack'; font-size:12pt;\">Conky:</span><span style=\" "
-"font-family:'Hack'; font-size:12pt; font-weight:700;\">auto</span><span style=\" font-"
-"family:'Hack'; font-size:12pt;\">:</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">覆盖指定窗口类型的默认参数。格式："
-"</span></p><p><span style=\" font-size:12pt; font-weight:700;\">窗口类型:特殊标志,特殊标"
-"志...:短参数名=值,短参数名=值...</span></p><p><span style=\" font-size:12pt; font-"
-"weight:700;\">pin - </span><span style=\" font-size:12pt;\">带此标志的停靠窗口在位置相同"
-"时会挤占其他窗口。</span></p><p><span style=\" font-size:12pt; font-weight:700;\">左,右,"
-"上,下</span><span style=\" font-size:12pt;\"> - 可使用其中之一明确设置初始位置。</span></"
-"p><p><span style=\" font-size:12pt; font-weight:700;\">自动</span><span style=\" font-"
-"size:12pt;\"> - 自动使窗口变为停靠。适用于 Krohnkite 版本 &gt;=0.9.9.1</span></"
-"p><p><span style=\" font-size:12pt;\">只需写下您想更改的参数。将鼠标指针悬停在上方的任何"
-"默认参数上即可查看其短参数名。</span></p><p><span style=\" font-size:12pt;\">示例：</"
-"span></p><p><span style=\" font-size:12pt;\">1. 如果 Elisa 切换为停靠，它将拥有更高优先"
-"级、顶部停靠位置以及屏幕高度的10% </span></p><p><span style=\" font-size:12pt;"
-"\">org.kde.elisa</span><span style=\" font-size:12pt; font-weight:700;\">:pin,top:hh=10</"
-"span></p><p><span style=\" font-size:12pt;\">2. Conky 自动停靠</span></p><p><span "
-"style=\" font-family:'Hack'; font-size:12pt;\">Conky:</span><span style=\" font-"
-"family:'Hack'; font-size:12pt; font-weight:700;\">自动</span><span style=\" font-"
-"family:'Hack'; font-size:12pt;\">:</span></p></body></html>"
-
-#: KrohnkiteConfigForm%23133
-msgid "Options"
-msgstr "额外设置"
-
-#: KrohnkiteConfigForm%23134
-msgid "Window Layer"
-msgstr "窗口层"
-
-#: KrohnkiteConfigForm%23135
-msgid "Tiled"
-msgstr "平铺"
-
-#: KrohnkiteConfigForm%23136
-msgid "Normal"
-msgstr "普通"
-
-#: KrohnkiteConfigForm%23137
-msgid "Above"
-msgstr "上层"
-
-#: KrohnkiteConfigForm%23138
-msgid "Float  "
-msgstr "浮动"
-
-#: KrohnkiteConfigForm%23139
-msgid "The Sole Window properties"
-msgstr "单窗口特性"
-
-#: KrohnkiteConfigForm%23140
 msgid "%"
 msgstr "%"
 
+#: KrohnkiteConfigForm%2341
+msgid "Space"
+msgstr "间距"
+
+#: KrohnkiteConfigForm%2342
+msgid "Floating Layout"
+msgstr "浮动布局"
+
+#: KrohnkiteConfigForm%2343
+msgid "Floating Layout preview"
+msgstr "浮动布局预览"
+
+#: KrohnkiteConfigForm%2344
+msgid "Stair Layout"
+msgstr "阶梯布局"
+
+#: KrohnkiteConfigForm%2345
+msgid "Stair Layout preview"
+msgstr "阶梯布局预览"
+
+#: KrohnkiteConfigForm%2346
+msgid "Reverse the stair layout's direction"
+msgstr "反转阶梯布局方向"
+
+#: KrohnkiteConfigForm%2347
+msgid "Binary Tree Layout"
+msgstr "二分树布局"
+
+#: KrohnkiteConfigForm%2348
+msgid "Binary Tree Layout preview"
+msgstr "二分树布局预览"
+
+#: KrohnkiteConfigForm%2349
+msgid "Cascade Layout"
+msgstr "层叠布局"
+
+#: KrohnkiteConfigForm%2350
+msgid "Cascade Layout preview"
+msgstr "层叠布局预览"
+
+#: KrohnkiteConfigForm%2351
+msgid "Surfaces"
+msgstr "表面"
+
+#: KrohnkiteConfigForm%2352
+msgid "Overcapacity windows configuration"
+msgstr "超容量窗口设置"
+
+#: KrohnkiteConfigForm%2353
+msgid "move overcapacity windows to Screens"
+msgstr "将超容量窗口移动到屏幕"
+
+#: KrohnkiteConfigForm%2354
+msgid "<html><head/><body><p>hv - short name</p></body></html>"
+msgstr "<html><head/><body><p>hv - 短参数名</p></body></html>"
+
+#: KrohnkiteConfigForm%2355
+msgid "Off"
+msgstr "关闭"
+
+#: KrohnkiteConfigForm%2356
+msgid "First"
+msgstr "第一个"
+
+#: KrohnkiteConfigForm%2357
+msgid "Second"
+msgstr "第二个"
+
+#: KrohnkiteConfigForm%2358
+msgid "Third"
+msgstr "第三个"
+
+#: KrohnkiteConfigForm%2359
+msgid "Fourth"
+msgstr "第四个"
+
+#: KrohnkiteConfigForm%2360
+msgid "Top"
+msgstr "顶部"
+
+#: KrohnkiteConfigForm%2361
+msgid "Bottom"
+msgstr "底部"
+
+#: KrohnkiteConfigForm%2362
+msgid "Right"
+msgstr "右侧"
+
+#: KrohnkiteConfigForm%2363
+msgid "Left"
+msgstr "左侧"
+
+#: KrohnkiteConfigForm%2364
+msgid "move overcapacity windows to Virtual Desktops"
+msgstr "将超容量窗口移动到虚拟桌面"
+
+#: KrohnkiteConfigForm%2365
+msgid "Overcapacity windows handling"
+msgstr "超容量窗口处理"
+
+#: KrohnkiteConfigForm%2366
+msgid "<html><head/><body><p>Float: overcapacity windows<br/>become floating windows.</p><p>Minimize (default): hide the selected<br/>window and restore it when a slot is free.</p><p>Relocation to other screens or<br/>desktops still runs first.</p></body></html>"
+msgstr "<html><head/><body><p>浮动：超出容量的窗口<br/>变为浮动窗口。</p><p>最小化（默认）：隐藏所选窗口，<br/>并在有空闲槽位时恢复。</p><p>仍会先尝试移动到其他屏幕<br/>或虚拟桌面。</p></body></html>"
+
+#: KrohnkiteConfigForm%2367
+msgid "Float"
+msgstr "浮动"
+
+#: KrohnkiteConfigForm%2368
+msgid "Minimize"
+msgstr "最小化"
+
+#: KrohnkiteConfigForm%2369
+msgid "Evict windows by"
+msgstr "驱逐窗口依据"
+
+#: KrohnkiteConfigForm%2370
+msgid "<html><head/><body><p>last focused: evict the window that<br/>received focus most recently.</p><p>oldest windows (default): evict the<br/>window that appeared on the surface first.</p><p>Used in both Float and Minimize modes.</p></body></html>"
+msgstr "<html><head/><body><p>最后焦点：驱逐最近获得焦点的窗口。</p><p>最旧窗口（默认）：驱逐最早出现在该表面的窗口。</p><p>浮动和最小化模式均适用。</p></body></html>"
+
+#: KrohnkiteConfigForm%2371
+msgid "last focused"
+msgstr "最后焦点"
+
+#: KrohnkiteConfigForm%2372
+msgid "oldest windows"
+msgstr "最旧窗口"
+
+#: KrohnkiteConfigForm%2373
+msgid "The moved window stays; the overcapacity policy evicts another window."
+msgstr "移动的窗口保留；超容量策略将驱逐另一个窗口。"
+
+#: KrohnkiteConfigForm%2374
+msgid "allow shortcut moves to a full surface"
+msgstr "允许快捷键移动到已满的表面"
+
+#: KrohnkiteConfigForm%2375
+msgid "Defining Surfaces"
+msgstr "定义表面"
+
+#: KrohnkiteConfigForm%2376
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">Surface is combination of three parameters: Screen(Output) name and optional VirtualDesktops and ActivityId. For example:</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:Desktop 1:99e10d31-e8f3-44aa-bbed-2a543f13fa54- </span><span style=\" font-size:12pt;\">this uniquely defines one surface, another example defines group of surfaces: </span><span style=\" font-size:12pt; font-weight:700;\">DP-2 </span><span style=\" font-size:12pt;\">- this include all surfaces with any activities and virtual desktops on monitor DP-2. To define a surface for further use in program configuration use the next format: </span></p><p><span style=\" font-size:12pt; font-weight:700;\">label=&lt;outputName&gt;,&lt;outputName&gt;...[:&lt;virtualDesktop&gt;,&lt;virtualDesktop&gt;...[:&lt;activityId&gt;]] </span></p><p><span style=\" font-size:12pt;\">For example:</span><span style=\" font-size:12pt; font-weight:700;\"> allMonitors=: </span><span style=\" font-size:12pt;\">to make label for all monitors or</span><span style=\" font-size:12pt; font-weight:700;\"> mainScreen=HDMI-A-1,DP-2:Desktop 1 </span><span style=\" font-size:12pt;\">in another parts of Krohnkite config you can use </span><span style=\" font-size:12pt; font-weight:700;\">mainMonitor</span><span style=\" font-size:12pt;\"> as surface name(</span><span style=\" font-size:12pt; font-weight:700;\">All Case Sensitive)</span><span style=\" font-size:12pt;\">.Please note that there may be multiple monitor names, separated by commas as in the example, or there may be none. The first one has higher priority and if this monitor works in this moment the surface in example will belong ONLY him NOT BOTH.This can be useful if you apply monitor to your notebook for example and you want the monitor to have this config. </span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">表面由三个参数组合而成：屏幕（Output）名称，以及可选的虚拟桌面和 ActivityId。例如：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:Desktop 1:99e10d31-e8f3-44aa-bbed-2a543f13fa54- </span><span style=\" font-size:12pt;\">唯一确定一个表面；另一个示例定义了一组表面：</span><span style=\" font-size:12pt; font-weight:700;\">DP-2 </span><span style=\" font-size:12pt;\">——包含显示器 DP-2 上任意活动和虚拟桌面的所有表面。要定义可在程序配置中进一步使用的表面，请使用以下格式：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">label=&lt;outputName&gt;,&lt;outputName&gt;...[:&lt;virtualDesktop&gt;,&lt;virtualDesktop&gt;...[:&lt;activityId&gt;]] </span></p><p><span style=\" font-size:12pt;\">例如：</span><span style=\" font-size:12pt; font-weight:700;\"> allMonitors=: </span><span style=\" font-size:12pt;\">为所有显示器创建标签，或者</span><span style=\" font-size:12pt; font-weight:700;\"> mainScreen=HDMI-A-1,DP-2:Desktop 1 </span><span style=\" font-size:12pt;\">在 Krohnkite 配置的其他部分，你可以将 </span><span style=\" font-size:12pt; font-weight:700;\">mainMonitor</span><span style=\" font-size:12pt;\"> 用作表面名称（</span><span style=\" font-size:12pt; font-weight:700;\">全部区分大小写</span><span style=\" font-size:12pt;\">）。请注意，显示器名称可以有多个（如示例中用逗号分隔），也可以没有。第一个名称优先级更高：如果该显示器当前正在使用，示例中的表面将仅属于它，而不是同时属于两者。例如，当你将显示器连接到笔记本电脑，并希望该显示器使用此配置时，这会很有用。 </span></p></body></html>"
+
+#: KrohnkiteConfigForm%2377
+msgid "Surfaces Configuration"
+msgstr "表面配置"
+
+#: KrohnkiteConfigForm%2378
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default parameters for every surface. Format: </span><span style=\" font-size:12pt; font-weight:700;\">SrfLabel:param=value,param=value... &lt;Enter&gt;</span></p><p><span style=\" font-size:12pt;\">Possible parameters(case insensetive): </span><span style=\" font-size:12pt; font-weight:700;\">capacity</span><span style=\" font-size:12pt;\"> or </span><span style=\" font-size:12pt; font-weight:700;\">cp; overcapacity </span><span style=\" font-size:12pt;\">or</span><span style=\" font-size:12pt; font-weight:700;\"> oc </span></p><p>For example: </p><p><span style=\" font-size:12pt; font-weight:700;\">primaryScreen:cp=6,oc=false</span></p><p><span style=\" font-size:12pt;\">Next example set capacity on surface(s)  with Label = primaryScreen  and disable overcapacity windows movement on them.</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">为每个表面覆盖默认参数。格式：</span><span style=\" font-size:12pt; font-weight:700;\">SrfLabel:param=value,param=value... &lt;Enter&gt;</span></p><p><span style=\" font-size:12pt;\">可用参数（不区分大小写）：</span><span style=\" font-size:12pt; font-weight:700;\">capacity</span><span style=\" font-size:12pt;\"> 或 </span><span style=\" font-size:12pt; font-weight:700;\">cp；overcapacity </span><span style=\" font-size:12pt;\">或</span><span style=\" font-size:12pt; font-weight:700;\"> oc </span></p><p>例如：</p><p><span style=\" font-size:12pt; font-weight:700;\">primaryScreen:cp=6,oc=false</span></p><p><span style=\" font-size:12pt;\">下一个示例为标签为 primaryScreen 的表面设置容量，并禁用这些表面上的超容量窗口移动。</span></p></body></html>"
+
+#: KrohnkiteConfigForm%2379
+msgid "Geometry"
+msgstr "几何"
+
+#: KrohnkiteConfigForm%2380
+msgid "Default Gaps"
+msgstr "默认间隙"
+
+#: KrohnkiteConfigForm%2381
+msgid "px"
+msgstr "px"
+
+#: KrohnkiteConfigForm%2382
+msgid "Between tiles"
+msgstr "平铺窗口之间的间隙"
+
+#: KrohnkiteConfigForm%2383
+msgid "Override default gaps for a screen"
+msgstr "为屏幕覆盖默认间隙"
+
+#: KrohnkiteConfigForm%2384
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default gaps parameters for defined SurfaceLabel(see Surfaces tab). Format:</span></p><p><span style=\" font-size:12pt; font-weight:700;\">SurfaceLabel:&lt;left,right,top,bottom,between&gt;=number,...&lt;Enter&gt;</span></p><p><span style=\" font-size:12pt; font-weight:700;\">left,right,top,bottom,between</span><span style=\" font-size:12pt;\"> or you can use shortname</span><span style=\" font-size:12pt; font-weight:700;\"> l,r,t,b,e </span></p><p><span style=\" font-size:12pt;\">You can only write down the parameters you want to change. Examples:</span></p><p><span style=\" font-size:12pt;\">on your defined surface(see surfaces tab) with name: </span><span style=\" font-size:12pt; font-weight:700;\">myFirstMonitor</span><span style=\" font-size:12pt;\"> will override right gap to 10, left gap to 20 and between gap to 10</span></p><p><span style=\" font-size:12pt; font-weight:700;\">MyFirstMonitor:r=10,l=20,between=10</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">为已定义的表面标签（见“表面”选项卡）覆盖默认间隙参数。格式：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">SurfaceLabel:&lt;left,right,top,bottom,between&gt;=number,...&lt;Enter&gt;</span></p><p><span style=\" font-size:12pt; font-weight:700;\">left,right,top,bottom,between</span><span style=\" font-size:12pt;\">，也可以使用短名称</span><span style=\" font-size:12pt; font-weight:700;\"> l,r,t,b,e </span></p><p><span style=\" font-size:12pt;\">只需填写需要修改的参数。示例：</span></p><p><span style=\" font-size:12pt;\">对于名称为 </span><span style=\" font-size:12pt; font-weight:700;\">myFirstMonitor</span><span style=\" font-size:12pt;\"> 的已定义表面（见“表面”选项卡），将右侧间隙覆盖为 10、左侧间隙覆盖为 20、窗口间隙覆盖为 10</span></p><p><span style=\" font-size:12pt; font-weight:700;\">MyFirstMonitor:r=10,l=20,between=10</span></p></body></html>"
+
+#: KrohnkiteConfigForm%2385
+msgid "SurfaceLabel:<left,right,top,bottom,between>=number,...<Enter>"
+msgstr "SurfaceLabel:<left,right,top,bottom,between>=number,...<Enter>"
+
+#: KrohnkiteConfigForm%2386
+msgid "Maximum Tile Width"
+msgstr "最大平铺宽度"
+
+#: KrohnkiteConfigForm%2387
+msgid "Ratio of the max width to screen height "
+msgstr "最大宽度与屏幕高度的比例"
+
+#: KrohnkiteConfigForm%2388
+msgid "<html><head/><body><p>value 1.6 means the width of the tile can be 60% greater than  the height</p></body></html>"
+msgstr "<html><head/><body><p>值为 1.6 表示平铺窗口的宽度最多可比高度大 60%。</p></body></html>"
+
+#: KrohnkiteConfigForm%2389
+msgid "Limit the width of tiled windows"
+msgstr "限制平铺窗口宽度"
+
+#: KrohnkiteConfigForm%2390
+msgid "Shortcuts"
+msgstr "快捷键"
+
+#: KrohnkiteConfigForm%2391
+msgid "Alter Register"
+msgstr "切换暂存"
+
+#: KrohnkiteConfigForm%2392
+msgid "<html><head/><body><p>Double push AlterRegisterSC to toggle on/off  the Register.</p><p>add shortcut sequence:</p><p><span style=\" font-weight:700;\">AlterRegisterSC,AlterRegisterSC:ma=ToggleRegister,ra=ToggleRegister</span></p></body></html>"
+msgstr "<html><head/><body><p>连按两次 AlterRegisterSC 可开启或关闭暂存。</p><p>添加快捷键序列：</p><p><span style=\" font-weight:700;\">AlterRegisterSC,AlterRegisterSC:ma=ToggleRegister,ra=ToggleRegister</span></p></body></html>"
+
+#: KrohnkiteConfigForm%2393
+msgid "Duration: "
+msgstr "持续时长："
+
+#: KrohnkiteConfigForm%2394
+msgid "<html><head/><body><p>Push twice AlterRegisterSC shortcut to toggle Register Mode</p></body></html>"
+msgstr "<html><head/><body><p>连按两次 AlterRegisterSC 快捷键以切换暂存模式</p></body></html>"
+
+#: KrohnkiteConfigForm%2395
+msgid "Push twice  to toggle"
+msgstr "连按两次以切换"
+
+#: KrohnkiteConfigForm%2396
+msgid "<html><head/><body><p>After this time the register state will return to its original state. Any shortcut will refresh this timer.</p></body></html>"
+msgstr "<html><head/><body><p>超过此时间后，暂存状态将恢复为原始状态。任何快捷键都会重置此计时器。</p></body></html>"
+
+#: KrohnkiteConfigForm%2397
+msgid "ms"
+msgstr "毫秒"
+
+#: KrohnkiteConfigForm%2398
+msgid "<html><head/><body><p>Alter Register shortcut will toggle register. Switch on/off without timeout.</p></body></html>"
+msgstr "<html><head/><body><p>Alter Register 快捷键用于切换暂存。开启/关闭不受超时限制。</p></body></html>"
+
+#: KrohnkiteConfigForm%2399
+msgid "Push to toggle"
+msgstr "按下以切换"
+
+#: KrohnkiteConfigForm%23100
+msgid "Possible shortcuts and actions (for information only)"
+msgstr "可用的快捷键和操作（仅供参考）"
+
+#: KrohnkiteConfigForm%23101
+msgid "AlterRegister"
+msgstr "AlterRegister"
+
+#: KrohnkiteConfigForm%23102
+msgid "Decrease"
+msgstr "Decrease"
+
+#: KrohnkiteConfigForm%23103
+msgid "DWMLeft"
+msgstr "DWMLeft"
+
+#: KrohnkiteConfigForm%23104
+msgid "DWMRight"
+msgstr "DWMRight"
+
+#: KrohnkiteConfigForm%23105
+msgid "FocusDown"
+msgstr "FocusDown"
+
+#: KrohnkiteConfigForm%23106
+msgid "FocusLeft"
+msgstr "FocusLeft"
+
+#: KrohnkiteConfigForm%23107
+msgid "FocusNext"
+msgstr "FocusNext"
+
+#: KrohnkiteConfigForm%23108
+msgid "FocusPrev"
+msgstr "FocusPrev"
+
+#: KrohnkiteConfigForm%23109
+msgid "FocusRight"
+msgstr "FocusRight"
+
+#: KrohnkiteConfigForm%23110
+msgid "FocusUp"
+msgstr "FocusUp"
+
+#: KrohnkiteConfigForm%23111
+msgid "GrowHeight"
+msgstr "GrowHeight"
+
+#: KrohnkiteConfigForm%23112
+msgid "GrowWidth"
+msgstr "GrowWidth"
+
+#: KrohnkiteConfigForm%23113
+msgid "Increase"
+msgstr "Increase"
+
+#: KrohnkiteConfigForm%23114
+msgid "LayoutChooser"
+msgstr "LayoutChooser"
+
+#: KrohnkiteConfigForm%23115
+msgid "LowerSurfaceCapacity"
+msgstr "LowerSurfaceCapacity"
+
+#: KrohnkiteConfigForm%23116
+msgid "NextLayout"
+msgstr "NextLayout"
+
+#: KrohnkiteConfigForm%23117
+msgid "PreviousLayout"
+msgstr "PreviousLayout"
+
+#: KrohnkiteConfigForm%23118
+msgid "RaiseSurfaceCapacity"
+msgstr "RaiseSurfaceCapacity"
+
+#: KrohnkiteConfigForm%23119
+msgid "ResetSurfaceCapacity"
+msgstr "ResetSurfaceCapacity"
+
+#: KrohnkiteConfigForm%23120
+msgid "Rotate"
+msgstr "Rotate"
+
+#: KrohnkiteConfigForm%23121
+msgid "RotatePart"
+msgstr "RotatePart"
+
+#: KrohnkiteConfigForm%23122
+msgid "SetBinaryTreeLayout"
+msgstr "SetBinaryTreeLayout"
+
+#: KrohnkiteConfigForm%23123
+msgid "SetCascadeLayout"
+msgstr "SetCascadeLayout"
+
+#: KrohnkiteConfigForm%23124
+msgid "SetColumnsLayout"
+msgstr "SetColumnsLayout"
+
+#: KrohnkiteConfigForm%23125
+msgid "SetFloatingLayout"
+msgstr "SetFloatingLayout"
+
+#: KrohnkiteConfigForm%23126
+msgid "SetMaster"
+msgstr "SetMaster"
+
+#: KrohnkiteConfigForm%23127
+msgid "SetMonocleLayout"
+msgstr "SetMonocleLayout"
+
+#: KrohnkiteConfigForm%23128
+msgid "SetQuarterLayout"
+msgstr "SetQuarterLayout"
+
+#: KrohnkiteConfigForm%23129
+msgid "SetSpiralLayout"
+msgstr "SetSpiralLayout"
+
+#: KrohnkiteConfigForm%23130
+msgid "SetSpreadLayout"
+msgstr "SetSpreadLayout"
+
+#: KrohnkiteConfigForm%23131
+msgid "SetStackedLayout"
+msgstr "SetStackedLayout"
+
+#: KrohnkiteConfigForm%23132
+msgid "SetStairLayout"
+msgstr "SetStairLayout"
+
+#: KrohnkiteConfigForm%23133
+msgid "SetThreeColumnLayout"
+msgstr "SetThreeColumnLayout"
+
+#: KrohnkiteConfigForm%23134
+msgid "SetTileLayout"
+msgstr "SetTileLayout"
+
+#: KrohnkiteConfigForm%23135
+msgid "ShowCurrentCapacity"
+msgstr "ShowCurrentCapacity"
+
+#: KrohnkiteConfigForm%23136
+msgid "MoveDown"
+msgstr "MoveDown"
+
+#: KrohnkiteConfigForm%23137
+msgid "MoveLeft"
+msgstr "MoveLeft"
+
+#: KrohnkiteConfigForm%23138
+msgid "MoveRight"
+msgstr "MoveRight"
+
+#: KrohnkiteConfigForm%23139
+msgid "MoveUp"
+msgstr "MoveUp"
+
+#: KrohnkiteConfigForm%23140
+msgid "ShrinkHeight"
+msgstr "ShrinkHeight"
+
 #: KrohnkiteConfigForm%23141
+msgid "ShrinkWidth"
+msgstr "ShrinkWidth"
+
+#: KrohnkiteConfigForm%23142
+msgid "SwapDown"
+msgstr "SwapDown"
+
+#: KrohnkiteConfigForm%23143
+msgid "SwapUp"
+msgstr "SwapUp"
+
+#: KrohnkiteConfigForm%23144
+msgid "ToggleDock"
+msgstr "ToggleDock"
+
+#: KrohnkiteConfigForm%23145
+msgid "ToggleFloat"
+msgstr "ToggleFloat"
+
+#: KrohnkiteConfigForm%23146
+msgid "ToggleFloatAll"
+msgstr "ToggleFloatAll"
+
+#: KrohnkiteConfigForm%23147
+msgid "ToggleRegister"
+msgstr "ToggleRegister"
+
+#: KrohnkiteConfigForm%23148
+msgid "AlterRegisterSC"
+msgstr "AlterRegisterSC"
+
+#: KrohnkiteConfigForm%23149
+msgid "DecreaseSC"
+msgstr "DecreaseSC"
+
+#: KrohnkiteConfigForm%23150
+msgid "FocusDownSC"
+msgstr "FocusDownSC"
+
+#: KrohnkiteConfigForm%23151
+msgid "FocusLeftSC"
+msgstr "FocusLeftSC"
+
+#: KrohnkiteConfigForm%23152
+msgid "FocusNextSC"
+msgstr "FocusNextSC"
+
+#: KrohnkiteConfigForm%23153
+msgid "FocusPrevSC"
+msgstr "FocusPrevSC"
+
+#: KrohnkiteConfigForm%23154
+msgid "FocusRightSC"
+msgstr "FocusRightSC"
+
+#: KrohnkiteConfigForm%23155
+msgid "FocusUpSC"
+msgstr "FocusUpSC"
+
+#: KrohnkiteConfigForm%23156
+msgid "GrowHeightSC"
+msgstr "GrowHeightSC"
+
+#: KrohnkiteConfigForm%23157
+msgid "GrowWidthSC"
+msgstr "GrowWidthSC"
+
+#: KrohnkiteConfigForm%23158
+msgid "IncreaseSC"
+msgstr "IncreaseSC"
+
+#: KrohnkiteConfigForm%23159
+msgid "LayoutChooserSC"
+msgstr "LayoutChooserSC"
+
+#: KrohnkiteConfigForm%23160
+msgid "LowerSurfaceCapacitySC"
+msgstr "LowerSurfaceCapacitySC"
+
+#: KrohnkiteConfigForm%23161
+msgid "NextLayoutSC"
+msgstr "NextLayoutSC"
+
+#: KrohnkiteConfigForm%23162
+msgid "PreviousLayoutSC"
+msgstr "PreviousLayoutSC"
+
+#: KrohnkiteConfigForm%23163
+msgid "RaiseSurfaceCapacitySC"
+msgstr "RaiseSurfaceCapacitySC"
+
+#: KrohnkiteConfigForm%23164
+msgid "RotateSC"
+msgstr "RotateSC"
+
+#: KrohnkiteConfigForm%23165
+msgid "RotatePartSC"
+msgstr "RotatePartSC"
+
+#: KrohnkiteConfigForm%23166
+msgid "SetBinaryTreeLayoutSC"
+msgstr "SetBinaryTreeLayoutSC"
+
+#: KrohnkiteConfigForm%23167
+msgid "SetCascadeLayoutSC"
+msgstr "SetCascadeLayoutSC"
+
+#: KrohnkiteConfigForm%23168
+msgid "SetColumnsLayoutSC"
+msgstr "SetColumnsLayoutSC"
+
+#: KrohnkiteConfigForm%23169
+msgid "SetFloatingLayoutSC"
+msgstr "SetFloatingLayoutSC"
+
+#: KrohnkiteConfigForm%23170
+msgid "SetMasterSC"
+msgstr "SetMasterSC"
+
+#: KrohnkiteConfigForm%23171
+msgid "SetMonocleLayoutSC"
+msgstr "SetMonocleLayoutSC"
+
+#: KrohnkiteConfigForm%23172
+msgid "SetQuarterLayoutSC"
+msgstr "SetQuarterLayoutSC"
+
+#: KrohnkiteConfigForm%23173
+msgid "SetSpiralLayoutSC"
+msgstr "SetSpiralLayoutSC"
+
+#: KrohnkiteConfigForm%23174
+msgid "SetSpreadLayoutSC"
+msgstr "SetSpreadLayoutSC"
+
+#: KrohnkiteConfigForm%23175
+msgid "SetStackedLayoutSC"
+msgstr "SetStackedLayoutSC"
+
+#: KrohnkiteConfigForm%23176
+msgid "SetStairLayoutSC"
+msgstr "SetStairLayoutSC"
+
+#: KrohnkiteConfigForm%23177
+msgid "SetThreeColumnLayoutSC"
+msgstr "SetThreeColumnLayoutSC"
+
+#: KrohnkiteConfigForm%23178
+msgid "SetTileLayoutSC"
+msgstr "SetTileLayoutSC"
+
+#: KrohnkiteConfigForm%23179
+msgid "MoveDownSC"
+msgstr "MoveDownSC"
+
+#: KrohnkiteConfigForm%23180
+msgid "MoveLeftSC"
+msgstr "MoveLeftSC"
+
+#: KrohnkiteConfigForm%23181
+msgid "MoveRightSC"
+msgstr "MoveRightSC"
+
+#: KrohnkiteConfigForm%23182
+msgid "MoveUpSC"
+msgstr "MoveUpSC"
+
+#: KrohnkiteConfigForm%23183
+msgid "ShrinkHeightSC"
+msgstr "ShrinkHeightSC"
+
+#: KrohnkiteConfigForm%23184
+msgid "ShrinkWidthSC"
+msgstr "ShrinkWidthSC"
+
+#: KrohnkiteConfigForm%23185
+msgid "ToggleDockSC"
+msgstr "ToggleDockSC"
+
+#: KrohnkiteConfigForm%23186
+msgid "ToggleFloatSC"
+msgstr "ToggleFloatSC"
+
+#: KrohnkiteConfigForm%23187
+msgid "ToggleFloatAllSC"
+msgstr "ToggleFloatAllSC"
+
+#: KrohnkiteConfigForm%23188
+msgid "Actions"
+msgstr "操作"
+
+#: KrohnkiteConfigForm%23189
+msgid "Default shortcuts override"
+msgstr "默认快捷键覆盖"
+
+#: KrohnkiteConfigForm%23190
+msgid "<html><head/><body><p>Max waiting time the sequence of shortcuts. By default no sequences configured, but you can configure them by yourself below text field.</p></body></html>"
+msgstr "<html><head/><body><p>快捷键序列的最大等待时间。默认未配置任何序列，但你可以在下方文本字段中自行配置。</p></body></html>"
+
+#: KrohnkiteConfigForm%23191
+msgid "Sequence time"
+msgstr "序列时间"
+
+#: KrohnkiteConfigForm%23192
+msgid "<html><head/><body><p><span style=\" font-size:10pt;\">One rule per line. Case insensitive. Format:</span></p><p><span style=\" font-size:10pt; font-weight:700;\">&lt;Shortcut&gt;[,&lt;Shortcut&gt;...]:&lt;flag&gt;=&lt;value&gt;[,&lt;flag&gt;=&lt;value&gt;...]</span></p><p><span style=\" font-size:10pt;\">A comma-separated list of shortcuts forms a key sequence that must be pressed in order. Shortcut and action names are listed above in &quot;Possible shortcuts and actions&quot;.</span></p><p><span style=\" font-size:10pt;\">Flags (at least one action flag is required):</span></p><p><span style=\" font-size:10pt; font-weight:700;\">mainaction|ma</span><span style=\" font-size:10pt;\"> — the action to perform (KrohnkiteAction).</span></p><p><span style=\" font-size:10pt; font-weight:700;\">registeraction|ra</span><span style=\" font-size:10pt;\"> — the action to perform while the register (meta) mode is active (KrohnkiteAction). Use null to clear it.</span></p><p><span style=\" font-size:10pt; font-weight:700;\">null</span><span style=\" font-size:10pt;\"> — clears an action: ma=null disables the normal action, ra=null makes register mode fall back to the main action.</span></p><p><span style=\" font-size:10pt; font-weight:700;\">sequencetime|st</span><span style=\" font-size:10pt;\"> — milliseconds, overrides the &quot;Sequence time&quot; setting for that rule.</span></p><p><span style=\" font-size:10pt;\">Examples:</span></p><p><span style=\" font-size:10pt; font-weight:700;\">MoveLeftSC:ra=swapleft</span><span style=\" font-size:10pt;\"> — assign SwapLeft action to MoveLeftSC shortcut when register is on. </span></p><p><span style=\" font-size:10pt; font-weight:700;\">MoveDownSC:ra=null</span><span style=\" font-size:10pt;\"> — do not override the main action: MoveDownSC keeps using MoveDown while register is on.</span></p><p><span style=\" font-size:10pt; font-weight:700;\">GrowWidthSC,ShrinkWidthSC:ma=resetSurfaceCapacity,st=500</span><span style=\" font-size:10pt;\"> — assign shortcut sequence with sequence time overriding to 500 ml with main action to reset srf capacity.</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:10pt;\">每行一条规则，不区分大小写。格式：</span></p><p><span style=\" font-size:10pt; font-weight:700;\">&lt;Shortcut&gt;[,&lt;Shortcut&gt;...]:&lt;flag&gt;=&lt;value&gt;[,&lt;flag&gt;=&lt;value&gt;...]</span></p><p><span style=\" font-size:10pt;\">用逗号分隔的快捷键列表构成一个按键序列，必须按顺序按下。快捷键和操作名称列在上方“可用的快捷键和操作”中。</span></p><p><span style=\" font-size:10pt;\">标志（至少需要一个操作标志）：</span></p><p><span style=\" font-size:10pt; font-weight:700;\">mainaction|ma</span><span style=\" font-size:10pt;\"> — 要执行的操作（KrohnkiteAction）。</span></p><p><span style=\" font-size:10pt; font-weight:700;\">registeraction|ra</span><span style=\" font-size:10pt;\"> — 暂存（meta）模式激活时要执行的操作（KrohnkiteAction）。使用 null 可清除。</span></p><p><span style=\" font-size:10pt; font-weight:700;\">null</span><span style=\" font-size:10pt;\"> — 清除操作：ma=null 禁用普通操作，ra=null 使暂存模式回退到主操作。</span></p><p><span style=\" font-size:10pt; font-weight:700;\">sequencetime|st</span><span style=\" font-size:10pt;\"> — 毫秒，覆盖该规则的“序列时间”设置。</span></p><p><span style=\" font-size:10pt;\">示例：</span></p><p><span style=\" font-size:10pt; font-weight:700;\">MoveLeftSC:ra=swapleft</span><span style=\" font-size:10pt;\"> — 暂存开启时，为 MoveLeftSC 快捷键分配 SwapLeft 操作。 </span></p><p><span style=\" font-size:10pt; font-weight:700;\">MoveDownSC:ra=null</span><span style=\" font-size:10pt;\"> — 不覆盖主操作：暂存开启时，MoveDownSC 继续使用 MoveDown。</span></p><p><span style=\" font-size:10pt; font-weight:700;\">GrowWidthSC,ShrinkWidthSC:ma=resetSurfaceCapacity,st=500</span><span style=\" font-size:10pt;\"> — 分配快捷键序列，将序列时间覆盖为 500 毫秒，主操作为重置表面容量。</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23193
+msgid "?"
+msgstr "?"
+
+#: KrohnkiteConfigForm%23194
+msgid "Behavior"
+msgstr "行为"
+
+#: KrohnkiteConfigForm%23195
+msgid "Layout Adjustment"
+msgstr "布局调整"
+
+#: KrohnkiteConfigForm%23196
+msgid "Resizing window will cause layout to be adjusted. The actual behaviour might differ based on layout in use."
+msgstr "调整窗口大小将使布局随之改变。实际行为会因使用中的布局而不同。"
+
+#: KrohnkiteConfigForm%23197
+msgid "Adjust layout by resizing windows"
+msgstr "调整窗口大小时改变布局。"
+
+#: KrohnkiteConfigForm%23198
+msgid "If enabled, resizing window will immediately adjust layout. If disabled, layout will be adjusted *after* window resizing is over."
+msgstr "若启用，调整窗口大小时将实时改动布局；若禁用，布局将在调整窗口大小*结束后*改动。"
+
+#: KrohnkiteConfigForm%23199
+msgid "Adjust layout in realtime as window is being resized"
+msgstr "当窗口正处于调整大小时，布局也会实时变动。"
+
+#: KrohnkiteConfigForm%23200
+msgid "Focus/Move Keys"
+msgstr "聚焦/移动键"
+
+#: KrohnkiteConfigForm%23201
+msgid "focusing/moving across Vdesktops"
+msgstr "在虚拟桌面之间聚焦/移动"
+
+#: KrohnkiteConfigForm%23202
+msgid "Register"
+msgstr "暂存"
+
+#: KrohnkiteConfigForm%23203
+msgid "focusing/moving across screens"
+msgstr "在屏幕之间聚焦/移动"
+
+#: KrohnkiteConfigForm%23204
+msgid "Normal"
+msgstr "普通"
+
+#: KrohnkiteConfigForm%23205
+msgid "<html><head/><body><p>What types of window can be focused/moved using Krohnkite's focus/move keys. </p><p><span style=\" font-weight:700;\">Special : focus up - </span>walk on screens. <span style=\" font-weight:700;\">focus down - </span>walk on all the windows, even those that are not managed and registered by Krohnkite. <span style=\" font-weight:700;\">focus left/right - </span>walk on Virtual Desktops.</p></body></html>"
+msgstr "<html><head/><body><p>使用 Krohnkite 的聚焦/移动键可以聚焦/移动哪些类型的窗口。</p><p><span style=\" font-weight:700;\">特殊：向上聚焦 — </span>在屏幕之间移动。<span style=\" font-weight:700;\">向下聚焦 — </span>遍历所有窗口，包括未由 Krohnkite 管理和注册的窗口。<span style=\" font-weight:700;\">向左/向右聚焦 — </span>在虚拟桌面之间移动。</p></body></html>"
+
+#: KrohnkiteConfigForm%23206
+msgid "Tiled+Docked+Float"
+msgstr "平铺+停靠+浮动"
+
+#: KrohnkiteConfigForm%23207
+msgid "Tiled"
+msgstr "平铺"
+
+#: KrohnkiteConfigForm%23208
+msgid "Docked"
+msgstr "停靠"
+
+#: KrohnkiteConfigForm%23209
+msgid "Tiled+Float"
+msgstr "平铺+浮动"
+
+#: KrohnkiteConfigForm%23210
+msgid "Tiled+Docked"
+msgstr "平铺+停靠"
+
+#: KrohnkiteConfigForm%23211
+msgid "Float+Docked"
+msgstr "浮动+停靠"
+
+#: KrohnkiteConfigForm%23212
+msgid "Special"
+msgstr "特殊"
+
+#: KrohnkiteConfigForm%23213
+msgid "<html><head/><body><p>What types of window can be focused/moved using Krohnkite's focus/move keys in meta Mode. </p><p>Meta shortcuts: <span style=\" font-weight:700;\">MetaFocusLeft</span>, <span style=\" font-weight:700;\">MetaFocusRight</span>, <span style=\" font-weight:700;\">MetaFocusUp</span>, <span style=\" font-weight:700;\">MetaFocusDown</span></p><p>These Meta Shortcuts have configured on the same Focus keys. Can be overridden in Krohnkite Meta Mode configuration settings (see wiki).</p><p><span style=\" font-weight:700;\">Special : focus up - </span>walk on screens. <span style=\" font-weight:700;\">focus down - </span>walk on all the windows, even those that are not managed and registered by Krohnkite. <span style=\" font-weight:700;\">focus left/right - </span>walk on Virtual Desktops.</p></body></html>"
+msgstr "<html><head/><body><p>在 meta 模式下，使用 Krohnkite 的聚焦/移动键可以聚焦/移动哪些类型的窗口。</p><p>Meta 快捷键：<span style=\" font-weight:700;\">MetaFocusLeft</span>、<span style=\" font-weight:700;\">MetaFocusRight</span>、<span style=\" font-weight:700;\">MetaFocusUp</span>、<span style=\" font-weight:700;\">MetaFocusDown</span></p><p>这些 Meta 快捷键配置在相同的聚焦键上，可在 Krohnkite 的 Meta 模式设置中覆盖（见 wiki）。</p><p><span style=\" font-weight:700;\">特殊：向上聚焦 — </span>在屏幕之间移动。<span style=\" font-weight:700;\">向下聚焦 — </span>遍历所有窗口，包括未由 Krohnkite 管理和注册的窗口。<span style=\" font-weight:700;\">向左/向右聚焦 — </span>在虚拟桌面之间移动。</p></body></html>"
+
+#: KrohnkiteConfigForm%23214
+msgid "Move mouse cursor to the center of a window/screen when it becomes focused"
+msgstr "聚焦时将鼠标指针移到窗口/屏幕中心"
+
+#: KrohnkiteConfigForm%23215
+msgid "Move pointer to window/screen center on focus"
+msgstr "聚焦时将指针移到窗口/屏幕中心"
+
+#: KrohnkiteConfigForm%23216
+msgid "Move the pointer only when focus changes through a Krohnkite shortcut, never when a window gets focus some other way (mouse, newly opened window)"
+msgstr "仅当通过 Krohnkite 快捷键改变焦点时移动指针，窗口以其他方式获得焦点（鼠标、新打开的窗口）时不移动"
+
+#: KrohnkiteConfigForm%23217
+msgid "Only on Krohnkite shortcuts"
+msgstr "仅限 Krohnkite 快捷键"
+
+#: KrohnkiteConfigForm%23218
+msgid "Move mouse cursor to the center of the focused window whenever its size changes (tiling, shortcuts, new windows). Moving or resizing a window with the mouse never moves the pointer."
+msgstr "每当活动窗口尺寸变化（平铺、快捷键、新窗口）时，将鼠标指针移到活动窗口中心。用鼠标移动或调整窗口大小时从不移动指针。"
+
+#: KrohnkiteConfigForm%23219
+msgid "Move pointer to focused window center on resize"
+msgstr "调整大小时将指针移到活动窗口中心"
+
+#: KrohnkiteConfigForm%23220
+msgid "Position of the New Window"
+msgstr "新窗口位置"
+
+#: KrohnkiteConfigForm%23221
+msgid "Last"
+msgstr "最后一个"
+
+#: KrohnkiteConfigForm%23222
+msgid "Rules"
+msgstr "规则"
+
+#: KrohnkiteConfigForm%23223
+msgid "Ignore Windows"
+msgstr "忽略窗口"
+
+#: KrohnkiteConfigForm%23224
+msgid "By Title"
+msgstr "通过标题"
+
+#: KrohnkiteConfigForm%23225
+msgid "By Class"
+msgstr "通过类型"
+
+#: KrohnkiteConfigForm%23226
+msgid "Comma-separated list of window classes. Matching windows will not be tiled. These classes are always ignored: krunner, yakuake, spectacle, kded5, xwaylandvideobridge, plasmashell, ksplashqml, org.kde.plasmashell, org.kde.polkit-kde-authentication-agent-1, org.kde.kruler, kruler, kwin_wayland, ksmserver-logout-greeter, org.krohnkite.configurator"
+msgstr "逗号分隔的窗口类列表。匹配的窗口将不会被平铺。以下类始终被忽略：krunner, yakuake, spectacle, kded5, xwaylandvideobridge, plasmashell, ksplashqml, org.kde.plasmashell, org.kde.polkit-kde-authentication-agent-1, org.kde.kruler, kruler, kwin_wayland, ksmserver-logout-greeter, org.krohnkite.configurator"
+
+#: KrohnkiteConfigForm%23227
+msgid "Comma-separated list of keywords(or substrings). Any windows with matching title will not be tiled."
+msgstr "逗号分隔的关键词（或子串）列表。标题匹配的窗口将不会被平铺。"
+
+#: KrohnkiteConfigForm%23228
+msgid "By Role"
+msgstr "通过角色"
+
+#: KrohnkiteConfigForm%23229
+msgid "Disable Tiling"
+msgstr "禁用平铺"
+
+#: KrohnkiteConfigForm%23230
+msgid "<html><head/><body><p>Comma-separated list of activity IDs. See Readme or Issue #125 to know IDs. Windows in corresponding activities will not be tiled.</p></body></html>"
+msgstr "<html><head/><body><p>逗号分隔的活动 ID 列表。参见 README 或 Issue #125 以了解 ID。对应活动中的窗口将不会被平铺。</p></body></html>"
+
+#: KrohnkiteConfigForm%23231
+msgid "On Activity (activityId)"
+msgstr "在活动上（活动ID）"
+
+#: KrohnkiteConfigForm%23232
+msgid "On Screen (name)"
+msgstr "在屏幕上（屏幕名称）"
+
+#: KrohnkiteConfigForm%23233
+msgid "Comma-separated list of screen names. Windows in corresponding screens will not be tiled."
+msgstr "通过逗号分隔屏幕名称列表。对应屏幕中的窗口将不会被平铺。"
+
+#: KrohnkiteConfigForm%23234
+msgid "On Virtual Desktop"
+msgstr "在虚拟桌面上"
+
+#: KrohnkiteConfigForm%23235
+msgid "Comma-separated list of Virtual Desktops names. Windows corresponding to these will not be tiled."
+msgstr "通过逗号分隔虚拟桌面名称列表。对应虚拟桌面中的窗口将不会被平铺。"
+
+#: KrohnkiteConfigForm%23236
+msgid "Always, except by class"
+msgstr "始终，但按类排除"
+
+#: KrohnkiteConfigForm%23237
+msgid "Comma-separated list of window classes. Matching windows will become tiled automatically."
+msgstr "通过逗号分隔窗口类型列表。匹配窗口将自动平铺。"
+
+#: KrohnkiteConfigForm%23238
+msgid "Screen default layout"
+msgstr "屏幕默认布局"
+
+#: KrohnkiteConfigForm%23239
+msgid "<html><head/><body><p>Comma-separated list OutputName:LayoutName. 'Layout' word can be omit. </p><p>2 monitors example: HDMI-A-1:spread,DP-2:tile</p><p>Example with desktop name: HDMI-A-1:Desktop 1:1,HDMI-A-1:Desktop 2:columns</p></body></html>"
+msgstr "<html><head/><body><p>逗号分隔列表 OutputName:LayoutName。可省略“Layout”一词。 </p><p>双显示器示例：HDMI-A-1:spread,DP-2:tile</p><p>带桌面名称的示例：HDMI-A-1:Desktop 1:1,HDMI-A-1:Desktop 2:columns</p></body></html>"
+
+#: KrohnkiteConfigForm%23240
+msgid "OutputName:LayoutName,..."
+msgstr "OutputName:LayoutName,..."
+
+#: KrohnkiteConfigForm%23241
+msgid "Default floating windows settings"
+msgstr "默认浮动窗口设置"
+
+#: KrohnkiteConfigForm%23242
+msgid "Height"
+msgstr "高度"
+
+#: KrohnkiteConfigForm%23243
+msgid "<html><head/><body><p>Percentage of the range from the top of the screen to the window placed in the center of the screen.Determines the randomization spread.</p></body></html>"
+msgstr "<html><head/><body><p>从屏幕顶部到居中放置窗口的百分比范围。决定随机分布范围。</p></body></html>"
+
+#: KrohnkiteConfigForm%23244
 msgid "Width "
 msgstr "宽度"
 
-#: KrohnkiteConfigForm%23142
+#: KrohnkiteConfigForm%23245
+msgid "<html><head/><body><p>The initial width of a floating window in percent of the screen width.</p></body></html>"
+msgstr "<html><head/><body><p>浮动窗口的初始宽度，占屏幕宽度的百分比。</p></body></html>"
+
+#: KrohnkiteConfigForm%23246
+msgid "Randomize initial position "
+msgstr "随机初始位置"
+
+#: KrohnkiteConfigForm%23247
+msgid "<html><head/><body><p>The initial height of a floating window in percent of the screen height.</p></body></html>"
+msgstr "<html><head/><body><p>浮动窗口的初始高度，占屏幕高度的百分比。</p></body></html>"
+
+#: KrohnkiteConfigForm%23248
+msgid "Override native float size"
+msgstr "覆盖原生浮动窗口尺寸"
+
+#: KrohnkiteConfigForm%23249
+msgid "Float window resize step"
+msgstr "浮动窗口调整步长"
+
+#: KrohnkiteConfigForm%23250
+msgid "<html><head/><body><p>Percentage of the range from the left border of the screen to the window placed in the center of the screen.Determines the randomization spread.</p></body></html>"
+msgstr "<html><head/><body><p>从屏幕左侧到居中放置窗口的百分比范围。决定随机分布范围。</p></body></html>"
+
+#: KrohnkiteConfigForm%23251
+msgid "<html><head/><body><p>What percentage of the screen width will the floating window expand or contract by each time the keyboard shortcut is pressed?</p></body></html>"
+msgstr "<html><head/><body><p>每次按下快捷键时，浮动窗口将按屏幕宽度的百分之多少扩展或收缩？</p></body></html>"
+
+#: KrohnkiteConfigForm%23252
+msgid "<html><head/><body><p>What percentage of the screen height will the floating window expand or contract by each time the keyboard shortcut is pressed?</p></body></html>"
+msgstr "<html><head/><body><p>每次按下快捷键时，浮动窗口将按屏幕高度的百分之多少扩展或收缩？</p></body></html>"
+
+#: KrohnkiteConfigForm%23253
+msgid "This is mainly for debugging purpose, but can also be used to meet some specific requirements."
+msgstr "这主要用于调试目的，但也可用于满足某些特定需求。"
+
+#: KrohnkiteConfigForm%23254
+msgid "by default all new windows become floating"
+msgstr "默认情况下所有新窗口都会变为浮动"
+
+#: KrohnkiteConfigForm%23255
+msgid "Float utility windows(applies to window type Dialog, Splash, Utility)"
+msgstr "浮动工具窗口（适用于 Dialog、Splash、Utility 类型）"
+
+#: KrohnkiteConfigForm%23256
+msgid "Override default floating window settings"
+msgstr "覆盖默认浮动窗口设置"
+
+#: KrohnkiteConfigForm%23257
+msgid "<html><head/><body><p><span style=\" font-size:10pt;\">One rule per line. Format:</span></p><p><span style=\" font-size:10pt; font-weight:700;\">&lt;ClassName&gt;[,&lt;ClassName&gt;...][:&lt;Title&gt;]:&lt;param&gt;=&lt;value&gt;[,&lt;param&gt;=&lt;value&gt;...]</span></p><p><span style=\" font-size:10pt;\">Wrap title in [brackets] for substring match, e.g. [Firefox] matches &quot;Mozilla Firefox&quot;.</span></p><p><span style=\" font-size:10pt;\">Without brackets the title is matched exactly.<br/></span></p><p><span style=\" font-size:10pt;\">Examples:</span></p><p><span style=\" font-size:10pt;\">Make Krohnkite settings float:</span></p><p><span style=\" font-size:10pt; font-weight:700;\">systemsettings:Configure — System Settings:auto=1</span></p><p><span style=\" font-size:10pt;\">Windows with windowClass </span><span style=\" font-size:10pt; font-weight:700;\">konsole,kate </span><span style=\" font-size:10pt;\">will always be floating with init size width/height=60% of init screen and with left indent 120 pixel and top indent 10% of init screen height. </span></p><p><span style=\" font-size:10pt; font-weight:700;\">konsole,kate:width=60,height=60,li=120px,ti=10%</span></p><p><span style=\" font-size:10pt;\">Windows with windowClass 'firefox' and title contain 'Firefox' word will have width: 60%,height: native and will float when open by could be tile later.</span></p><p><span style=\" font-size:10pt; font-weight:700;\">firefox:[Firefox]:w=60,f=false,auto=true</span></p><p><span style=\" font-size:10pt;\">window with any class and 'gimp' title will have shoudFloat=true</span></p><p><span style=\" font-size:10pt; font-weight:700;\">:gimp: (all defaults) </span><span style=\" font-size:10pt;\"><br/></span></p><p><span style=\" font-size:10pt;\">Params could be omit:</span></p><p><span style=\" font-size:10pt;\">shoudFloat, f — makes window float forever. true or false (default: true)</span></p><p><span style=\" font-size:10pt;\">auto, a — open window float. true or false (default:  'by default all new windows become floating' flag value )</span></p><p><span style=\" font-size:10pt;\">width, w — 1-100 percent of screen (default: inherit global)</span></p><p><span style=\" font-size:10pt;\">height, h — 1-100 percent of screen (default: inherit global)</span></p><p><span style=\" font-size:10pt;\">leftIndent, left, li — offset from left in px (default) or % (e.g. 100, 50px, 20%). Default: inherit native</span></p><p><span style=\" font-size:10pt;\">topIndent, top, ti — offset from top in px (default) or % (e.g. 100, 50px, 20%). Default: inherit native</span></p><p><span style=\" font-size:10pt;\">stepWidth, sw — 0-100 percent of screen width by which the floating window move,expands/contracts per resize/move shortcut press (default: inherit global)</span></p><p><span style=\" font-size:10pt;\">stepHeight, sh — 0-100 percent of screen height by which the floating window move,expands/contracts per resize/move shortcut press (default: inherit global)</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:10pt;\">每行一条规则。格式：</span></p><p><span style=\" font-size:10pt; font-weight:700;\">&lt;ClassName&gt;[,&lt;ClassName&gt;...][:&lt;Title&gt;]:&lt;param&gt;=&lt;value&gt;[,&lt;param&gt;=&lt;value&gt;...]</span></p><p><span style=\" font-size:10pt;\">将标题放在[方括号]中可进行子串匹配，例如 [Firefox] 可匹配 \"Mozilla Firefox\"。</span></p><p><span style=\" font-size:10pt;\">不加方括号时，标题必须完全匹配。<br/></span></p><p><span style=\" font-size:10pt;\">示例：</span></p><p><span style=\" font-size:10pt;\">让 Krohnkite 设置窗口浮动：</span></p><p><span style=\" font-size:10pt; font-weight:700;\">systemsettings:Configure — System Settings:auto=1</span></p><p><span style=\" font-size:10pt;\">windowClass 为 </span><span style=\" font-size:10pt; font-weight:700;\">konsole,kate </span><span style=\" font-size:10pt;\">的窗口将始终浮动，初始宽度/高度为初始屏幕的 60%，左侧缩进 120 像素，顶部缩进为初始屏幕高度的 10%。 </span></p><p><span style=\" font-size:10pt; font-weight:700;\">konsole,kate:width=60,height=60,li=120px,ti=10%</span></p><p><span style=\" font-size:10pt;\">windowClass 为 'firefox' 且标题包含 'Firefox' 的窗口，宽度为 60%、高度为原生高度，打开时浮动，但之后可以被平铺。</span></p><p><span style=\" font-size:10pt; font-weight:700;\">firefox:[Firefox]:w=60,f=false,auto=true</span></p><p><span style=\" font-size:10pt;\">任意 class、标题为 'gimp' 的窗口将具有 shoudFloat=true</span></p><p><span style=\" font-size:10pt; font-weight:700;\">:gimp: （全部使用默认值） </span><span style=\" font-size:10pt;\"><br/></span></p><p><span style=\" font-size:10pt;\">参数可以省略：</span></p><p><span style=\" font-size:10pt;\">shoudFloat, f — 使窗口永久浮动。true 或 false（默认：true）</span></p><p><span style=\" font-size:10pt;\">auto, a — 以浮动方式打开窗口。true 或 false（默认：'默认情况下所有新窗口都会变为浮动' 标志的值）</span></p><p><span style=\" font-size:10pt;\">width, w — 屏幕的 1–100%（默认：继承全局）</span></p><p><span style=\" font-size:10pt;\">height, h — 屏幕的 1–100%（默认：继承全局）</span></p><p><span style=\" font-size:10pt;\">leftIndent, left, li — 从左侧偏移，单位为 px（默认）或 %（例如 100、50px、20%）。默认：继承原生值</span></p><p><span style=\" font-size:10pt;\">topIndent, top, ti — 从顶部偏移，单位为 px（默认）或 %（例如 100、50px、20%）。默认：继承原生值</span></p><p><span style=\" font-size:10pt;\">stepWidth, sw — 每次按下调整大小/移动快捷键时，浮动窗口移动、扩展或收缩的幅度，为屏幕宽度的 0–100%（默认：继承全局）</span></p><p><span style=\" font-size:10pt;\">stepHeight, sh — 每次按下调整大小/移动快捷键时，浮动窗口移动、扩展或收缩的幅度，为屏幕高度的 0–100%（默认：继承全局）</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23258
+msgid "Dock"
+msgstr "停靠"
+
+#: KrohnkiteConfigForm%23259
+msgid "Order of docked windows"
+msgstr "停靠窗口顺序"
+
+#: KrohnkiteConfigForm%23260
+msgid "Surfaces configuration"
+msgstr "表面配置"
+
+#: KrohnkiteConfigForm%23261
+msgid "Default settings for a docked window"
+msgstr "停靠窗口的默认设置"
+
+#: KrohnkiteConfigForm%23262
+msgid "Up/Bottom Dock"
+msgstr "顶部/底部停靠"
+
+#: KrohnkiteConfigForm%23263
+msgid "Horizontal Spacer 'horizontalSpacer_5', 40 x 20"
+msgstr "水平间隔 'horizontalSpacer_5', 40 x 20"
+
+#: KrohnkiteConfigForm%23264
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" font-weight:700;\">hh</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" font-weight:700;\">hh</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23265
+msgid " %"
+msgstr " %"
+
+#: KrohnkiteConfigForm%23266
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">hw</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">hw</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23267
+msgid "<html><head/><body><p>vw - short name</p></body></html>"
+msgstr "<html><head/><body><p>vw - 短参数名</p></body></html>"
+
+#: KrohnkiteConfigForm%23268
+msgid "Wide"
+msgstr "宽度"
+
+#: KrohnkiteConfigForm%23269
+msgid "Gaps"
+msgstr "间隙"
+
+#: KrohnkiteConfigForm%23270
+msgid "Horizontal "
+msgstr "水平"
+
+#: KrohnkiteConfigForm%23271
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">hgv</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">hgv</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23272
+msgid " px"
+msgstr "px"
+
+#: KrohnkiteConfigForm%23273
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" font-weight:700;\">hgh</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" font-weight:700;\">hgh</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23274
+msgid "Vertical"
+msgstr "垂直"
+
+#: KrohnkiteConfigForm%23275
+msgid "Alignment"
+msgstr "对齐"
+
+#: KrohnkiteConfigForm%23276
+msgid "Horizontal"
+msgstr "水平"
+
+#: KrohnkiteConfigForm%23277
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">he</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">he</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23278
+msgid "Outside"
+msgstr "外侧"
+
+#: KrohnkiteConfigForm%23279
+msgid "Middle"
+msgstr "中间"
+
+#: KrohnkiteConfigForm%23280
+msgid "Inside"
+msgstr "内侧"
+
+#: KrohnkiteConfigForm%23281
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" font-weight:700;\">ha</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" font-weight:700;\">ha</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23282
+msgid "Center"
+msgstr "中心"
+
+#: KrohnkiteConfigForm%23283
+msgid "Left/Right Dock"
+msgstr "左侧/右侧停靠"
+
+#: KrohnkiteConfigForm%23284
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">vh</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">vh</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23285
+msgid "Horizontal Spacer 'horizontalSpacer_4', 40 x 20"
+msgstr "水平间隔 'horizontalSpacer_4', 40 x 20"
+
+#: KrohnkiteConfigForm%23286
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">vw</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">vw</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23287
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" font-weight:700;\">vgh</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" font-weight:700;\">vgh</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23288
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name:</span><span style=\" font-weight:700;\">vgv</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名:</span><span style=\" font-weight:700;\">vgv</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23289
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">va</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">va</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23290
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">short name: </span><span style=\" font-weight:700;\">ve</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">短参数名: </span><span style=\" font-weight:700;\">ve</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23291
+msgid "Window class configuration"
+msgstr "窗口类配置"
+
+#: KrohnkiteConfigForm%23292
+msgid "<html><head/><body><p>Overriding default parameters for the specified WindowClass. Format:</p><p><span style=\" font-weight:700;\">WindowClass</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">SpecialFlag,SpecialFlag...</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">shortname=value,shortname=value...&lt;Enter&gt;</span></p><p>format with specified titlе, you can specify only part of the title by writing it in square brackets:</p><p><span style=\" font-weight:700;\">WindowClass</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">Title</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">SpecialFlag,SpecialFlag...</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">shortname=value,shortname=value...&lt;Enter&gt;</span></p><p><span style=\" font-weight:700;\">pin - </span>docked window with this flag will displace another if their positions are equal.</p><p><span style=\" font-weight:700;\">left,right,top,bottom</span> - you can use one them to explicitly set the initial position.</p><p><span style=\" font-weight:700;\">auto</span> - automatically makes a window docked. Krohnkite version &gt;=0.9.9.1</p><p>You can only write down the parameters you want to change. You can see the short name of the parameter if you hover over any default parameter above.</p><p>Examples:</p><p>1. if Elisa switches to dock it will have higher priority, top dock position and 10% of screen height </p><p>org.kde.elisa<span style=\" font-weight:700;\">:pin,top:hh=10</span></p><p>2. Conky automatic docking:     <span style=\" font-family:'Hack'; font-weight:700;\">Conky</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-family:'Hack'; font-weight:700;\">auto</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-family:'Hack'; font-weight:700;\"/></p><p><span style=\" font-family:'Hack';\">3.With title specified: </span><span style=\" font-weight:700;\">com.obsproject.Studio</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">Scripts</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">auto,left</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">vw=50</span></p></body></html>"
+msgstr "<html><head/><body><p>为指定的 WindowClass 覆盖默认参数。格式：</p><p><span style=\" font-weight:700;\">WindowClass</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">SpecialFlag,SpecialFlag...</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">shortname=value,shortname=value...&lt;Enter&gt;</span></p><p>指定标题的格式：可以用方括号只指定标题的一部分：</p><p><span style=\" font-weight:700;\">WindowClass</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">Title</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">SpecialFlag,SpecialFlag...</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">shortname=value,shortname=value...&lt;Enter&gt;</span></p><p><span style=\" font-weight:700;\">pin - </span>带有此标志的停靠窗口在位置相同时会挤开另一个窗口。</p><p><span style=\" font-weight:700;\">left,right,top,bottom</span> - 可以使用其中之一显式设置初始位置。</p><p><span style=\" font-weight:700;\">auto</span> - 自动将窗口设为停靠。Krohnkite 版本 &gt;=0.9.9.1</p><p>只需填写需要修改的参数。将鼠标悬停在上方任意默认参数上即可查看其短名称。</p><p>示例：</p><p>1. 如果 Elisa 切换为停靠，它将拥有更高优先级、顶部停靠位置和屏幕高度的 10% </p><p>org.kde.elisa<span style=\" font-weight:700;\">:pin,top:hh=10</span></p><p>2. Conky 自动停靠：     <span style=\" font-family:'Hack'; font-weight:700;\">Conky</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-family:'Hack'; font-weight:700;\">auto</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-family:'Hack'; font-weight:700;\"/></p><p><span style=\" font-family:'Hack';\">3. 指定标题：</span><span style=\" font-weight:700;\">com.obsproject.Studio</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">Scripts</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">auto,left</span><span style=\" font-weight:700; color:#ff0000;\">:</span><span style=\" font-weight:700;\">vw=50</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23293
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">Overriding default parameters for every surface. Format: </span><span style=\" font-size:12pt; font-weight:700;\">OuputName:ActivityId:VirtualDesktopName:shortname=value,shortname=value... &lt;Enter&gt;</span></p><p><span style=\" font-size:12pt;\">You can only write down parameters you want to change. You can see the short name of the parameter if you hover over any default parameter above.</span></p><p><span style=\" font-size:12pt;\">Next example override three params on all surfaces with OutputName=HDMI-A-1 </span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:::hh=80,vw=80,ha=left</span></p><p><span style=\" font-size:12pt;\">this one, will override two params only for defined display, virtual desktop and activity</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:Desktop 1:vg=5,va=2</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">为每个表面覆盖默认参数。格式：</span><span style=\" font-size:12pt; font-weight:700;\">OuputName:ActivityId:VirtualDesktopName:shortname=value,shortname=value... &lt;Enter&gt;</span></p><p><span style=\" font-size:12pt;\">只需填写需要修改的参数。将鼠标悬停在上方任意默认参数上即可查看对应的短参数名。</span></p><p><span style=\" font-size:12pt;\">以下示例在所有 OutputName 为 HDMI-A-1 的表面上覆盖三个参数：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:::hh=80,vw=80,ha=left</span></p><p><span style=\" font-size:12pt;\">此示例仅针对指定的显示器、虚拟桌面和活动覆盖两个参数：</span></p><p><span style=\" font-size:12pt; font-weight:700;\">HDMI-A-1:99e10d31-e8f3-44aa-bbed-2a543f13fa54:Desktop 1:vg=5,va=2</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23294
+msgid "Dragging settings"
+msgstr "拖动设置"
+
+#: KrohnkiteConfigForm%23295
+msgid "Border"
+msgstr "边框"
+
+#: KrohnkiteConfigForm%23296
+msgid "<html><head/><body><p>Fill color of the rectangle shown while dragging a window over a dock slot. <span style=\" font-weight:700; text-decoration: underline;\">Default value</span>: Red:<span style=\" font-weight:700;\">61</span>, Green:<span style=\" font-weight:700;\">135</span>, Blue:<span style=\" font-weight:700;\">240</span>, Alpha:<span style=\" font-weight:700;\">77</span></p></body></html>"
+msgstr "<html><head/><body><p>将窗口拖到停靠槽上方时显示的矩形填充颜色。<span style=\" font-weight:700; text-decoration: underline;\">默认值</span>：红：<span style=\" font-weight:700;\">61</span>，绿：<span style=\" font-weight:700;\">135</span>，蓝：<span style=\" font-weight:700;\">240</span>，Alpha：<span style=\" font-weight:700;\">77</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23297
+msgid "<html><head/><body><p>Thickness in pixels of the bottom screen edge that docks a dragged window. Set to 0 to disable docking to the bottom edge.</p></body></html>"
+msgstr "<html><head/><body><p>屏幕底边用于停靠被拖动窗口的厚度（像素）。设为 0 可禁用底边停靠。</p></body></html>"
+
+#: KrohnkiteConfigForm%23298
+msgid "Top "
+msgstr "顶部"
+
+#: KrohnkiteConfigForm%23299
+msgid "<html><head/><body><p>Thickness in pixels of the right screen edge that docks a dragged window. Set to 0 to disable docking to the right edge.</p></body></html>"
+msgstr "<html><head/><body><p>屏幕右边用于停靠被拖动窗口的厚度（像素）。设为 0 可禁用右边停靠。</p></body></html>"
+
+#: KrohnkiteConfigForm%23300
+msgid "<html><head/><body><p>Thickness in pixels of the top screen edge that docks a dragged window. Set to 0 to disable docking to the top edge.</p></body></html>"
+msgstr "<html><head/><body><p>屏幕顶边用于停靠被拖动窗口的厚度（像素）。设为 0 可禁用顶边停靠。</p></body></html>"
+
+#: KrohnkiteConfigForm%23301
+msgid "<html><head/><body><p>Thickness in pixels of the left screen edge that docks a dragged window. Set to 0 to disable docking to the left edge.</p></body></html>"
+msgstr "<html><head/><body><p>屏幕左边用于停靠被拖动窗口的厚度（像素）。设为 0 可禁用左边停靠。</p></body></html>"
+
+#: KrohnkiteConfigForm%23302
+msgid "Frame"
+msgstr "填充"
+
+#: KrohnkiteConfigForm%23303
+msgid "<html><head/><body><p>Border color of the rectangle shown while dragging a window over a dock slot. <span style=\" font-weight:700; text-decoration: underline;\">Default value</span>: Red:<span style=\" font-weight:700;\">61</span>, Green:<span style=\" font-weight:700;\">135</span>, Blue:<span style=\" font-weight:700;\">240</span>, Alpha:<span style=\" font-weight:700;\">230</span></p></body></html>"
+msgstr "<html><head/><body><p>将窗口拖到停靠槽上方时显示的矩形边框颜色。<span style=\" font-weight:700; text-decoration: underline;\">默认值</span>：红：<span style=\" font-weight:700;\">61</span>，绿：<span style=\" font-weight:700;\">135</span>，蓝：<span style=\" font-weight:700;\">240</span>，Alpha：<span style=\" font-weight:700;\">230</span></p></body></html>"
+
+#: KrohnkiteConfigForm%23304
+msgid "Options"
+msgstr "选项"
+
+#: KrohnkiteConfigForm%23305
+msgid "Window Layer"
+msgstr "窗口层"
+
+#: KrohnkiteConfigForm%23306
+msgid "Above"
+msgstr "上层"
+
+#: KrohnkiteConfigForm%23307
+msgid "Float  "
+msgstr "浮动"
+
+#: KrohnkiteConfigForm%23308
+msgid "The Sole Window properties"
+msgstr "单窗口属性"
+
+#: KrohnkiteConfigForm%23309
 msgid "No Borders"
 msgstr "无边框"
 
-#: KrohnkiteConfigForm%23143
+#: KrohnkiteConfigForm%23310
 msgid "No Gaps"
 msgstr "无间隙"
 
-#: KrohnkiteConfigForm%23144
+#: KrohnkiteConfigForm%23311
+msgid "Output Override"
+msgstr "输出覆盖"
+
+#: KrohnkiteConfigForm%23312
+msgid "<html><head/><body><p>Comma-separated list to override the default Sole Window properties parameters: OutputName:Width:Height:NoBorders:NoGaps. Width and Height in % and can be from 1 to 100, NoBorders and NoGaps can be 0 or 1. You can omit parameters for example <span style=\" font-weight:700;\">DP-1:50</span> means you override only width to 50% on <span style=\" font-weight:700;\">DP-1</span> monitor. </p><p>Note. If you enable the No Gap option, this means that width and height no longer matter.</p><p><br/>Two monitors example:<span style=\" font-weight:700;\"> DP-1:::1:1,DP-2:80:70</span></p><p>on<span style=\" font-weight:700;\"> DP-1 </span>no Borders nor Gaps, on DP-2: 80% Width and 70% Height</p></body></html>"
+msgstr "<html><head/><body><p>用于覆盖默认单窗口属性参数的逗号分隔列表：OutputName:Width:Height:NoBorders:NoGaps。Width 和 Height 为 1 到 100 的百分比，NoBorders 和 NoGaps 可为 0 或 1。可以省略参数，例如 <span style=\" font-weight:700;\">DP-1:50</span> 表示仅在 <span style=\" font-weight:700;\">DP-1</span> 显示器上将宽度覆盖为 50%。 </p><p>注意：如果启用 No Gap，宽度和高度将不再生效。</p><p><br/>双显示器示例：<span style=\" font-weight:700;\"> DP-1:::1:1,DP-2:80:70</span></p><p>在<span style=\" font-weight:700;\"> DP-1 </span>上无边框且无间隙，在 DP-2 上宽度 80%、高度 70%</p></body></html>"
+
+#: KrohnkiteConfigForm%23313
+msgid "OutputName:Width:Height,NoBorders,NoGaps,..."
+msgstr "OutputName:Width:Height,NoBorders,NoGaps,..."
+
+#: KrohnkiteConfigForm%23314
+msgid "Unfitted Windows"
+msgstr "无法适配的窗口"
+
+#: KrohnkiteConfigForm%23315
+msgid "If enable make all windows floating if the maximum size to small for tile"
+msgstr "如果启用，当窗口的最大尺寸小于平铺尺寸时，将所有窗口设为浮动。"
+
+#: KrohnkiteConfigForm%23316
+msgid "make floating if  max. size of window less than Tile size "
+msgstr "如果窗口最大尺寸小于平铺尺寸，则设为浮动"
+
+#: KrohnkiteConfigForm%23317
+msgid "If enable make all windows floating if they minimum size to large for tile"
+msgstr "如果启用，当窗口的最小尺寸大于平铺尺寸时，将所有窗口设为浮动。"
+
+#: KrohnkiteConfigForm%23318
+msgid "(Experimental)make floating if  min. size of window greater than Tile size "
+msgstr "（实验性）如果窗口最小尺寸大于平铺尺寸，则设为浮动"
+
+#: KrohnkiteConfigForm%23319
 msgid "Notifications"
 msgstr "通知"
 
-#: KrohnkiteConfigForm%23145
-msgid ""
-"<html><head/><body><p>Set the time (in milliseconds) for how long a pop-up notification "
-"will remain visible before it automatically disappears. A value of 0 will disable "
-"notifications.</p></body></html>"
-msgstr ""
-"<html><head/><body><p>设置弹窗通知在自动消失前持续显示的时长（毫秒）。若值为0将禁用通知功"
-"能。</p></body></html>"
+#: KrohnkiteConfigForm%23320
+msgid "<html><head/><body><p>Set the time (in milliseconds) for how long a pop-up notification will remain visible before it automatically disappears. A value of 0 will disable notifications.</p></body></html>"
+msgstr "<html><head/><body><p>设置弹出通知在自动消失前保持可见的时长（毫秒）。值为 0 时将禁用通知。</p></body></html>"
 
-#: KrohnkiteConfigForm%23146
+#: KrohnkiteConfigForm%23321
 msgid " ms"
 msgstr "毫秒"
 
-#: KrohnkiteConfigForm%23147
+#: KrohnkiteConfigForm%23322
 msgid "Duration  "
 msgstr "持续时长"
 
-#: KrohnkiteConfigForm%23148
-msgid ""
-"All tiled windows will have no borders. Borders will be added back if window become "
-"float."
+#: KrohnkiteConfigForm%23323
+msgid "All tiled windows will have no borders. Borders will be added back if window become float."
 msgstr "所有平铺窗口将失去边框。当窗口变为浮动时，边框将恢复。"
 
-#: KrohnkiteConfigForm%23149
-msgid "Use separate layouts for each Activity"
-msgstr "为每个活动使用单独布局"
+#: KrohnkiteConfigForm%23324
+msgid "Use separate layouts and window split ratios for each Activity"
+msgstr "为每个活动使用单独的布局和窗口分割比例"
 
-#: KrohnkiteConfigForm%23150
-msgid "Use separate layouts for each Desktop"
-msgstr "为每个桌面使用单独布局"
+#: KrohnkiteConfigForm%23325
+msgid "Use separate layouts and window split ratios for each Desktop"
+msgstr "为每个虚拟桌面使用单独的布局和窗口分割比例"
 
-#: KrohnkiteConfigForm%23151
+#: KrohnkiteConfigForm%23326
 msgid "Remove borders of tiled windows"
-msgstr "为平铺窗口移除边框"
+msgstr "移除平铺窗口的边框"
 
-#: KrohnkiteConfigForm%23152
+#: KrohnkiteConfigForm%23327
+msgid "Virtual Keyboard support"
+msgstr "虚拟键盘支持"
+
+#: KrohnkiteConfigForm%23328
 msgid "Always preserve the tiling status of a window upon dragging"
 msgstr "在窗口拖拽期间始终维持平铺状态"
 
-#: KrohnkiteConfigForm%23153
-msgid "Prevent windows from minimizing (experimental)"
-msgstr "防止窗口最小化（实现性质）"
+#: KrohnkiteConfigForm%23329
+msgid "Draw a translucent rectangle at the dock slot a dragged window will occupy when the drag is over."
+msgstr "在停靠槽处绘制半透明矩形，表示拖动结束后窗口将占据的位置。"
 
-#: KrohnkiteConfigForm%23154
+#: KrohnkiteConfigForm%23330
+msgid "Show a preview rectangle when dragging a window over a dock slot"
+msgstr "将窗口拖到停靠槽上方时显示预览矩形"
+
+#: KrohnkiteConfigForm%23331
+msgid "Prevent windows from minimizing (experimental)"
+msgstr "防止窗口最小化（实验性）"
+
+#: KrohnkiteConfigForm%23332
 msgid "Prevent window from protruding from its screen"
 msgstr "防止窗口超出屏幕"
 
-#: KrohnkiteConfigForm%23155
-msgid ""
-"<html><head/><body><p>If enabled, all windows with property skipPager=true become "
-"floating. You can create KDE Window Rule and force  skipPager=true.</p></body></html>"
-msgstr ""
-"<html><head/><body><p>当启用时，所有拥有属性为skipPager=true的窗口都将变为浮动。你可以创"
-"建KDE窗口规则，强制skipPager=true。</p></body></html>"
+#: KrohnkiteConfigForm%23333
+msgid "<html><head/><body><p>If enabled, all windows with property skipPager=true become floating. You can create KDE Window Rule and force  skipPager=true.</p></body></html>"
+msgstr "<html><head/><body><p>如果启用，所有具有 skipPager=true 属性的窗口都会变为浮动。你可以创建 KDE 窗口规则并强制设置 skipPager=true。</p></body></html>"
 
-#: KrohnkiteConfigForm%23156
+#: KrohnkiteConfigForm%23334
 msgid "Make the window float if its property: skipPager=true (HACK)"
-msgstr "当窗口属性为：skipPager=true时使其浮动（侵入性）"
+msgstr "如果窗口属性 skipPager=true，则使其浮动（HACK）"
 
-#: KrohnkiteConfigForm%23157
+#: KrohnkiteConfigForm%23335
 msgid "Log"
 msgstr "日志"
 
-#: KrohnkiteConfigForm%23158
+#: KrohnkiteConfigForm%23336
 msgid "Use this option to debug the script or submit detailed bug report."
 msgstr "使用此选项调试脚本或提交详细错误报告。"
 
-#: KrohnkiteConfigForm%23159
+#: KrohnkiteConfigForm%23337
 msgid "Logging"
 msgstr "日志"
 
-#: KrohnkiteConfigForm%23160
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohnkite "
-"indexes and manages</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">为Krohnkite索引和管理的窗口记录日"
-"志</span></p></body></html>"
+#: KrohnkiteConfigForm%23338
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohnkite indexes and manages</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">记录 Krohnkite 索引和管理的所有窗口</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23161
+#: KrohnkiteConfigForm%23339
 msgid "Added new windows"
 msgstr "添加新窗口"
 
-#: KrohnkiteConfigForm%23162
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohnkite "
-"does not manage for many reasons: service, dialog, etc.</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">为Krohnkite未进行管理（因服务、对"
-"话等）的窗口记录日志。</span></p></body></html>"
+#: KrohnkiteConfigForm%23340
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohnkite does not manage for many reasons: service, dialog, etc.</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">记录 Krohnkite 因服务、对话框等原因而不管理的所有窗口</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23163
+#: KrohnkiteConfigForm%23341
 msgid "Filtered new windows"
 msgstr "已筛选的新窗口"
 
-#: KrohnkiteConfigForm%23164
-msgid ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohkite "
-"could manage if not for the filters in the configuration</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:12pt;\">为Krohkite可管理但不在配置中的筛选"
-"器的窗口记录日志</span></p></body></html>"
+#: KrohnkiteConfigForm%23342
+msgid "<html><head/><body><p><span style=\" font-size:12pt;\">logs all windows that Krohkite could manage if not for the filters in the configuration</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:12pt;\">记录 Krohnkite 本可管理、但被配置中的筛选器排除的所有窗口</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23165
+#: KrohnkiteConfigForm%23343
 msgid "Unmanaged new windows"
 msgstr "未管理的新窗口"
 
-#: KrohnkiteConfigForm%23166
-msgid ""
-"<html><head/><body><h4 style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"size:medium; font-weight:700;\">Filtering log modules</span></h4><p>the group of the log "
-"modules checkbox enables the entire group of log modules at once and in order to include "
-"only certain modules there is a line-edit nearby. Examples:</p><ul style=\"margin-top: "
-"0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li "
-"style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-"
-"block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">1,4-</span> - "
-"enable only the first and from the fourth to the last module</li><li style=\" margin-"
-"top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
-"indent:0px;\"><span style=\" font-family:'Hack';\">!1,4-6</span> - the exclamation mark "
-"at the beginning turns on the exclude mode, so this line will enable all modules except "
-"1 and from 4 to 6. <span style=\" font-family:'Hack';\">!</span> - the exclamation mark "
-"you can use only once in the beginning, to enable the exclude mode.</li></ul></body></"
-"html>"
-msgstr ""
-"<html><head/><body><h4 style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"size:medium; font-weight:700;\">过滤日志模块</span></h4><p>日志模块复选框组可一次性启用整"
-"组日志模块，若需仅包含特定模块，可使用旁边的行编辑框。例如：</p><ul style=\"margin-top: "
-"0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li "
-"style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-"
-"block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">1,4-</span> - 仅"
-"启用第1个及第4个到最后一个模块</li><li style=\" margin-top:0px; margin-bottom:12px; "
-"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" "
-"font-family:'Hack';\">!1,4-6</span> - 开头的感叹号开启排除模式，此行将启用除1和4到6之外的"
-"所有模块。<span style=\" font-family:'Hack';\">!</span> - 感叹号只能在开头使用一次以启用"
-"排除模式。</li></ul></body></html>"
+#: KrohnkiteConfigForm%23344
+msgid "<html><head/><body><h4 style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:700;\">Filtering log modules</span></h4><p>the group of the log modules checkbox enables the entire group of log modules at once and in order to include only certain modules there is a line-edit nearby. Examples:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">1,4-</span> - enable only the first and from the fourth to the last module</li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">!1,4-6</span> - the exclamation mark at the beginning turns on the exclude mode, so this line will enable all modules except 1 and from 4 to 6. <span style=\" font-family:'Hack';\">!</span> - the exclamation mark you can use only once in the beginning, to enable the exclude mode.</li></ul></body></html>"
+msgstr "<html><head/><body><h4 style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:medium; font-weight:700;\">过滤日志模块</span></h4><p>日志模块分组复选框可一次启用整组日志模块；若只想包含特定模块，可使用旁边的行编辑框。示例：</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">1,4-</span> — 仅启用第 1 个以及第 4 个到最后一个模块</li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:'Hack';\">!1,4-6</span> — 开头的感叹号启用排除模式，此行将启用除 1 和 4 到 6 之外的所有模块。<span style=\" font-family:'Hack';\">!</span> — 感叹号只能在开头使用一次，以启用排除模式。</li></ul></body></html>"
 
-#: KrohnkiteConfigForm%23167
+#: KrohnkiteConfigForm%23345
 msgid "filter log modules popup tooltip <<<hover me>>>"
-msgstr "过滤日志模块弹出工具提示 <<<hover me>>>"
+msgstr "过滤日志模块弹出提示 <<<悬停我>>>"
 
-#: KrohnkiteConfigForm%23168
-msgid ""
-"<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; "
-"font-weight:700;\">Workspace signals log modules</span></h5><p><span style=\" font-"
-"size:11pt;\">1. screensChanged</span></p><p><span style=\" font-size:11pt;\">2. "
-"virtualScreenGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. "
-"currentActivityChanged</span></p><p><span style=\" font-size:11pt;\">4. "
-"currentDesktopChanged</span></p><p><span style=\" font-size:11pt;\">5. windowAdded</"
-"span></p><p><span style=\" font-size:11pt;\">6. windowActivated</span></p><p><span "
-"style=\" font-size:11pt;\">7. windowRemoved</span></p><p><br/></p></body></html>"
-msgstr ""
-"<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; "
-"font-weight:700;\">工作空间信号日志模块</span></h5><p><span style=\" font-size:11pt;"
-"\">1. 屏幕配置已更改</span></p><p><span style=\" font-size:11pt;\">2. 虚拟屏幕几何属性已"
-"更改</span></p><p><span style=\" font-size:11pt;\">3. 当前活动已更改</span></p><p><span "
-"style=\" font-size:11pt;\">4. 当前桌面已更改</span></p><p><span style=\" font-size:11pt;"
-"\">5. 窗口已添加</span></p><p><span style=\" font-size:11pt;\">6. 窗口已激活</span></"
-"p><p><span style=\" font-size:11pt;\">7. 窗口已移除</span></p><p><br/></p></body></html>"
+#: KrohnkiteConfigForm%23346
+msgid "<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; font-weight:700;\">Workspace signals log modules</span></h5><p><span style=\" font-size:11pt;\">1. screensChanged</span></p><p><span style=\" font-size:11pt;\">2. virtualScreenGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. currentActivityChanged</span></p><p><span style=\" font-size:11pt;\">4. currentDesktopChanged</span></p><p><span style=\" font-size:11pt;\">5. windowAdded</span></p><p><span style=\" font-size:11pt;\">6. windowActivated</span></p><p><span style=\" font-size:11pt;\">7. windowRemoved</span></p><p><span style=\" font-size:11pt;\">8. surfaceChanged</span></p><p><br/></p></body></html>"
+msgstr "<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; font-weight:700;\">工作区信号日志模块</span></h5><p><span style=\" font-size:11pt;\">1. screensChanged</span></p><p><span style=\" font-size:11pt;\">2. virtualScreenGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. currentActivityChanged</span></p><p><span style=\" font-size:11pt;\">4. currentDesktopChanged</span></p><p><span style=\" font-size:11pt;\">5. windowAdded</span></p><p><span style=\" font-size:11pt;\">6. windowActivated</span></p><p><span style=\" font-size:11pt;\">7. windowRemoved</span></p><p><span style=\" font-size:11pt;\">8. surfaceChanged</span></p><p><br/></p></body></html>"
 
-#: KrohnkiteConfigForm%23169
-msgid ""
-"<html><head/><body><p><span style=\" font-size:11pt; font-weight:700;\">All other log "
-"modules</span></p><p><span style=\" font-size:11pt;\">1. shortcut</span></p><p><span "
-"style=\" font-size:11pt;\">2. arrangeScreen</span></p><p><span style=\" font-size:11pt;"
-"\">3. printConfig</span></p><p><span style=\" font-size:11pt;\">4. setTimeout</span></"
-"p><p><span style=\" font-size:11pt;\">5. window</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:11pt; font-weight:700;\">所有其他日志模块"
-"</span></p><p><span style=\" font-size:11pt;\">1. 快捷键</span></p><p><span style=\" "
-"font-size:11pt;\">2. 屏幕排列</span></p><p><span style=\" font-size:11pt;\">3. 打印配置</"
-"span></p><p><span style=\" font-size:11pt;\">4. 设置超时</span></p><p><span style=\" "
-"font-size:11pt;\">5. 窗口</span></p></body></html>"
+#: KrohnkiteConfigForm%23347
+msgid "<html><head/><body><p><span style=\" font-size:11pt; font-weight:700;\">All other log modules</span></p><p><span style=\" font-size:11pt;\">1. shortcut</span></p><p><span style=\" font-size:11pt;\">2. arrangeScreen</span></p><p><span style=\" font-size:11pt;\">3. printConfig</span></p><p><span style=\" font-size:11pt;\">4. setTimeout</span></p><p><span style=\" font-size:11pt;\">5. window</span></p><p><span style=\" font-size:11pt;\">6. dbus</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:11pt; font-weight:700;\">所有其他日志模块</span></p><p><span style=\" font-size:11pt;\">1. shortcut</span></p><p><span style=\" font-size:11pt;\">2. arrangeScreen</span></p><p><span style=\" font-size:11pt;\">3. printConfig</span></p><p><span style=\" font-size:11pt;\">4. setTimeout</span></p><p><span style=\" font-size:11pt;\">5. window</span></p><p><span style=\" font-size:11pt;\">6. dbus</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23170
+#: KrohnkiteConfigForm%23348
 msgid "Workspace signals"
 msgstr "工作区信号"
 
-#: KrohnkiteConfigForm%23171
+#: KrohnkiteConfigForm%23349
 msgid "Window signals     "
 msgstr "窗口信号"
 
-#: KrohnkiteConfigForm%23172
-msgid ""
-"<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; "
-"font-weight:700;\">Window signals log modules</span></h5><p><span style=\" font-"
-"size:11pt;\">1. activitiesChanged</span></p><p><span style=\" font-size:11pt;\">2. "
-"bufferGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. desktopsChanged</"
-"span></p><p><span style=\" font-size:11pt;\">4. fullScreenChanged</span></p><p><span "
-"style=\" font-size:11pt;\">5. interactiveMoveResizeStepped</span></p><p><span style=\" "
-"font-size:11pt;\">6. maximizedAboutToChange</span></p><p><span style=\" font-size:11pt;"
-"\">7. minimizedChanged</span></p><p><span style=\" font-size:11pt;\">8. "
-"moveResizedChanged</span></p><p><span style=\" font-size:11pt;\">9. outputChanged</"
-"span></p></body></html>"
-msgstr ""
-"<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; "
-"margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; "
-"font-weight:700;\">窗口信号日志模块</span></h5><p><span style=\" font-size:11pt;\">1. 活"
-"动状态变更</span></p><p><span style=\" font-size:11pt;\">2. 缓冲几何属性变更</span></"
-"p><p><span style=\" font-size:11pt;\">3. 虚拟桌面变更</span></p><p><span style=\" font-"
-"size:11pt;\">4. 全屏状态变更</span></p><p><span style=\" font-size:11pt;\">5. 交互式移动/"
-"调整步骤</span></p><p><span style=\" font-size:11pt;\">6. 最大化状态即将改变</span></"
-"p><p><span style=\" font-size:11pt;\">7. 最小化状态变更</span></p><p><span style=\" font-"
-"size:11pt;\">8. 移动/缩放状态变更</span></p><p><span style=\" font-size:11pt;\">9. 输出设"
-"备变更</span></p></body></html>"
+#: KrohnkiteConfigForm%23350
+msgid "<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; font-weight:700;\">Window signals log modules</span></h5><p><span style=\" font-size:11pt;\">1. activitiesChanged</span></p><p><span style=\" font-size:11pt;\">2. bufferGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. desktopsChanged</span></p><p><span style=\" font-size:11pt;\">4. fullScreenChanged</span></p><p><span style=\" font-size:11pt;\">5. interactiveMoveResizeStepped</span></p><p><span style=\" font-size:11pt;\">6. maximizedAboutToChange</span></p><p><span style=\" font-size:11pt;\">7. minimizedChanged</span></p><p><span style=\" font-size:11pt;\">8. moveResizedChanged</span></p><p><span style=\" font-size:11pt;\">9. outputChanged</span></p><p><span style=\" font-size:11pt;\">10. stackingOrderChanged</span></p></body></html>"
+msgstr "<html><head/><body><h5 style=\" margin-top:12px; margin-bottom:4px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:11pt; font-weight:700;\">窗口信号日志模块</span></h5><p><span style=\" font-size:11pt;\">1. activitiesChanged</span></p><p><span style=\" font-size:11pt;\">2. bufferGeometryChanged</span></p><p><span style=\" font-size:11pt;\">3. desktopsChanged</span></p><p><span style=\" font-size:11pt;\">4. fullScreenChanged</span></p><p><span style=\" font-size:11pt;\">5. interactiveMoveResizeStepped</span></p><p><span style=\" font-size:11pt;\">6. maximizedAboutToChange</span></p><p><span style=\" font-size:11pt;\">7. minimizedChanged</span></p><p><span style=\" font-size:11pt;\">8. moveResizedChanged</span></p><p><span style=\" font-size:11pt;\">9. outputChanged</span></p><p><span style=\" font-size:11pt;\">10. stackingOrderChanged</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23173
+#: KrohnkiteConfigForm%23351
 msgid "Other                       "
 msgstr "其他"
 
-#: KrohnkiteConfigForm%23174
-msgid ""
-"<html><head/><body><p><span style=\" font-size:11pt;\">Also, in addition to the fact "
-"that you can include only the modules you need, you can enable </span><span style=\" "
-"font-family:'Hack'; font-size:11pt;\">Filter</span><span style=\" font-size:11pt;\"> "
-"checkbox and use other filters in filter line edit:</span></p><p><span style=\" font-"
-"size:11pt;\">- </span><span style=\" font-size:11pt; font-weight:700;\">winclass</span></"
-"p><p><span style=\" font-size:11pt;\">Examples:</span></p><p><span style=\" font-"
-"family:'Hack'; font-size:11pt;\">- </span><span style=\" font-family:'Hack'; font-"
-"size:11pt; font-weight:700;\">winclass=[konsole]</span><span style=\" font-size:11pt; "
-"font-weight:700;\"/><span style=\" font-size:11pt;\">- some modules may be filtered by a "
-"window class, so this logs modules will show only windows with class that contains </"
-"span><span style=\" font-family:'Hack'; font-size:11pt;\">konsole</span><span style=\" "
-"font-size:11pt;\"> word.</span></p><p><span style=\" font-family:'Hack'; font-size:11pt;"
-"\">- </span><span style=\" font-family:'Hack'; font-size:11pt; font-weight:700;\">!"
-"winclass=org.kde.elisa:org.kde.ruler</span><span style=\" font-size:11pt;\"> -Exclude "
-"Elisa and Kruler from log output</span></p></body></html>"
-msgstr ""
-"<html><head/><body><p><span style=\" font-size:11pt;\">此外，除了可以仅包含所需模块外，您"
-"还能启用 </span><span style=\" font-family:'Hack'; font-size:11pt;\">过滤器</span><span "
-"style=\" font-size:11pt;\"> 复选框并在过滤器行编辑框中使用其他筛选条件：</span></"
-"p><p><span style=\" font-size:11pt;\">- </span><span style=\" font-size:11pt; font-"
-"weight:700;\">窗口类型</span></p><p><span style=\" font-size:11pt;\">示例：</span></"
-"p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-"
-"family:'Hack'; font-size:11pt; font-weight:700;\">winclass=[konsole]</span><span "
-"style=\" font-size:11pt; font-weight:700;\"/><span style=\" font-size:11pt;\">- 部分模块"
-"可通过窗口类筛选，此日志将仅显示类名包含 </span><span style=\" font-family:'Hack'; font-"
-"size:11pt;\">konsole</span><span style=\" font-size:11pt;\"> 的窗口模块</span></"
-"p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-"
-"family:'Hack'; font-size:11pt; font-weight:700;\">!winclass=org.kde.elisa:org.kde.ruler</"
-"span><span style=\" font-size:11pt;\"> - 在日志输出中排除 Elisa 和 Kruler</span></p></"
-"body></html>"
+#: KrohnkiteConfigForm%23352
+msgid "<html><head/><body><p><span style=\" font-size:11pt;\">Also, in addition to the fact that you can include only the modules you need, you can enable </span><span style=\" font-family:'Hack'; font-size:11pt;\">Filter</span><span style=\" font-size:11pt;\"> checkbox and use other filters in filter line edit:</span></p><p><span style=\" font-size:11pt;\">- </span><span style=\" font-size:11pt; font-weight:700;\">winclass</span></p><p><span style=\" font-size:11pt;\">Examples:</span></p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-family:'Hack'; font-size:11pt; font-weight:700;\">winclass=[konsole]</span><span style=\" font-size:11pt; font-weight:700;\"/><span style=\" font-size:11pt;\">- some modules may be filtered by a window class, so this logs modules will show only windows with class that contains </span><span style=\" font-family:'Hack'; font-size:11pt;\">konsole</span><span style=\" font-size:11pt;\"> word.</span></p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-family:'Hack'; font-size:11pt; font-weight:700;\">!winclass=org.kde.elisa:org.kde.ruler</span><span style=\" font-size:11pt;\"> -Exclude Elisa and Kruler from log output</span></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:11pt;\">除了只包含所需模块外，你还可以启用 </span><span style=\" font-family:'Hack'; font-size:11pt;\">筛选</span><span style=\" font-size:11pt;\"> 复选框，并在过滤器行编辑框中使用其他筛选条件：</span></p><p><span style=\" font-size:11pt;\">- </span><span style=\" font-size:11pt; font-weight:700;\">winclass</span></p><p><span style=\" font-size:11pt;\">示例：</span></p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-family:'Hack'; font-size:11pt; font-weight:700;\">winclass=[konsole]</span><span style=\" font-size:11pt; font-weight:700;\"/><span style=\" font-size:11pt;\"> — 部分模块可以按窗口类筛选，因此这些日志模块只会显示类名包含 </span><span style=\" font-family:'Hack'; font-size:11pt;\">konsole</span><span style=\" font-size:11pt;\"> 的窗口。</span></p><p><span style=\" font-family:'Hack'; font-size:11pt;\">- </span><span style=\" font-family:'Hack'; font-size:11pt; font-weight:700;\">!winclass=org.kde.elisa:org.kde.ruler</span><span style=\" font-size:11pt;\"> — 从日志输出中排除 Elisa 和 Kruler</span></p></body></html>"
 
-#: KrohnkiteConfigForm%23175
+#: KrohnkiteConfigForm%23353
 msgid "Filter"
 msgstr "筛选"

@@ -1,4 +1,4 @@
-// Smoke test of KWinConfig + KWinWindow against a fake KWin API.
+// Smoke test of KWinConfig + DriverWindow against a fake KWin API.
 // Run: npx tsc && node test/kwin-smoke.test.js
 const fs = require("fs"), vm = require("vm"), path = require("path"), assert = require("assert");
 const ctx = { print() {}, console, Qt: { rect: (x, y, width, height) => ({ x, y, width, height }) } };
@@ -24,7 +24,7 @@ const mk = (o) => {
     normalWindow: true, modal: false, transient: false, resizeable: true, dialog: false, splash: false,
     utility: false, specialWindow: false, deleted: false, activities: [], desktops: [],
   }, o);
-  return vm.runInContext("new WindowClass(new KWinWindow(win, ws, { getSurface: () => ({ id: \"s1\" }) }))", ctx);
+  return vm.runInContext("new WindowClass(new DriverWindow(win, ws, { getSurface: () => ({ id: \"s1\" }) }))", ctx);
 };
 let failed = 0;
 const test = (n, f) => { try { f(); console.log("ok   " + n); } catch (e) { failed++; console.log("FAIL " + n + "\n     " + e.stack); } };
@@ -171,8 +171,8 @@ test("learned min sizes and float memory survive export/import", () => {
   const out = vm.runInContext("WindowClass.exportLearnedMin()", ctx);
   assert.strictEqual(out.discord.width, 940);
   assert.strictEqual(out.bad, undefined);
-  vm.runInContext("KWinWindow.importFloatMemory({ 'vlc||': { x: 0.25, y: 0.25, w: 0.5, h: 0.5 } })", ctx);
-  const g = mk({ resourceClass: "vlc", keepAbove: false }).window.getInitFloatGeometry();
+  vm.runInContext("DriverWindow.importFloatMemory({ 'vlc||': { x: 0.25, y: 0.25, w: 0.5, h: 0.5 } })", ctx);
+  const g = mk({ resourceClass: "vlc", keepAbove: false }).window._getInitFloatGeometry();
   assert.deepStrictEqual([g.x, g.y, g.width, g.height], [640, 360, 1280, 720]);
 });
 test("layout store restores the layout and splits of a surface created later", () => {
@@ -192,7 +192,8 @@ test("layout store restores the layout and splits of a surface created later", (
 test("arrange is skipped while paused and caught up later", () => {
   const engine = vm.runInContext("new TilingEngine()", ctx);
   let arranged = 0;
-  const drv = { isPaused: true, currentSurfaces: [], stateMaybeChanged() { arranged++; } };
+  const drv = { isPaused: true, currentSurfaces: [], stateMaybeChanged() { arranged++; },
+    onLayoutStart() {}, onLayoutSettled() {} };
   engine.arrange(drv, "test");
   assert.strictEqual(engine.pendingArrange, true);
   assert.strictEqual(arranged, 0);
@@ -208,8 +209,8 @@ test("drop target is the tile under the cursor", () => {
   const fake = (id, rect) => ({ id, actualGeometry: rect, geometry: rect, isTiled: true });
   const a = fake("a", R(0, 0, 960, 1080)), b = fake("b", R(960, 0, 960, 1080));
   engine.windows.getVisibleTiles = () => [a, b];
-  assert.strictEqual(engine.dropTarget({ cursorPosition: [1500, 500], currentSurface: {} }, a), b);
-  assert.strictEqual(engine.dropTarget({ cursorPosition: [100, 500], currentSurface: {} }, a), null, "own tile is not a target");
+  assert.strictEqual(engine.dropTarget({ cursorPosition: { x: 1500, y: 500 }, currentSurface: {} }, a), b);
+  assert.strictEqual(engine.dropTarget({ cursorPosition: { x: 100, y: 500 }, currentSurface: {} }, a), null, "own tile is not a target");
 });
 test("drop preview goes to the overlay of the monitor under the box", () => {
   const outB = { name: "HDMI-A-1", geometry: { x: 2560, y: 0, width: 2560, height: 1440 } };
@@ -226,7 +227,7 @@ test("drop preview goes to the overlay of the monitor under the box", () => {
   show(fake, null, false);
   assert.deepStrictEqual(calls[1], ["hide"]);
 });
-test("animation speed is passed to the Krohnkite Smooth effect", () => {
+test("animation speed is passed to the Kröhnkite-Plus Smooth effect", () => {
   let cmd = null;
   const fake = { shell: { run: (c) => (cmd = c) } };
   vm.runInContext("(d) => KWinDriver.prototype.syncSmoothEffect.call(d)", ctx)(fake);

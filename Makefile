@@ -24,9 +24,15 @@ install: package
 	kpackagetool6 -t KWin/Script -s $(PROJECT_NAME) \
 		&& kpackagetool6 -t KWin/Script -u $(KWINPKG_FILE) \
 		|| kpackagetool6 -t KWin/Script -i $(KWINPKG_FILE)
+	python3 tools/install-icons.py
+
+# Reinstall and load a complete fresh-path bundle; no KWin restart/logout needed.
+reload: install
+	python3 tools/reload-script.py "$(KWINPKG_DIR)"
 
 uninstall:
 	kpackagetool6 -t kwinscript -r $(PROJECT_NAME)
+	python3 tools/install-icons.py --uninstall
 
 package: $(KWINPKG_FILE) $(EFFECT_FILE) package_json
 
@@ -40,9 +46,12 @@ $(EFFECT_FILE): effect/metadata.json effect/contents/code/main.js effect/content
 	@sed "s/\$$VER/$(PROJECT_VER)/" effect/metadata.json > "$(EFFECT_DIR)/metadata.json"
 	@cd "$(EFFECT_DIR)" && zip -qr "../$(EFFECT_FILE)" .
 
-test: $(NODE_SCRIPT) package_json
-	npm test
+test:
+	npm run check
 
+# run/stop load pkg under the krohnkite-test plugin name through a local
+# bin/load-script.sh, which is not tracked; reload installs and reloads the real
+# krohnkite plugin instead.
 run: $(KWINPKG_DIR)
 	bin/load-script.sh "$(KWIN_QML)" "$(PROJECT_NAME)-test"
 	@find "$(KWINPKG_DIR)" '(' -name "*.qmlc" -o -name "*.jsc" ')' -delete
@@ -62,6 +71,13 @@ $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/dbus.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/popup.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/droppreview.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/droppreview-window.qml
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/shellrunner.qml
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/layoutchooser.qml
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/iconinstaller.qml
+$(KWINPKG_DIR): $(patsubst res/%,$(KWINPKG_DIR)/contents/ui/%,$(wildcard res/layouts/*.svg) $(wildcard res/appicon/*.svg))
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/install-icons.py
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/collect-diagnostics.py
+$(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/dragpreview.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/ui/shortcuts.qml
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/main.js
 $(KWINPKG_DIR): $(KWINPKG_DIR)/contents/code/script.js
@@ -85,6 +101,18 @@ $(KWINPKG_DIR)/contents/ui/dbus.qml: res/dbus.qml
 $(KWINPKG_DIR)/contents/ui/popup.qml: res/popup.qml
 $(KWINPKG_DIR)/contents/ui/droppreview.qml: res/droppreview.qml
 $(KWINPKG_DIR)/contents/ui/droppreview-window.qml: res/droppreview-window.qml
+$(KWINPKG_DIR)/contents/ui/shellrunner.qml: res/shellrunner.qml
+$(KWINPKG_DIR)/contents/ui/layoutchooser.qml: res/layoutchooser.qml
+$(KWINPKG_DIR)/contents/ui/iconinstaller.qml: res/iconinstaller.qml
+$(KWINPKG_DIR)/contents/ui/layouts/%.svg: res/layouts/%.svg
+	@mkdir -p $(dir $@)
+	@cp $< $@
+$(KWINPKG_DIR)/contents/ui/appicon/%.svg: res/appicon/%.svg
+	@mkdir -p $(dir $@)
+	@cp $< $@
+$(KWINPKG_DIR)/contents/code/install-icons.py: tools/install-icons.py
+$(KWINPKG_DIR)/contents/code/collect-diagnostics.py: tools/collect-diagnostics.py
+$(KWINPKG_DIR)/contents/ui/dragpreview.qml: res/dragpreview.qml
 $(KWINPKG_DIR)/contents/ui/shortcuts.qml: res/shortcuts.qml
 $(KWINPKG_DIR)/contents/code/script.js: $(NODE_SCRIPT)
 $(KWINPKG_DIR)/contents/code/main.js: res/main.js
@@ -100,4 +128,4 @@ $(NODE_SCRIPT): $(SRC)
 package_json: package.json
 	sed -i 's/"version": [^,]*/"version": "$(PROJECT_VER)"/' package.json
 
-.PHONY: all clean install package effect test run stop package_json
+.PHONY: all clean install reload package effect test run stop package_json

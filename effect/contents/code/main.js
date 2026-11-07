@@ -1,7 +1,7 @@
 /*
     SPDX-License-Identifier: MIT
 
-    Krohnkite Smooth - companion desktop effect for the Krohnkite (Smart) script.
+    Kröhnkite-Plus Smooth - companion desktop effect for the Kröhnkite-Plus script.
 
     KWin scripts can only move windows instantly. This effect animates every
     size/position change that does not come from the user's mouse: the
@@ -77,7 +77,7 @@ var krohnkiteSmooth = {
         if (id !== undefined && id !== null) self.running.set(w, id);
         if (self.logged < 3) {
             self.logged++;
-            print("Krohnkite Smooth: animating " + (w.windowClass || "window") + " (" +
+            print("Kröhnkite-Plus Smooth: animating " + (w.windowClass || "window") + " (" +
                   Math.round(oldGeometry.width) + "x" + Math.round(oldGeometry.height) + " -> " +
                   Math.round(g.width) + "x" + Math.round(g.height) + ")");
         }
@@ -147,7 +147,7 @@ var krohnkiteSmooth = {
             self.managed.delete(w);
         });
         self.on(effect, "animationEnded", function (w) { self.running.delete(w); });
-        print("Krohnkite Smooth loaded, duration " + self.duration + " ms, " +
+        print("Kröhnkite-Plus Smooth loaded, duration " + self.duration + " ms, " +
               (perWindow ? "per-window signals (" + self.managed.size + " windows)" : "") +
               (global ? " global signals" : "") +
               (!perWindow && !global ? "NO geometry signal found - nothing will be animated" : ""));

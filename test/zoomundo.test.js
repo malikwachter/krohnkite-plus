@@ -24,28 +24,42 @@ function win(cls, out, owner) {
   const id = cls + ++n;
   const w = {
     id, windowClassName: cls, fullScreen: false, maximized: false, minimized: false, shouldIgnore: false,
-    shouldFloat: false, weight: null, placement: null, hasPreferredFloatGeometry: false,
+    shouldFloat: false, weight: null, placement: null, isCommittedEver: false,
+    floatConfig: { auto: false, shouldFloat: false, stepWidth: 5, stepHeight: 5 }, floatGeometry: R(100, 100, 400, 300),
+    windowCaption: cls, stackingOrder: 0, srfTime: 0, updateSrfTime() {}, forgetRequestedGeometry() {},
+    isAlive: () => true, setMinimizedByScript() {}, dispose() {},
     minSize: { width: 0, height: 0 }, maxSize: { width: 99999, height: 99999 },
     geometry: R(0, 0, 100, 100), out, owner,
     get surface() { return this.out === outA ? sA : sB; }, set surface(s) {},
-    commit(g, nb, layer) { if (g) { commits[id] = [g.x, g.y, g.width, g.height]; this.geometry = g; } if (layer !== undefined) layers[id] = layer; },
+    commit(_ctx, g, nb, layer) { if (g) { commits[id] = [g.x, g.y, g.width, g.height]; this.geometry = g; } if (layer !== undefined) layers[id] = layer; },
     visible(s) { return s.output === this.out; },
     isTransientOf(o) { return this.owner === o; },
-    getInitFloatGeometry: () => R(100, 100, 400, 300), moveMouseToFocus() {}, rememberFloatGeometry() {},
+    moveMouseToFocus() {}, rememberFloatGeometry() {},
   };
   return vm.runInContext("(w) => new WindowClass(w)", ctx)(w);
 }
 const drv = {
-  backend: "test", get currentSurfaces() { return [sA, sB]; }, cursorPosition: [0, 0],
+  backend: "test", get currentSurfaces() { return [sA, sB]; }, cursorPosition: { x: 0, y: 0 },
   get currentSurface() { return active ? (active.window.out === outA ? sA : sB) : sA; }, set currentSurface(v) {},
   get currentWindow() { return active; }, set currentWindow(w) { active = w; },
   isMetaMode: false, isPaused: false, setTimeout() {}, showNotification(t) { note = t; }, metaPushed() {}, stateMaybeChanged() {},
   showDropPreview() {},
-  moveWindowsToScreen(list) { list.forEach(([out, ws]) => ws.forEach((w) => (w.window.out = out))); engine.arrange(drv, "moveWindowsToScreen"); },
+  onLayoutStart() {}, onLayoutSettled() {}, onWindowSizeCommitted() {}, requestPointerOnFocus() {},
+  showDragPreview() {}, hideDragPreview() {}, getNeighborOutput: () => null, handleLayoutChooserShortcut: () => false,
+  showLayoutOSD() {}, showLayoutShortcut() {}, isRegister: false,
+  getSurface: (out) => (out === outA ? sA : sB),
+  /* the relocation queue of the new driver: move the windows, then arrange */
+  relocateWindows() {
+    const r = engine.relocationWindows;
+    r.toOutputs.entries().forEach(([out, ws]) => ws.forEach((w) => (w.window.out = out)));
+    r.clear();
+    engine.arrange(drv, "moveWindowToOutput");
+    return true;
+  },
 };
 const engine = vm.runInContext("new TilingEngine()", ctx);
 const control = vm.runInContext("(e) => new TilingController(e)", ctx)(engine);
-const key = (k) => control.onShortcut(drv, k);
+const key = (k) => control.onShortcut(drv, k, "shortcutCB");
 const focus = (w) => { active = w; control.onWindowFocused(drv, w); };
 
 let failed = 0;
@@ -123,7 +137,7 @@ test("closing the zoomed window clears the zoom", () => {
   engine.arrange(drv, "add");
   active = t;
   key("Zoom");
-  control.onWindowRemoved(drv, t);
+  control.onWindowRemoved(drv, t, "windowRemovedCB");
   assert.strictEqual(engine.zoomWindow, null);
   assert.deepStrictEqual(g(a1), home.a1);
 });
@@ -158,7 +172,7 @@ test("opening and closing windows is not an undo step", () => {
   const t = win("tmp", outA);
   engine.manage(t);
   engine.arrange(drv, "add");
-  control.onWindowRemoved(drv, t);
+  control.onWindowRemoved(drv, t, "windowRemovedCB");
   engine.arrange(drv, "removed");
   assert.strictEqual(engine.undoSteps, steps);
   assert.strictEqual(engine.redoSteps, redo, "redo survives windows opening");
@@ -166,7 +180,7 @@ test("opening and closing windows is not an undo step", () => {
 test("undo a move to the other monitor", () => {
   active = a3;
   engine.markUserAction();
-  drv.moveWindowsToScreen([[outB, [a3]]]);
+  engine.moveWindowsToOutputs(drv, [[outB, [a3]]]);
   assert.strictEqual(a3.window.out, outB);
   key("Undo");
   assert.strictEqual(a3.window.out, outA);
@@ -197,10 +211,10 @@ test("focus keys are no undo steps; empty stacks say so", () => {
   e.manage(x); e.manage(y);
   active = x;
   e.arrange(drv, "init");
-  c.onShortcut(drv, "FocusNext");
-  c.onShortcut(drv, "Undo");
+  c.onShortcut(drv, "FocusNext", "shortcutCB");
+  c.onShortcut(drv, "Undo", "shortcutCB");
   assert.strictEqual(note, "Nothing to undo");
-  c.onShortcut(drv, "Redo");
+  c.onShortcut(drv, "Redo", "shortcutCB");
   assert.strictEqual(note, "Nothing to redo");
 });
 test("live mouse resizing becomes one step at the end", () => {
@@ -209,7 +223,7 @@ test("live mouse resizing becomes one step at the end", () => {
   control.onWindowResizeStart(a1);
   engine.arrange(drv, "onWindowResize");
   engine.arrange(drv, "onWindowResize");
-  control.onWindowResizeOver(drv, a1);
+  control.onWindowResizeOver(drv, a1, "test");
   assert(engine.undoSteps <= steps + 1);
 });
 
@@ -217,9 +231,9 @@ test("drag & drop with the mouse is one undo step", () => {
   const before = order();
   active = a1;
   control.onWindowMoveStart(a1);
-  drv.cursorPosition = [1500, 800]; // over the bottom right tile
-  control.onWindowDragging(drv, a1, a1.actualGeometry);
-  control.onWindowMoveOver(drv, a1);
+  drv.cursorPosition = { x: 1500, y: 800 }; // over the bottom right tile
+  control.onWindowDragging(drv, a1, a1.actualGeometry, "test");
+  control.onWindowMoveOver(drv, a1, "test");
   assert.notDeepStrictEqual(order(), before, "dropped somewhere else");
   key("Undo");
   assert.deepStrictEqual(order(), before);
@@ -231,7 +245,7 @@ test("moving a floating window with the mouse can be undone", () => {
   const start = g(a2).slice();
   control.onWindowMoveStart(a2);
   a2.window.geometry = R(start[0] + 300, start[1] + 200, start[2], start[3]); // the user moved it
-  control.onWindowMoveOver(drv, a2);
+  control.onWindowMoveOver(drv, a2, "test");
   key("Undo");
   assert.deepStrictEqual(g(a2), start, "back where it was");
   key("Undo"); // and tiled again
@@ -247,13 +261,14 @@ test("no snapshots are taken by plain arranges", () => {
 });
 
 test("a key without effect, then windows opening that make one float: no step", () => {
+  vm.runInContext("CONFIG.unfitGreater = true", ctx); // upstream default is off now
   const e = vm.runInContext("new TilingEngine()", ctx);
   const c = vm.runInContext("(e) => new TilingController(e)", ctx)(e);
   const x = win("x", outA), y = win("y", outA);
   e.manage(x); e.manage(y);
   active = x;
   e.arrange(drv, "init");
-  c.onShortcut(drv, "FocusNext"); // user action that changes nothing
+  c.onShortcut(drv, "FocusNext", "shortcutCB"); // user action that changes nothing
   const z = win("z", outA);
   z.window.minSize = { width: 1200, height: 700 };
   e.manage(z);
@@ -265,25 +280,7 @@ test("a key without effect, then windows opening that make one float: no step", 
   e.arrange(drv, "added");
   assert(z.isFloating, "z was floated automatically");
   assert.strictEqual(e.undoSteps, 0, "automatic floating is not the user's step");
+  vm.runInContext("CONFIG.unfitGreater = false", ctx);
 });
-test("grow/shrink keys change dock sizes (vertical: v*, horizontal: h*), else resize", () => {
-  const P = vm.runInContext("DockPosition", ctx), Docked = vm.runInContext("WindowState.Docked", ctx);
-  const mk = (pos) => ({ state: Docked, dock: { position: pos, cfg: { vWide: 10, hWide: 10, vHeight: 10, hHeight: 10 } } });
-  const left = mk(P.left), top = mk(P.top);
-  control.resizeDockOrWindow(left, "width", 1);
-  control.resizeDockOrWindow(left, "height", -1);
-  control.resizeDockOrWindow(top, "width", -1);
-  control.resizeDockOrWindow(top, "height", 1);
-  assert.deepStrictEqual({ ...left.dock.cfg }, { vWide: 11, hWide: 10, vHeight: 9, hHeight: 10 });
-  assert.deepStrictEqual({ ...top.dock.cfg }, { vWide: 10, hWide: 9, vHeight: 10, hHeight: 11 });
-  const calls = [];
-  const orig = engine.resizeWindow;
-  engine.resizeWindow = (w, dir, step) => calls.push(dir + step);
-  control.resizeDockOrWindow(a1, "width", -1);
-  control.resizeDockOrWindow(a1, "height", 1);
-  engine.resizeWindow = orig;
-  assert.deepStrictEqual(calls, ["east-1", "south1"]);
-});
-
 console.log(failed === 0 ? "\nall zoom/undo tests passed" : `\n${failed} test(s) FAILED`);
 process.exit(failed === 0 ? 0 : 1);

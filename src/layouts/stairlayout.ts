@@ -23,7 +23,7 @@ class StairLayout implements ILayout {
     ctx: EngineContext,
     tileables: WindowClass[],
     area: Rect,
-    gap: number
+    gap: number,
   ): void {
     /* Tile all tileables */
     tileables.forEach((tileable) => (tileable.state = WindowState.Tiled));
@@ -42,7 +42,7 @@ class StairLayout implements ILayout {
         area.x + alignRight * dx,
         area.y + dy,
         area.width - dx,
-        area.height - dy
+        area.height - dy,
       );
     }
   }
@@ -53,13 +53,13 @@ class StairLayout implements ILayout {
     return other;
   }
 
-  public handleShortcut(ctx: EngineContext, input: Shortcut) {
+  public handleShortcut(ctx: EngineContext, input: KrohnkiteAction) {
     switch (input) {
-      case Shortcut.Decrease:
+      case KrohnkiteAction.Decrease:
         // TODO: define arbitrary constants
         this.space = Math.max(16, this.space - 8);
         break;
-      case Shortcut.Increase:
+      case KrohnkiteAction.Increase:
         // TODO: define arbitrary constants
         this.space = Math.min(160, this.space + 8);
         break;

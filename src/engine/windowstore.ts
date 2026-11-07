@@ -7,9 +7,12 @@
 
 class WindowStore {
   public list: WindowClass[];
+  /** Previous master per surface id, used to toggle back via SetMaster. */
+  private _prevMaster: Map<string, WindowClass>;
 
   constructor(windows?: WindowClass[]) {
     this.list = windows || [];
+    this._prevMaster = new Map();
   }
 
   public move(srcWin: WindowClass, destWin: WindowClass, after?: boolean) {
@@ -33,16 +36,77 @@ class WindowStore {
       this.list.splice(after ? destIdx : destIdx - 1, 0, srcWin);
     }
   }
+  public moveGroup(
+    windows: WindowClass[],
+    destWin: WindowClass,
+    after?: boolean,
+  ) {
+    const removed: WindowClass[] = [];
+    for (const win of windows) {
+      const idx = this.list.indexOf(win);
+      if (idx >= 0) removed.push(this.list.splice(idx, 1)[0]);
+    }
+    if (removed.length === 0) return;
+    const destIdx = this.list.indexOf(destWin);
+    if (destIdx === -1) {
+      this.list.push(...removed);
+      return;
+    }
+    this.list.splice(after ? destIdx + 1 : destIdx, 0, ...removed);
+  }
+
   public getWindowById(id: string): WindowClass | null {
     let idx = this.list.map((w) => w.id).indexOf(id);
     return idx < 0 ? null : this.list[idx];
   }
 
+  /** First window on the same surface, i.e. that surface's master. */
+  public surfaceMaster(window: WindowClass): WindowClass | null {
+    const id = window.surface.id;
+    for (const win of this.list) {
+      if (win.surface.id === id) return win;
+    }
+    return null;
+  }
+
+  /** Previous master of this surface, if still usable. */
+  public getPrevMaster(window: WindowClass): WindowClass | null {
+    const id = window.surface.id;
+    const prev = this._prevMaster.get(id);
+    if (
+      prev === undefined ||
+      prev === window ||
+      !prev.isAlive() ||
+      this.list.indexOf(prev) === -1 ||
+      prev.surface.id !== id
+    ) {
+      this._prevMaster.delete(id);
+      return null;
+    }
+    return prev;
+  }
+
+  /** Record `prev` as the previous master of the surface of `window`. */
+  public setPrevMaster(window: WindowClass, prev: WindowClass): void {
+    if (prev === null || prev === window || !prev.isAlive()) return;
+    const id = window.surface.id;
+    if (prev.surface.id !== id || this.list.indexOf(prev) === -1) return;
+    this._prevMaster.set(id, prev);
+  }
+
   public setMaster(window: WindowClass) {
-    const idx = this.list.indexOf(window);
-    if (idx === -1) return;
-    this.list.splice(idx, 1);
-    this.list.splice(0, 0, window);
+    if (this.list.indexOf(window) === -1) return;
+    const id = window.surface.id;
+    const master = this.surfaceMaster(window);
+    if (master === null || master === window) {
+      const prev = this.getPrevMaster(window);
+      if (prev === null) return;
+      this.swap(window, prev);
+      this._prevMaster.set(id, window);
+      return;
+    }
+    this._prevMaster.set(id, master);
+    this.swap(window, master);
   }
 
   public swap(alpha: WindowClass, beta: WindowClass) {
@@ -79,6 +143,9 @@ class WindowStore {
   public remove(window: WindowClass) {
     const idx = this.list.indexOf(window);
     if (idx >= 0) this.list.splice(idx, 1);
+    for (const [id, prev] of this._prevMaster) {
+      if (prev === window) this._prevMaster.delete(id);
+    }
   }
 
   public unshift(window: WindowClass) {

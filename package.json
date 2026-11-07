@@ -1,7 +1,7 @@
 {
   "name": "krohnkite",
-  "version": "0.9.9.2",
-  "description": "A dynamic tiling extension for KWin",
+  "version": "0.9.11.0",
+  "description": "A dynamic tiling extension for KWin (Kröhnkite-Plus: smart layout, window rules, zoom, undo)",
   "main": "krohnkite.js",
   "directories": {
     "test": "test"
@@ -10,17 +10,20 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "tsc": "tsc",
-    "test": "tsc && node test/smart.test.js && node test/kwin-smoke.test.js && node test/drag.test.js && node test/effect.test.js && node test/zoomundo.test.js"
+    "test": "node --test tests/*.test.cjs && npm run test:plus",
+    "test:plus": "tsc && node test/smart.test.js && node test/kwin-smoke.test.js && node test/drag.test.js && node test/effect.test.js && node test/zoomundo.test.js && node test/runtime.test.js",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test",
+    "tsc": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anametologin/krohnkite"
+    "url": "git+https://github.com/malikwachter/krohnkite-plus"
   },
   "author": "Eon S. Jeon <esjeon@hyunmu.am>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/anametologin/krohnkite/issues"
+    "url": "https://github.com/malikwachter/krohnkite-plus/issues"
   },
-  "homepage": "https://github.com/anametologin/krohnkite#readme"
+  "homepage": "https://github.com/malikwachter/krohnkite-plus#readme"
 }

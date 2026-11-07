@@ -5,7 +5,7 @@
 */
 
 class DefaultDockCfg implements IDockCfg {
-  static _dockInstance: DefaultDockCfg;
+  static _dockInstance: DefaultDockCfg | undefined;
 
   public readonly hHeight: number;
   public readonly hWide: number;
@@ -164,6 +164,9 @@ class DefaultDockCfg implements IDockCfg {
     }
 
     return DefaultDockCfg._dockInstance;
+  }
+  public static reset(): void {
+    DefaultDockCfg._dockInstance = undefined;
   }
   public cloneAndUpdate(cfg: Partial<IDockCfg>): IDockCfg {
     return Object.assign({} as IDockCfg, DefaultDockCfg.instance, cfg);
