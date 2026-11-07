@@ -345,6 +345,9 @@ class KWinConfig implements IConfig {
       ",",
     ).map((t) => t.toLowerCase());
     this.smartRememberFloat = KWIN.readConfig("smartRememberFloat", true);
+    print(
+      `Krohnkite Smart ${KROHNKITE_SMART_VERSION} loaded, ${this.windowRules.rules.length} window rules`,
+    );
     this.smartTargetAspect =
       validateNumberWithDefault(
         KWIN.readConfig("smartTargetAspect", 130),
@@ -587,6 +590,8 @@ class KWinConfig implements IConfig {
 
 // /* HACK: save casting */
 var KWINCONFIG: KWinConfig;
+
+const KROHNKITE_SMART_VERSION = "smart3";
 
 const DEFAULT_WINDOW_RULES = [
   "# <matchers> : <actions>   -- see README (Smart features) for the syntax",
