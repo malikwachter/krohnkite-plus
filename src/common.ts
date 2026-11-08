@@ -318,6 +318,8 @@ interface IDriverContext {
    * granted on its own (mouse, newly opened window). */
   requestPointerOnFocus(target: PointerTarget, byShortcut: boolean): void;
   setTimeout(func: () => void, timeout: number): void;
+  /** tray layer: the active window's app becomes a quickview (or not any more) */
+  toggleQuickview?(): void;
   showNotification(text: string): void;
   showLayoutOSD(): void;
   showLayoutChooser(): void;

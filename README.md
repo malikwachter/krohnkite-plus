@@ -11,7 +11,7 @@
 >
 > **Please use the original instead:** [Kröhnkite on Codeberg](https://codeberg.org/anametologin/Krohnkite).
 
-Kröhnkite-Plus is a fork of [Kröhnkite](https://codeberg.org/anametologin/Krohnkite) (the dynamic tiling script for KWin 6) with smarter window handling: a Smart layout, per-app window rules, smart floating, gaming mode, a live drag preview, smooth animations, zoom, undo/redo and a memory across restarts. It follows the upstream releases; everything upstream offers is still there (see below). The new options live on the **Smart** tab in the script settings.
+Kröhnkite-Plus is a fork of [Kröhnkite](https://codeberg.org/anametologin/Krohnkite) (the dynamic tiling script for KWin 6) with smarter window handling: a Smart layout, window layers (popups and tray quickview), per-app window rules, smart floating, gaming mode, a live drag preview, smooth animations, zoom, undo/redo and a memory across restarts. It follows the upstream releases; everything upstream offers is still there (see below). The new options live on the **Smart** tab in the script settings.
 
 Internally the script keeps the id `krohnkite`, so existing settings and shortcuts carry over.
 
@@ -22,6 +22,7 @@ Internally the script keeps the id `krohnkite`, so existing settings and shortcu
 | Meta + Z         | Zoom (toggle)             |
 | Meta + Ctrl + Z  | Undo                      |
 | Meta + Ctrl + Y  | Redo                      |
+| Meta + Ctrl + T  | Tray quickview for this app (toggle) |
 | _unbound_        | Use Smart Layout          |
 
 All keys can be changed in System Settings > Shortcuts > KWin. The upstream keys are listed in the [upstream documentation](https://codeberg.org/anametologin/Krohnkite/wiki).
@@ -44,6 +45,21 @@ A new layout (enabled and first in the order by default) that picks the arrangem
 * Shortcuts: *Increase/Decrease* = more/fewer columns, *Rotate* = rows ↔ columns, *Rotate part* = reset sizes, *DWM Left/Right* = move the first split.
 * *Preferred tile aspect* (default 130 = 1.3) tunes how eager it is to add columns (lower = more columns).
 
+## Layers
+
+Windows live on three layers, each above the previous one:
+
+1. **Main layer**: the tiles, as before.
+2. **Popup layer**: dialogs, file pickers and message boxes of other programs. They do not fill the screen like tiles. They keep a sensible size of their own and are packed around the **middle of the screen**: side by side in columns, the group centered, every column centered vertically and every popup leaning towards the middle line. A popup opens at least 480×300 (*Smallest popup size*), so small dialogs still show their content, but never bigger than the app allows. Move a popup by hand and it stays where you drop it. Resize it and the size is remembered for that dialog. Popups are kept above the tiles (*Keep popups above the tiled windows*).
+3. **Tray layer (quickview)**: apps that live in the system tray (Bitwarden, Telegram, Discord, Steam …). Focus a window of such an app and press **Meta+Ctrl+T**, or add the rule action `quickview`. From then on the app is never tiled. Whenever it shows its window (you click its tray icon, or it opens on its own, like Bitwarden asking for a password), the window grows out of the tray icon, square and centered above everything, and takes the focus. A click on any other window or on the desktop sends it back into the tray, and so does opening another quickview: only one is open at a time. Its own dialogs do not close it. Resize it and the size is remembered for that app. Press Meta+Ctrl+T on it again to tile it normally.
+
+The quickview goes back by closing its window, which tray apps answer by hiding into the tray. For an app that would quit instead, set *Quickview goes back by* to *minimizing it*. The growing out of and shrinking into the tray icon is done by the companion effect (see below). It uses the place on the panel where you clicked; for apps that open on their own it uses the last known place, or the end of the panel where the tray sits.
+
+> [!NOTE]
+> The right-click menu of a tray icon belongs to the app itself (Bitwarden, Telegram …). A KWin script cannot add a "Quickview" checkbox there, so the switch is the shortcut Meta+Ctrl+T (System Settings > Shortcuts > KWin) or a window rule like `class=bitwarden : quickview`.
+
+Options: *Layers: Popups & Tray Quickview* on the Smart tab. The popup layer replaces *Open dialogs at their minimal size* while it is on. The quickview apps and the remembered sizes are part of the memory across restarts.
+
 ## Window rules
 
 One rule per line, `<matchers> : <actions>`:
@@ -58,14 +74,14 @@ class=org.kde.dolphin : tile
 ```
 
 Matchers: `class`, `title`, `role` with `=` (exact), `~` (substring) or `/regex/`, case-insensitive; `class` also matches resource name and desktop file name.
-Actions: `tile` | `float` | `ignore`, `master`, `last`, `weight=N`, `minwidth=` / `minheight=` (px or %), `size=WxH` (px or %), `pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right`.
+Actions: `tile` | `float` | `ignore`, `quickview` (tray app, see Layers), `master`, `last`, `weight=N`, `minwidth=` / `minheight=` (px or %), `size=WxH` (px or %), `pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right`.
 Later lines refine earlier ones. Find the class of a window with `qdbus org.kde.KWin /KWin queryWindowInfo` (then click the window).
 
 ## Smart floating
 
 * Picture-in-picture windows, fixed-size windows and overlays (hidden from taskbar and pager) float automatically.
 * Floating windows remember their position and size per app until KWin restarts.
-* Dialogs (settings, file pickers, message boxes) open at their minimal size, centered on the screen instead of on top of their parent window.
+* With the popup layer off: dialogs (settings, file pickers, message boxes) open at their minimal size, centered on the screen instead of on top of their parent window.
 
 ## Gaming mode
 
@@ -82,7 +98,9 @@ KWin scripts can only move windows instantly, so animations live in a small desk
 
 * windows glide and scale smoothly whenever Kröhnkite-Plus changes their size or position – focus grow, the drag preview making room, the dropped window settling into its place, windows opening/closing;
 * nothing is animated while you drag or resize a window with the mouse; maximize/fullscreen are left to KDE's own effects;
-* the drag preview box grows out of the middle of the space that is being freed, in sync with the windows moving away.
+* the drag preview box grows out of the middle of the space that is being freed, in sync with the windows moving away;
+* popups move aside smoothly when another one opens or closes;
+* tray quickviews grow out of their tray icon and shrink back into it.
 
 Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Kröhnkite-Plus passes the value to the effect when the script starts.
 
@@ -96,7 +114,7 @@ Speed: *Animation speed* on the Smart tab (default 150 ms, 0 = off). Kröhnkite-
 
 ## Memory across restarts
 
-Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes and floating window positions are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login and after a settings change. Delete the file to start fresh.
+Split ratios of the Smart layout, the selected layout per screen/desktop, learned minimal sizes, floating window positions, the tray quickview apps and the popup/quickview sizes are saved to `~/.local/share/krohnkite/state.json` (written a few seconds after a change) and restored after login and after a settings change. Delete the file to start fresh.
 
 ## Releases
 

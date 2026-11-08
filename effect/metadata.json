@@ -8,7 +8,7 @@
       }
     ],
     "Category": "Window Management",
-    "Description": "Smoothly animates window size and position changes made by Kröhnkite-Plus (focus grow, drag preview, drop)",
+    "Description": "Smoothly animates window size and position changes made by Kröhnkite-Plus (focus grow, drag preview, drop, popups) and lets tray quickviews grow out of their tray icon",
     "EnabledByDefault": false,
     "Icon": "preferences-system-windows-effect",
     "Id": "krohnkite_smooth",

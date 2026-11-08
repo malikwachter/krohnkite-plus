@@ -9,5 +9,9 @@
             <label>Animation duration in milliseconds (set from Krohnkite's settings)</label>
             <default>150</default>
         </entry>
+        <entry name="QuickviewClasses" type="String">
+            <label>Tray layer: window classes that grow out of / shrink into their tray icon (set from Krohnkite)</label>
+            <default></default>
+        </entry>
     </group>
 </kcfg>

@@ -275,6 +275,13 @@ class KWinConfig implements IConfig {
   public smartFocusGrow: number;
   public smartPersist: boolean;
   public animationDuration: number;
+  /** popup layer: dialogs are packed around the middle of the screen */
+  public popupLayer: boolean;
+  public popupKeepAbove: boolean;
+  public popupMinWidth: number;
+  public popupMinHeight: number;
+  /** tray layer: 0 = close (back to the tray), 1 = minimize */
+  public quickviewHide: number;
   public zoomMarginX: number;
   public zoomMarginY: number;
   public undoDepth: number;
@@ -753,6 +760,14 @@ class KWinConfig implements IConfig {
       validateNumberWithDefault(KWIN.readConfig("zoomMarginX", 7), 7, "zoomMarginX", 0, 40) / 100;
     this.zoomMarginY =
       validateNumberWithDefault(KWIN.readConfig("zoomMarginY", 3), 3, "zoomMarginY", 0, 40) / 100;
+    this.popupLayer = KWIN.readConfig("popupLayer", true);
+    this.popupKeepAbove = KWIN.readConfig("popupKeepAbove", true);
+    this.popupMinWidth = validateNumberWithDefault(
+      KWIN.readConfig("popupMinWidth", 480), 480, "popupMinWidth", 0, 4000);
+    this.popupMinHeight = validateNumberWithDefault(
+      KWIN.readConfig("popupMinHeight", 300), 300, "popupMinHeight", 0, 4000);
+    this.quickviewHide = validateNumberWithDefault(
+      KWIN.readConfig("quickviewHide", 0), 0, "quickviewHide", 0, 1);
     this.undoDepth = validateNumberWithDefault(
       KWIN.readConfig("undoDepth", 50),
       50,

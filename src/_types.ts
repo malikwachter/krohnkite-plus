@@ -248,6 +248,11 @@ const ConfigVariables = {
   smartCenterDialogs: "smartCenterDialogs",
   smartRememberFloat: "smartRememberFloat",
   windowRules: "windowRules",
+  popupLayer: "popupLayer",
+  popupKeepAbove: "popupKeepAbove",
+  popupMinWidth: "popupMinWidth",
+  popupMinHeight: "popupMinHeight",
+  quickviewHide: "quickviewHide",
   /* Logging */
   logging: "logging",
   logNewWindows: "logNewWindows",
@@ -348,6 +353,7 @@ const KrohnkiteAction = {
   Zoom: "Zoom",
   Undo: "Undo",
   Redo: "Redo",
+  ToggleQuickview: "ToggleQuickview",
 } as const;
 type KrohnkiteAction = (typeof KrohnkiteAction)[keyof typeof KrohnkiteAction];
 

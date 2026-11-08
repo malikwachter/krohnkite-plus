@@ -5,18 +5,22 @@ const fs = require("fs"), vm = require("vm"), path = require("path"), assert = r
 const signal = () => { const fns = []; return { connect: (f) => fns.push(f), emit: (...a) => fns.forEach((f) => f(...a)), get count() { return fns.length; } }; };
 const code = fs.readFileSync(path.join(__dirname, "..", "effect", "contents", "code", "main.js"), "utf8");
 
-function setup(plasma6, initialWindows = []) {
-  const env = { calls: [], cancelled: [], config: { Duration: 150 }, nextId: 1, logs: [] };
+function setup(plasma6, initialWindows = [], extraConfig = {}) {
+  const env = { calls: [], cancelled: [], config: Object.assign({ Duration: 150 }, extraConfig), nextId: 1, logs: [], grabs: [] };
   const effects = plasma6
-    ? { windowAdded: signal(), windowDeleted: signal(), stackingOrder: initialWindows }
+    ? { windowAdded: signal(), windowDeleted: signal(), windowClosed: signal(), stackingOrder: initialWindows, cursorPos: { x: 0, y: 0 } }
     : { windowFrameGeometryChanged: signal(), windowMaximizedStateAboutToChange: signal(),
-        windowFullScreenChanged: signal(), windowDeleted: signal() };
+        windowFullScreenChanged: signal(), windowDeleted: signal(), windowClosed: signal(),
+        windowMinimized: signal(), windowUnminimized: signal(), stackingOrder: initialWindows, cursorPos: { x: 0, y: 0 } };
   const ctx = {
     print: (s) => env.logs.push(s), Map, Set, Number, Math, isFinite,
-    Effect: { Size: "Size", Translation: "Translation" }, QEasingCurve: { OutCubic: "OutCubic" },
+    Effect: { Size: "Size", Translation: "Translation", Scale: "Scale", Opacity: "Opacity",
+      WindowAddedGrabRole: "added", WindowClosedGrabRole: "closed", WindowMinimizedGrabRole: "min", WindowUnminimizedGrabRole: "unmin" },
+    QEasingCurve: { OutCubic: "OutCubic", InCubic: "InCubic" },
     animate: (o) => { env.calls.push(o); return env.nextId++; },
     cancel: (id) => env.cancelled.push(id),
-    effect: { readConfig: (k, d) => (k in env.config ? env.config[k] : d), configChanged: signal(), animationEnded: signal() },
+    effect: { readConfig: (k, d) => (k in env.config ? env.config[k] : d), configChanged: signal(), animationEnded: signal(),
+      grab: (w, role) => { env.grabs.push(role); return true; } },
     effects,
   };
   vm.createContext(ctx);
@@ -25,6 +29,9 @@ function setup(plasma6, initialWindows = []) {
   env.change = (w, old) => (plasma6 ? w.windowFrameGeometryChanged.emit(w, old) : effects.windowFrameGeometryChanged.emit(w, old));
   env.maximize = (w) => (plasma6 ? w.windowMaximizedStateAboutToChange.emit(w, true, true) : effects.windowMaximizedStateAboutToChange.emit(w, true, true));
   env.add = (w) => { if (plasma6) effects.windowAdded.emit(w); return w; };
+  env.effects = effects;
+  env.clock = 100000;
+  ctx.krohnkiteSmooth.now = () => env.clock;
   return env;
 }
 const rect = (x, y, width, height) => ({ x, y, width, height });
@@ -32,6 +39,7 @@ const win = (g, extra = {}) => Object.assign({
   geometry: g, visible: true, normalWindow: true, move: false, resize: false, windowClass: "test",
   windowFrameGeometryChanged: signal(), windowMaximizedStateAboutToChange: signal(),
   windowMaximizedStateChanged: signal(), windowFullScreenChanged: signal(), windowStartUserMovedResized: signal(),
+  windowMinimized: signal(), windowUnminimized: signal(),
 }, extra);
 
 let failed = 0;
@@ -113,6 +121,83 @@ test("[plasma 6] a window is only connected once", () => {
   const w = win(rect(0, 0, 1152, 1080));
   e.add(w); e.add(w);
   assert.strictEqual(w.windowFrameGeometryChanged.count, 1);
+});
+
+/* ------------------------------------------------------------ tray layer */
+const panel = () => win(rect(0, 1040, 1920, 40), { dock: true, normalWindow: false, windowClass: "plasmashell plasmashell" });
+const anim = (call, type) => call.animations.find((a) => a.type === type);
+test("[plasma 6] a quickview grows out of the tray icon the mouse clicked", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "bitwarden" });
+  e.effects.cursorPos = { x: 1700, y: 1060 }; // on the panel, over the tray icon
+  const w = e.add(win(rect(560, 40, 800, 800), { windowClass: "bitwarden Bitwarden" }));
+  assert.strictEqual(e.calls.length, 1);
+  const a = e.calls[0];
+  assert.deepStrictEqual([anim(a, "Scale").from.value1, anim(a, "Scale").to.value1], [0.06, 1]);
+  assert.deepStrictEqual([anim(a, "Translation").from.value1, anim(a, "Translation").from.value2], [1700 - 960, 1060 - 440]);
+  assert.deepStrictEqual([anim(a, "Opacity").from, anim(a, "Opacity").to], [0, 1]);
+  assert(a.duration >= 220);
+  assert(e.grabs.indexOf("added") >= 0, "other open animations are kept out");
+  // closing it (back to the tray) shrinks it into the same icon, even if the mouse is elsewhere now
+  e.effects.cursorPos = { x: 900, y: 500 };
+  e.effects.windowClosed.emit(w);
+  const c = e.calls[1];
+  assert.deepStrictEqual([anim(c, "Scale").from.value1, anim(c, "Scale").to.value1], [1, 0.06]);
+  assert.deepStrictEqual([anim(c, "Translation").to.value1, anim(c, "Translation").to.value2], [740, 620]);
+  assert.deepStrictEqual([anim(c, "Opacity").to], [0]);
+  assert(e.grabs.indexOf("closed") >= 0);
+});
+test("[plasma 6] a quickview that opens on its own comes out of the tray end of the panel", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "bitwarden" });
+  e.effects.cursorPos = { x: 300, y: 300 }; // the mouse is not on the panel
+  e.add(win(rect(560, 40, 800, 800), { windowClass: "bitwarden Bitwarden" }));
+  const t = anim(e.calls[0], "Translation").from;
+  assert.deepStrictEqual([t.value1 + 960, t.value2 + 440], [1920 - 120, 1060]);
+});
+test("[plasma 6] the script moving a growing quickview into place restarts the growth towards it", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "bitwarden" });
+  e.effects.cursorPos = { x: 1700, y: 1060 };
+  const w = e.add(win(rect(0, 0, 400, 300), { windowClass: "bitwarden Bitwarden" }));
+  w.geometry = rect(560, 40, 800, 800);
+  e.clock += 30;
+  e.change(w, rect(0, 0, 400, 300));
+  assert.strictEqual(e.calls.length, 2);
+  assert(anim(e.calls[1], "Scale"), "still a tray animation, not a slide from the old place");
+  assert.deepStrictEqual([anim(e.calls[1], "Translation").from.value1], [1700 - 960]);
+});
+test("[plasma 6] minimized quickviews go into the tray and come back out of it", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "telegram" });
+  e.effects.cursorPos = { x: 1650, y: 1060 };
+  const w = e.add(win(rect(560, 40, 800, 800), { windowClass: "telegram-desktop telegram" }));
+  e.clock += 1000;
+  w.windowMinimized.emit(w);
+  assert.strictEqual(anim(e.calls[1], "Opacity").to, 0);
+  e.clock += 1000;
+  w.windowUnminimized.emit(w);
+  assert.strictEqual(anim(e.calls[2], "Opacity").to, 1);
+});
+test("[plasma 6] other windows are not tray animated; a new dialog's first placement does not slide", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "bitwarden" });
+  const w = e.add(win(rect(0, 0, 800, 600), { windowClass: "dolphin org.kde.dolphin" }));
+  e.effects.windowClosed.emit(w);
+  const d = e.add(win(rect(700, 400, 500, 300), { windowClass: "dolphin org.kde.dolphin", dialog: true, normalWindow: false }));
+  e.change(d, rect(0, 0, 500, 300)); // placed by the popup layer right away
+  assert.strictEqual(e.calls.length, 0);
+  e.clock += 1000;
+  d.geometry = rect(400, 400, 500, 300);
+  e.change(d, rect(700, 400, 500, 300)); // another popup opened: it makes room smoothly
+  assert.strictEqual(e.calls.length, 1);
+  assert(anim(e.calls[0], "Translation"));
+});
+test("[old kwin] a quickview minimized globally is animated once", () => {
+  const e = setup(false, [panel()], { QuickviewClasses: "bitwarden" });
+  const w = win(rect(560, 40, 800, 800), { windowClass: "bitwarden Bitwarden" });
+  e.effects.windowMinimized.emit(w);
+  assert.strictEqual(e.calls.length, 1);
+});
+test("tray animations follow the speed, 0 turns them off", () => {
+  const e = setup(true, [panel()], { QuickviewClasses: "bitwarden", Duration: 0 });
+  e.add(win(rect(560, 40, 800, 800), { windowClass: "bitwarden Bitwarden" }));
+  assert.strictEqual(e.calls.length, 0);
 });
 console.log(failed ? `\n${failed} failed` : "\nall tests passed");
 process.exit(failed ? 1 : 0);

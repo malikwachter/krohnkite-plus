@@ -23,6 +23,8 @@
         weight=2                   relative share of space in layouts (default 1)
         minwidth=900               minimal width the layout will give the window (px or %)
         minheight=50%              minimal height (px or %)
+        quickview                  the app lives in the system tray: its window opens
+                                   as a quickview (tray layer) instead of being tiled
         size=1280x720 | 60%x70%    initial size when floating
         pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right
                                    initial position when floating
@@ -57,6 +59,8 @@ interface IWindowRule {
   floatWidth?: IRuleLength;
   floatHeight?: IRuleLength;
   floatPos?: RulePos;
+  /** tray layer: open as a quickview instead of tiling */
+  quickview?: boolean;
   /** line numbers of all rules that matched, e.g. "3,7" */
   matched?: string;
 }
@@ -133,8 +137,21 @@ class WindowRules {
       if (r.floatWidth !== undefined) result.floatWidth = r.floatWidth;
       if (r.floatHeight !== undefined) result.floatHeight = r.floatHeight;
       if (r.floatPos !== undefined) result.floatPos = r.floatPos;
+      if (r.quickview !== undefined) result.quickview = r.quickview;
     }
     return result;
+  }
+
+  /** the exact `class=` values of rules whose actions match `pred` */
+  public exactClassesWith(pred: (r: IWindowRule) => boolean): string[] {
+    const out: string[] = [];
+    for (const parsed of this.rules) {
+      if (!pred(parsed.rule)) continue;
+      parsed.matchers.forEach((m) => {
+        if (m.field === "class" && m.op === "=") out.push(m.value.toLowerCase());
+      });
+    }
+    return out;
   }
 
   public static resolveLength(len: IRuleLength, total: number): number {
@@ -242,6 +259,10 @@ class WindowRules {
           case "last":
           case "slave":
             rule.order = "last";
+            break;
+          case "quickview":
+          case "tray":
+            rule.quickview = true;
             break;
           case "weight": {
             const w = parseFloat(val);

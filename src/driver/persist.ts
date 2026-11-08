@@ -18,6 +18,8 @@ interface IPersistedState {
   learnedMin: { [cls: string]: ISize };
   floatMemory: { [key: string]: { x: number; y: number; w: number; h: number } };
   layouts: { [layoutId: string]: ILayoutEntryState };
+  /** Kröhnkite-Plus layers: tray quickview apps and remembered sizes */
+  layers?: ILayersState;
 }
 
 interface ILayoutEntryState {

@@ -269,7 +269,7 @@
           <item row="3" column="0" colspan="2">
            <widget class="QCheckBox" name="kcfg_smartCenterDialogs">
             <property name="text">
-             <string>Open dialogs at their minimal size, centered on the screen (not over their parent window)</string>
+             <string>Open dialogs at their minimal size, centered on the screen (only with the popup layer off)</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -284,6 +284,79 @@
             <property name="checked">
              <bool>true</bool>
             </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="layersGroup">
+         <property name="title">
+          <string>Layers: Popups &amp; Tray Quickview</string>
+         </property>
+         <layout class="QGridLayout" name="layersGrid">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_popupLayer">
+            <property name="text"><string>Popup layer: pack dialogs and other small windows around the middle of the screen</string></property>
+            <property name="toolTip"><string>Dialogs, file pickers and message boxes keep a sensible size of their own and are arranged side by side around the middle of the screen instead of filling it like tiles. Move one by hand and it stays where you drop it; resize one and the size is remembered.</string></property>
+            <property name="checked"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QCheckBox" name="kcfg_popupKeepAbove">
+            <property name="text"><string>Keep popups above the tiled windows</string></property>
+            <property name="checked"><bool>true</bool></property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="popupMinSizeLabel">
+            <property name="text"><string>Smallest popup size:</string></property>
+            <property name="toolTip"><string>Popups open at least this big (unless the app does not allow it), so small dialogs still show their content.</string></property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="popupMinSizeRow">
+            <item>
+             <widget class="QSpinBox" name="kcfg_popupMinWidth">
+              <property name="minimum"><number>0</number></property>
+              <property name="maximum"><number>4000</number></property>
+              <property name="singleStep"><number>10</number></property>
+              <property name="value"><number>480</number></property>
+              <property name="suffix"><string> px</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="popupMinSizeX">
+              <property name="text"><string>×</string></property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="kcfg_popupMinHeight">
+              <property name="minimum"><number>0</number></property>
+              <property name="maximum"><number>4000</number></property>
+              <property name="singleStep"><number>10</number></property>
+              <property name="value"><number>300</number></property>
+              <property name="suffix"><string> px</string></property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="quickviewHideLabel">
+            <property name="text"><string>Quickview goes back by:</string></property>
+            <property name="toolTip"><string>Tray apps (Bitwarden, Discord, Telegram, Steam ...) hide into the tray when their window is closed. Use "minimize" for apps that would quit instead.</string></property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="kcfg_quickviewHide">
+            <item><property name="text"><string>closing it into the tray</string></property></item>
+            <item><property name="text"><string>minimizing it</string></property></item>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QLabel" name="quickviewHint">
+            <property name="text"><string>Tray quickview: focus a window of an app that lives in the system tray and press Meta+Ctrl+T (or add the rule action "quickview"). From then on it opens square and centered above everything, out of its tray icon, and goes back as soon as you click somewhere else. Only one quickview is open at a time.</string></property>
+            <property name="wordWrap"><bool>true</bool></property>
            </widget>
           </item>
          </layout>
@@ -315,7 +388,7 @@
              <string>&lt;html&gt;&lt;body style=&quot;font-size:11pt&quot;&gt;
 &lt;p&gt;&lt;b&gt;One rule per line:&lt;/b&gt; &amp;lt;matchers&amp;gt; : &amp;lt;actions&amp;gt;&lt;/p&gt;
 &lt;p&gt;&lt;b&gt;Matchers&lt;/b&gt; (all must match): &lt;tt&gt;class=firefox&lt;/tt&gt; (exact, also resource name / desktop file), &lt;tt&gt;class~steam&lt;/tt&gt; (substring), &lt;tt&gt;title~&quot;Picture-in-Picture&quot;&lt;/tt&gt;, &lt;tt&gt;title/^Friends.*/&lt;/tt&gt; (regex), &lt;tt&gt;role=pop-up&lt;/tt&gt;. Case-insensitive.&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;Actions&lt;/b&gt; (comma separated): &lt;tt&gt;tile&lt;/tt&gt; | &lt;tt&gt;float&lt;/tt&gt; | &lt;tt&gt;ignore&lt;/tt&gt;, &lt;tt&gt;master&lt;/tt&gt; (new window becomes master), &lt;tt&gt;last&lt;/tt&gt;, &lt;tt&gt;weight=2&lt;/tt&gt; (bigger share in layouts), &lt;tt&gt;minwidth=900&lt;/tt&gt; / &lt;tt&gt;minheight=40%&lt;/tt&gt; (layout never makes it smaller), &lt;tt&gt;size=1280x720&lt;/tt&gt; or &lt;tt&gt;size=60%x70%&lt;/tt&gt; and &lt;tt&gt;pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right&lt;/tt&gt; (floating geometry).&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Actions&lt;/b&gt; (comma separated): &lt;tt&gt;tile&lt;/tt&gt; | &lt;tt&gt;float&lt;/tt&gt; | &lt;tt&gt;ignore&lt;/tt&gt;, &lt;tt&gt;master&lt;/tt&gt; (new window becomes master), &lt;tt&gt;last&lt;/tt&gt;, &lt;tt&gt;quickview&lt;/tt&gt; (tray app: opens as quickview), &lt;tt&gt;weight=2&lt;/tt&gt; (bigger share in layouts), &lt;tt&gt;minwidth=900&lt;/tt&gt; / &lt;tt&gt;minheight=40%&lt;/tt&gt; (layout never makes it smaller), &lt;tt&gt;size=1280x720&lt;/tt&gt; or &lt;tt&gt;size=60%x70%&lt;/tt&gt; and &lt;tt&gt;pos=center|left|right|top|bottom|top-left|top-right|bottom-left|bottom-right&lt;/tt&gt; (floating geometry).&lt;/p&gt;
 &lt;p&gt;Later lines refine earlier ones. Lines starting with # are comments. Find window classes with &lt;tt&gt;qdbus org.kde.KWin /KWin queryWindowInfo&lt;/tt&gt;.&lt;/p&gt;
 &lt;p&gt;Examples:&lt;br/&gt;&lt;tt&gt;class=firefox : master, weight=2&lt;/tt&gt;&lt;br/&gt;&lt;tt&gt;class=mpv : float, size=1280x720, pos=center&lt;/tt&gt;&lt;br/&gt;&lt;tt&gt;class=discord : minwidth=940&lt;/tt&gt;&lt;/p&gt;
 &lt;/body&gt;&lt;/html&gt;</string>

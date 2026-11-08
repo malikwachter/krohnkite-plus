@@ -72,6 +72,26 @@
 	    <label>Open dialogs at their minimal size, centered on the screen</label>
         <default>true</default>
     </entry>
+    <entry name="popupLayer" type="Bool">
+	    <label>Popup layer: dialogs of other programs are packed around the middle of the screen</label>
+        <default>true</default>
+    </entry>
+    <entry name="popupKeepAbove" type="Bool">
+	    <label>Popup layer: keep popups above the tiled windows</label>
+        <default>true</default>
+    </entry>
+    <entry name="popupMinWidth" type="Int">
+	    <label>Popup layer: smallest width a popup opens with (px)</label>
+        <default>480</default>
+    </entry>
+    <entry name="popupMinHeight" type="Int">
+	    <label>Popup layer: smallest height a popup opens with (px)</label>
+        <default>300</default>
+    </entry>
+    <entry name="quickviewHide" type="Int">
+	    <label>Tray layer: how a quickview goes back (0 = close it into the tray, 1 = minimize)</label>
+        <default>0</default>
+    </entry>
     <entry name="smartRememberFloat" type="Bool">
 	    <label>Remember position and size of floating windows per application</label>
         <default>true</default>

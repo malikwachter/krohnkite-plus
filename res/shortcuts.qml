@@ -322,6 +322,13 @@ Item {
         text: "Krohnkite: Redo";
         sequence: "Meta+Ctrl+Y";
     }
+    ShortcutHandler {
+        id: toggleQuickview;
+
+        name: "KrohnkiteToggleQuickview";
+        text: "Krohnkite: Tray quickview for this app (toggle)";
+        sequence: "Meta+Ctrl+T";
+    }
 
     property var shortcutList: [
         { name: "FocusNextSC", hdl: focusNext },
@@ -367,7 +374,8 @@ Item {
         { name: "SetSmartLayoutSC", hdl: smartLayout },
         { name: "ZoomSC", hdl: zoom },
         { name: "UndoSC", hdl: undo },
-        { name: "RedoSC", hdl: redo }
+        { name: "RedoSC", hdl: redo },
+        { name: "ToggleQuickviewSC", hdl: toggleQuickview }
     ];
 
 }

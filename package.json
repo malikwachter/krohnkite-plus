@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.cjs && npm run test:plus",
-    "test:plus": "tsc && node test/smart.test.js && node test/kwin-smoke.test.js && node test/drag.test.js && node test/effect.test.js && node test/zoomundo.test.js && node test/runtime.test.js",
+    "test:plus": "tsc && node test/smart.test.js && node test/kwin-smoke.test.js && node test/drag.test.js && node test/effect.test.js && node test/zoomundo.test.js && node test/runtime.test.js && node test/layers.test.js",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test",
     "tsc": "tsc"

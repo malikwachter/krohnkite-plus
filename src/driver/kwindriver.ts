@@ -187,6 +187,11 @@ class KWinDriver implements IDriverContext {
   private shell: IShellQml | null;
   private stateLoaded: boolean;
   private lastPaused: boolean;
+  /** popup layer and tray layer (quickview) */
+  private layers: LayerManager;
+  /* signal connections per window, so a window can leave the tiling while it lives */
+  private _windowConnections: Map<string, Array<{ signal: Signal<(...args: any[]) => void>; callback: (...args: any[]) => void }>>;
+  private _bindingWindowId: string | null;
 
   constructor(api: Api, config?: KWinConfig) {
     KWIN = api.kwin;
@@ -226,6 +231,20 @@ class KWinDriver implements IDriverContext {
     );
     this.stateLoaded = false;
     this.lastPaused = false;
+    this._windowConnections = new Map();
+    this._bindingWindowId = null;
+    this.layers = new LayerManager({
+      workspace: this.workspace,
+      connect: (signal, handler) => {
+        this._connect(signal as Signal<(...args: any[]) => void>, handler);
+      },
+      setTimeout: (f, ms) => this.setTimeout(f, ms),
+      notify: (text) => this.showNotification(text),
+      stateChanged: () => this.stateMaybeChanged(),
+      syncEffect: () => this.syncSmoothEffect(),
+      releaseFromTiling: (client) => this.releaseFromTiling(client),
+      returnToTiling: (client) => this.returnToTiling(client),
+    });
     this._isRegister = {
       state: false,
       lastPushed: 0,
@@ -256,6 +275,7 @@ class KWinDriver implements IDriverContext {
 
     const clients: KwinWindow[] = this.workspace.stackingOrder;
     for (let i = 0; i < clients.length; i++) {
+      if (this.layers.onWindowAdded(clients[i], true)) continue;
       this.addWindow(clients[i], false);
     }
     this.control.onSurfaceUpdate(this, "forcedArrangeScreen");
@@ -276,6 +296,7 @@ class KWinDriver implements IDriverContext {
       this.stateStore.saveNow(() => this.collectState());
     this.showDropPreview(null, false);
     this.engine.dragCancel(null);
+    this.layers.dispose();
     for (const window of this.windowMap) window.window.dispose();
     this.engine.relocationWindows.clear();
     this.engine.windows.list = [];
@@ -339,6 +360,7 @@ class KWinDriver implements IDriverContext {
       // only for newly opened dialogs, not for existing ones at script start
       if (
         arrange &&
+        !KWINCONFIG.popupLayer &&
         KWINCONFIG.smartCenterDialogs &&
         client.dialog &&
         !client.popupWindow
@@ -768,8 +790,11 @@ class KWinDriver implements IDriverContext {
   private syncSmoothEffect() {
     if (this.shell === null) return;
     const ms = Math.round(KWINCONFIG.animationDuration);
+    /* the tray layer: which apps grow out of / shrink into their tray icon */
+    const quickview = LayerManager.effectClasses().join(",");
     const cmd =
       `kwriteconfig6 --file kwinrc --group Effect-krohnkite_smooth --key Duration ${ms}` +
+      ` && kwriteconfig6 --file kwinrc --group Effect-krohnkite_smooth --key QuickviewClasses "${quickview}"` +
       ` && dbus-send --session --type=method_call --dest=org.kde.KWin /Effects` +
       ` org.kde.kwin.Effects.reconfigureEffect string:krohnkite_smooth`;
     this.shell.run(cmd, (code, _out, err) => {
@@ -785,6 +810,7 @@ class KWinDriver implements IDriverContext {
       learnedMin: WindowClass.exportLearnedMin(),
       floatMemory: DriverWindow.exportFloatMemory(),
       layouts: this.engine.layouts.exportState(),
+      layers: LayerManager.exportState(),
     };
   }
 
@@ -809,6 +835,9 @@ class KWinDriver implements IDriverContext {
         WindowClass.importLearnedMin(state.learnedMin);
         DriverWindow.importFloatMemory(state.floatMemory);
         this.engine.layouts.importState(state.layouts);
+        LayerManager.importState(state.layers);
+        this.layers.reclassify();
+        this.syncSmoothEffect();
         notice(
           `Kröhnkite-Plus: restored state (${Object.keys(state.learnedMin || {}).length} learned sizes, ${Object.keys(state.layouts || {}).length} layouts)`,
         );
@@ -1794,6 +1823,11 @@ class KWinDriver implements IDriverContext {
     };
     signal.connect(wrapper);
     this._connections.push({ signal, callback: wrapper });
+    if (this._bindingWindowId !== null) {
+      const list = this._windowConnections.get(this._bindingWindowId) || [];
+      list.push({ signal, callback: wrapper });
+      this._windowConnections.set(this._bindingWindowId, list);
+    }
 
     return wrapper;
   }
@@ -1857,6 +1891,7 @@ class KWinDriver implements IDriverContext {
           "currentDesktopChangedCB",
           this._previousDesktopSurfaces(previousDesktop, output),
         );
+        this.layers.onDesktopChanged();
       },
     );
 
@@ -1868,7 +1903,9 @@ class KWinDriver implements IDriverContext {
         `window: caption:${client.caption} internalID:${client.internalId}`,
         { winClass: [`${client.resourceClass}`] },
       );
+      if (this.layers.onWindowAdded(client, false)) return;
       const window = this.addWindow(client);
+      this.layers.afterManaged(client);
       if (client.active && window !== null) {
         this.control.onWindowFocused(this, window);
         /* A new window takes focus without any Krohnkite shortcut. */
@@ -1893,11 +1930,13 @@ class KWinDriver implements IDriverContext {
       ) {
         this.control.onForeignFocus(this, client.transient);
       }
+      this.layers.onWindowActivated(client);
       this.checkPause();
     });
 
     this._connect(this.workspace.windowRemoved, (client: KwinWindow) => {
       if (!client) return;
+      this.layers.onWindowRemoved(client);
       LOG?.send(
         LogModules.windowRemoved,
         "eventFired",
@@ -2018,6 +2057,46 @@ class KWinDriver implements IDriverContext {
   }
 
   private _bindWindowEvents(window: WindowClass, client: KwinWindow) {
+    this._bindingWindowId = window.id;
+    try {
+      this._bindWindowEventsNow(window, client);
+    } finally {
+      this._bindingWindowId = null;
+    }
+  }
+
+  /* ============================================================ layers */
+
+  public toggleQuickview(): void {
+    this.layers.toggleQuickview(this.workspace.activeWindow);
+  }
+
+  /** a tiled window became a quickview: it leaves the layout while it lives */
+  private releaseFromTiling(client: KwinWindow): void {
+    const window = this.windowMap.get(client);
+    if (window === null) return;
+    const list = this._windowConnections.get(window.id) || [];
+    this._windowConnections.delete(window.id);
+    for (const { signal, callback } of list) {
+      try {
+        signal.disconnect(callback);
+      } catch (_) {
+        /* already gone */
+      }
+    }
+    this._connections = this._connections.filter((c) => !list.some((l) => l.callback === c.callback));
+    this.control.onWindowRemoved(this, window, "windowRemovedCB");
+    window.window.dispose();
+    this.windowMap.remove(client);
+  }
+
+  /** no quickview any more: tile it like any new window */
+  private returnToTiling(client: KwinWindow): void {
+    if (client.deleted || this.windowMap.get(client) !== null) return;
+    this.addWindow(client);
+  }
+
+  private _bindWindowEventsNow(window: WindowClass, client: KwinWindow) {
     let moving = false;
     let resizing = false;
     this._connect(client.activitiesChanged, () => {

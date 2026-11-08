@@ -182,6 +182,10 @@ const Shortcuts = {
     defaultAction: KrohnkiteAction.Redo,
     defaultRegisterAction: null,
   },
+  ToggleQuickviewSC: {
+    defaultAction: KrohnkiteAction.ToggleQuickview,
+    defaultRegisterAction: null,
+  },
 } as const;
 type ShortcutName = keyof typeof Shortcuts;
 

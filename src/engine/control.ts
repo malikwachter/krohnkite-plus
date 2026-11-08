@@ -528,6 +528,9 @@ class TilingController {
       case KrohnkiteAction.Zoom:
         if (this.engine.toggleZoom(ctx)) this.engine.arrange(ctx, "zoom");
         return;
+      case KrohnkiteAction.ToggleQuickview:
+        if (ctx.toggleQuickview) ctx.toggleQuickview();
+        return;
       case KrohnkiteAction.Undo:
       case KrohnkiteAction.Redo: {
         const redo = action === KrohnkiteAction.Redo;

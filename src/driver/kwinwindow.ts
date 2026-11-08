@@ -304,6 +304,7 @@ class DriverWindow implements IDriverWindow {
 
   /** true if a rule or the float memory knows where this window should go */
   public get hasPreferredFloatGeometry(): boolean {
+    if (KWINCONFIG.popupLayer && LayerManager.placedFor(this.id) !== null) return true;
     return (
       (KWINCONFIG.smartRememberFloat &&
         this.memoryKey !== "" &&
@@ -640,6 +641,11 @@ class DriverWindow implements IDriverWindow {
   }
   /** float geometry from float memory or a window rule, null if none */
   private getPreferredFloatGeometry(): Rect | null {
+    /* the popup layer already placed this dialog */
+    if (KWINCONFIG.popupLayer) {
+      const placed = LayerManager.placedFor(this.id);
+      if (placed !== null) return placed;
+    }
     const out = this.resolvedOutput.geometry;
     const area = toRect(
       this.workspace.clientArea(
